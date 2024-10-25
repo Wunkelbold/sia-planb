@@ -1,16 +1,20 @@
 from flask import Flask, render_template, send_from_directory
 import os
 import psycopg2
-import init_db
+
+
+import database
 
 app = Flask(__name__)
-app = Flask(__name__, template_folder='static/templates')
+app = Flask(__name__, template_folder='static/templates', static_folder='static')
 app.config.from_object(__name__)
 
 
 #---------DATABASE--------
 
-init_db.database_init()
+Database = database.DAO
+Database.database_init()
+
 
 
 #----------ROUTES---------
@@ -20,9 +24,11 @@ def favicon():
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
+
 @app.route("/",methods=['GET'])
 def hello_world():
-    return render_template('index.html')
+    events=Database.get_all_events_for_diplay()
+    return render_template('index.html',title='Home',events=events)
 
 
 if __name__ == "__main__":

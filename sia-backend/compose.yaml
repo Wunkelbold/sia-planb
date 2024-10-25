@@ -9,10 +9,12 @@
 # https://github.com/docker/awesome-compose
 services:
   server:
-    build:
-      context: .
+    build: server #folder "server"
     ports:
       - 5005:5005
+    volumes:
+      - ./server:/app  #map folder "server" to folder "app" in docker
+ 
 
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to

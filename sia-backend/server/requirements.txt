@@ -1,0 +1,3 @@
+Flask==3.0.3;
+uWSGI==2.0.27;
+flask_favicon==0.1.4;

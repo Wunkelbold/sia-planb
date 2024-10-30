@@ -1,0 +1,25 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: ["26-container-needed"]
+
+jobs:
+  build-flask-container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the flask container
+        run: docker build -f sia-backend/containers/flask/Dockerfile -t sia-flask .
+  build-database-container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the database container
+        run: docker build -f sia-backend/containers/database/Dockerfile -t sia-database .
+  build-test-container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the test container
+        run: docker build -f sia-backend/containers/test/Dockerfile -t sia-test .

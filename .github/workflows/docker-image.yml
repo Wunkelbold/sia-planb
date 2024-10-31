@@ -3,6 +3,13 @@ name: Docker Image CI
 on:
   push:
     branches: ["26-container-needed"]
+    
+env:
+  REGISTRY: ghcr.io/wunkelbold/sia-planb
+  
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   build-flask-container:
@@ -10,16 +17,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build the flask container
-        run: docker build -f sia-backend/containers/flask/Dockerfile -t sia-flask .
+        run: |
+            docker login --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} ghcr.io
+            docker build -t ${{ env.REGISTRY }}/sia-flask -f sia-backend/containers/flask/Dockerfile .
+            docker push ${{ env.REGISTRY }}/sia-flask:latest
+            docker logout ghcr.io
   build-database-container:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Build the database container
-        run: docker build -f sia-backend/containers/database/Dockerfile -t sia-database .
+        run: |
+            docker login --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} ghcr.io
+            docker build -t ${{ env.REGISTRY }}/sia-database -f sia-backend/containers/database/Dockerfile .
+            docker push ${{ env.REGISTRY }}/sia-database:latest
+            docker logout ghcr.io
   build-test-container:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Build the test container
-        run: docker build -f sia-backend/containers/test/Dockerfile -t sia-test .
+        run: |
+            docker login --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} ghcr.io
+            docker build -t ${{ env.REGISTRY }}/sia-test -f sia-backend/containers/test/Dockerfile .
+            docker push ${{ env.REGISTRY }}/sia-test:latest
+            docker logout ghcr.io

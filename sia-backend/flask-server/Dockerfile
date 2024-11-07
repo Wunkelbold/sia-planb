@@ -2,7 +2,6 @@
 
 FROM ghcr.io/wunkelbold/sia-planb/sia-flask:latest
 
-EXPOSE 5005
 WORKDIR /opt/flask-backend
 COPY . /opt/flask-backend
 

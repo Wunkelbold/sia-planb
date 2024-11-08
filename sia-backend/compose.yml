@@ -40,6 +40,6 @@ services:
       database:
         condition: service_healthy
       flask:
-        - condition: service_started
+        condition: service_started
     profiles:
       - test

@@ -23,7 +23,6 @@ jobs:
         with:
           compose-file: "sia-backend/compose.yml"
           compose-flags: "--profile debug"
-
-      
+     
       - name: 'Logout'
         run: 'docker logout ghcr.io'

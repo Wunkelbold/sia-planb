@@ -22,7 +22,7 @@ jobs:
         uses: hoverkraft-tech/compose-action@v2.0.1
         with:
           compose-file: "sia-backend/compose.yml"
-          compose-flags: "--profile debug"
+          compose-flags: "--profile test"
      
       - name: 'Logout'
         run: 'docker logout ghcr.io'

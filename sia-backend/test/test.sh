@@ -7,16 +7,16 @@ echo "Starting Tests"
 echo "#1 Check index.html availability"
 statuscode="$(curl -s -o /dev/null -w "%{http_code}" http://flask)"
 echo Response: $statuscode
-if test statuscode = "200"; then
+if test $statuscode != "200"; then
     failed="$failed #1"
 fi
 
 # ----- Test #2 -----
 
-echo "#2 Complementary check to #1"
+echo "#2 Check if non-existent path not exists"
 statuscode="$(curl -s -o /dev/null -w "%{http_code}" http://flask/this-path-does-not-exist)"
 echo Response: $statuscode
-if test statuscode != "200"; then
+if test $statuscode = "200"; then
     failed="$failed #2"
 fi
 
@@ -27,5 +27,5 @@ if test -z "$failed"; then
     exit 
 fi
 
-echo "Failed at tests $failed"
+echo "Failed at tests$failed"
 exit 1

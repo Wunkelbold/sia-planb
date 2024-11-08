@@ -6,26 +6,8 @@ from psycopg2 import sql
 
 class DAO:
     def get_database_password() -> str:
-            password_file_path = os.getenv('DATABASE_PASSWORD_FILE', '/run/secrets/db-password')
-            try:
-                with open(password_file_path, 'r') as file:
-                    db_password = file.read().strip()
-            except FileNotFoundError:
-                print(f"Error: The file '{password_file_path}' was not found.")
-                db_password = None  
-            except PermissionError:
-                print(f"Error: Permission denied when trying to read '{password_file_path}'.")
-                db_password = None  
-            except Exception as e:
-                print(f"An unexpected error occurred: {e}")
-                db_password = None  
-
-            if db_password:
-                return db_password
-            else:
-                return None
+            return os.getenv('DATABASE_PASSWORD')
             
-
     def get_database_connection():
         conn = psycopg2.connect(
             host=os.getenv("DATABASE_HOST", "localhost"),

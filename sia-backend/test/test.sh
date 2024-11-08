@@ -16,7 +16,7 @@ fi
 echo "#2 Check if non-existent path not exists"
 statuscode="$(curl -s -o /dev/null -w "%{http_code}" http://flask/this-path-does-not-exist)"
 echo Response: $statuscode
-if test $statuscode = "200"; then
+if test $statuscode != "404"; then
     failed="$failed #2"
 fi
 

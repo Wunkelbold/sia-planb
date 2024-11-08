@@ -1,13 +1,13 @@
 services:
   database:
-    image: ./database-server 
+    build: ./database-server
     restart: always
     volumes:
-      - ./database/:/var/database/:rw
+      - ./sia-backend/database/:/var/database/:rw
     environment:
-      - POSTGRES_DB="postgres"
-      - POSTGRES_USER="postgres"
-      - POSTGRES_PASSWORD="${DATABASE_PASSWORD}"
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
     healthcheck:
       test: [ "CMD", "pg_isready" ]
       interval: 10s
@@ -19,11 +19,11 @@ services:
     ports:
       - 5005:80
     environment:
-      - DATABASE_HOST="database"
-      - DATABASE_PORT="5432"
-      - DATABASE_NAME="postgres"
-      - DATABASE_USER="postgres"
-      - DATABASE_PASSWORD="${DATABASE_PASSWORD}"
+      - DATABASE_HOST=database
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=postgres
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
     depends_on:
       database:
         condition: service_healthy
@@ -31,11 +31,11 @@ services:
   test:
     build: ./test
     environment:
-      - DATABASE_HOST="database"
-      - DATABASE_PORT="5432"
-      - DATABASE_NAME="postgres"
-      - DATABASE_USER="postgres"
-      - DATABASE_PASSWORD="${DATABASE_PASSWORD}"
+      - DATABASE_HOST=database
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=postgres
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
     depends_on:
       database:
         condition: service_healthy

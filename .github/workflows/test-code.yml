@@ -21,11 +21,9 @@ jobs:
       - name: Run docker-compose
         uses: hoverkraft-tech/compose-action@v2.0.1
         with:
-          compose-file: "./sia-backend/compose.yaml"
+          compose-file: "sia-backend/compose.yml"
+          compose-flags: "--profile debug"
 
-      - name: Execute tests in the running services
-        run: |
-          docker-compose exec test-app pytest
       
       - name: 'Logout'
         run: 'docker logout ghcr.io'

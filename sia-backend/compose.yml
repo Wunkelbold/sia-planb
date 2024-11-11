@@ -3,7 +3,7 @@ services:
     build: ./database-server
     restart: always
     volumes:
-      - ./sia-backend/database/:/var/database/:rw
+      - pgdata:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
@@ -48,3 +48,6 @@ services:
         condition: service_healthy
     profiles:
       - test
+
+volumes:
+  pgdata:

@@ -9,7 +9,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
     healthcheck:
-      test: [ "CMD", "pg_isready" ]
+      test: pg_isready -U postgres
       interval: 10s
       timeout: 5s
       retries: 5

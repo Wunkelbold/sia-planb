@@ -1,5 +1,7 @@
 services:
   database:
+    ports:
+        - 5432:5432 # for development reasons
     build: ./database-server
     restart: always
     volumes:
@@ -24,6 +26,9 @@ services:
       - DATABASE_NAME=postgres
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_URI=postgresql://postgres:${DATABASE_PASSWORD}@database/postgres
+      - SECRET_KEY=${SECRET_KEY}
+
     depends_on:
       database:
         condition: service_healthy

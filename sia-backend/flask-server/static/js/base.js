@@ -22,3 +22,4 @@ let observer = new IntersectionObserver((entries, observer) => {
 sections.forEach(section => {
     observer.observe(section);
 });
+

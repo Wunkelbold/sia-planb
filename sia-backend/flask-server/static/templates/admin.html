@@ -11,7 +11,7 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link"  href="#teleport_event">Events</a>
+            <a class="nav-link"  href="#">Eventmanager</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#">Benutzer</a>
@@ -92,48 +92,39 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
+                    <th>Benutzername</th>
+                    <th>Vorname</th>
+                    <th>Nachname</th>
+                    <th>Straße</th>
+                    <th>Nr.</th>
+                    <th>email</th>
+                    <th>Stadt</th>
+                    <th>PLZ</th>
                     <th>Rolle</th>
-                    <th>Aktionen</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- Benutzer 1 -->
-                <tr>
-                    <td>1</td>
-                    <td>Max Mustermann</td>
-                    <td>max@beispiel.de</td>
-                    <td>
-                        <select>
-                            <option value="unverified">Unverified</option>
-                            <option value="verified">Verified</option>
-                            <option value="admin">Admin</option>
-                            <option value="alumni">Alumni</option>
-                        </select>
-                    </td>
-                    <td class="actions">
-                        <button>Bearbeiten</button>
-                        <button>Löschen</button>
-                    </td>
-                </tr>
-                <!-- Benutzer 2 -->
-                <tr>
-                    <td>2</td>
-                    <td>Lisa Beispiel</td>
-                    <td>lisa@beispiel.de</td>
-                    <td>
-                        <select>
-                            <option value="unverified">Unverified</option>
-                            <option value="verified">Verified</option>
-                            <option value="admin">Admin</option>
-                            <option value="alumni">Alumni</option>
-                        </select>
-                    </td>
-                    <td class="actions">
-                        <button>Bearbeiten</button>
-                        <button>Löschen</button>
-                    </td>
+                {% if users %}
+                    {% for user in users %}
+                        <tr>
+                            <td>{{user[0]}}</td>
+                            <td>{{user[1]}}</td>
+                            <td>{{user[2]}}</td>
+                            <td>{{user[3]}}</td>
+                            <td>{{user[4]}}</td>
+                            <td>{{user[5]}}</td>
+                            <td>{{user[7]}}</td>
+                            <td>{{user[8]}}</td>
+                            <td>{{user[9]}}</td>
+                            <td>{{user[12]}}</td>
+                            <td>
+                                <div class="card-body">
+                                    <a href="#" class="card-link">Bearbeiten</a>
+                                    <a href="#" class="card-link">Löschen</a>
+                                </div>
+                            </td>          
+                    {% endfor %}
+                {% endif %}
                 </tr>
             </tbody>
         </table>

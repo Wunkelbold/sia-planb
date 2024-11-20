@@ -13,7 +13,10 @@
         type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/8.0.0/mdb.umd.min.js"
     ></script>
+    {% block additionalstyle %}{% endblock %}
+    {% block additionaljavascript %}{% endblock %}
     <title>{{ title }}</title>
+
 </head>
 
 <header>
@@ -31,29 +34,40 @@
             <a class="nav-link active" aria-current="page" href="{{ url_for('index') }}">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('eventmanager') }}">Events</a>
+            <a class="nav-link" href="{{ url_for('events') }}">Events</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('eventmanager') }}">Verein</a>
+            <a class="nav-link" href="{{ url_for('verein') }}">Verein</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('contact') }}">Anfrage</a>
           </li>
+          {% if current_user.is_authenticated and current_user.role >= 3 %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('eventmanager') }}">Eventmanager</a>
+          </li>
+          {% endif %}
+          {% if current_user.is_authenticated and current_user.role >= 6 %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin') }}">Admintool</a>
+          </li>
+          {% endif %}
           <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Konto
               </a>
             <ul class="dropdown-menu">
+              {% if current_user.is_authenticated %}
               <li><a class="dropdown-item" href="{{ url_for('profile') }}">Profil</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{{ url_for('logout') }}">Abmelden</a></li>
+              {% else %}
               <li><a class="dropdown-item" href="{{ url_for('login') }}">Anmelden</a></li>
               <li><a class="dropdown-item" href="{{ url_for('register') }}">Registrieren</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{{ url_for('profile') }}">Newsletter</a></li>
+              {% endif %}
             </ul>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin') }}">Admintool</a>
-          </li>
+
         </ul>
       </div>
     </div>
@@ -84,6 +98,8 @@
         </footer>
     </div>
 </div>
+
+</html>
 
 
 

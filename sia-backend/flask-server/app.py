@@ -1,73 +1,38 @@
 from flask import Flask, Blueprint, flash, jsonify, render_template, request, send_from_directory, url_for, redirect
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_user import roles_required
-from flask_principal import Permission, RoleNeed, UserNeed
-from flask_wtf import FlaskForm
 from flask_wtf.csrf import CSRFProtect
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Table, Column, MetaData, Integer, Computed
-from wtforms import StringField, PasswordField, SubmitField, EmailField, IntegerField, SelectField
-from wtforms.validators import InputRequired, Length, ValidationError, EqualTo, Email
 from http import HTTPStatus
 import os
 import psycopg2
 from datetime import datetime
+import random
+import secrets
 from functools import wraps
+#-----FILES-----
+from config import Config
+from database import Tables, DAO
+from forms import Forms
+from extensions import db
 
-
-
-import database
-
-app = Flask(__name__)
 app = Flask(__name__, template_folder='static/templates', static_folder='static')
-app.config.from_object(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"]=os.getenv("DATABASE_URI")
-app.config["SECRET_KEY"]=os.getenv("SECRET_KEY")  
-
-
-db = SQLAlchemy(app)
+app.config.from_object(Config)
+db.init_app(app)
 bcrypt = Bcrypt(app)
 csrf = CSRFProtect(app)
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
 
-#---------DATABASE--------
+@login_manager.user_loader
+def load_user(user_id):
+    return Tables.User.query.get(int(user_id))
 
-Database = database.DAO
-Database.database_dump()
-
-class Event(db.Model, UserMixin):
-    __tablename__ = 'events'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
-    visibility = db.Column(db.String(10))
-    place = db.Column(db.String(50))
-    author = db.Column(db.String(20), nullable=False)
-    created = db.Column(db.TEXT)
-    date = db.Column(db.TEXT)
-    description = db.Column(db.String(200))
-    postername = db.Column(db.String(50))
-
-class User(db.Model, UserMixin):
-    __tablename__ = 'user'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), nullable=False, unique=True)
-    surname = db.Column(db.String(20))
-    lastname = db.Column(db.String(20))
-    street = db.Column(db.String(25))
-    street_no = db.Column(db.String(25))
-    password = db.Column(db.String(200))
-    email = db.Column(db.String(30))
-    city = db.Column(db.String(25))
-    postalcode = db.Column(db.String(25))
-    register_date = db.Column(db.TEXT)
-    last_login = db.Column(db.TEXT)
-    role = db.Column(db.Integer)
-
+Database = DAO
 with app.app_context():
-    db.create_all()
-
-# legacy Database.database_init()
-Database.database_fill()
+    DAO.init()
 
 #---------PERMISSIONS--------
 
@@ -79,65 +44,21 @@ def role_required(role):
             if user.role >= role:
                 return func(*args, **kwargs)
             else:
-                return 'You do not have the required permission', 403
+                return redirect(url_for('login'))
         return decorated_function
     return decorator
-
-#---------LOGIN--------
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
 
 @login_manager.unauthorized_handler
 def unauthorized():
     return redirect(url_for('login'))
 
-
-#---------FORMS--------
-
-class RegisterForm(FlaskForm):
-    username = StringField(render_kw={"placeholder": "Benutzername"})
-    password = PasswordField(render_kw={"placeholder": "Passwort"})
-    password_confirm = PasswordField( render_kw={"placeholder": "Passwörter bestätigen"})
-    submit = SubmitField('Register')
-    surname = StringField(label="Vorname",render_kw={"placeholder": "Vorname"},default="")
-    lastname = StringField(label="Nachname",render_kw={"placeholder": "Nachname"},default="")
-    email = EmailField(render_kw={"placeholder": "Email"},default="")
-    street = StringField(render_kw={"placeholder": "Straße"},default="")
-    street_no = StringField(render_kw={"placeholder": "Nr"},default="")
-    city = StringField( render_kw={"placeholder": "Stadt"},default="")
-    postalcode = StringField(render_kw={"placeholder": "PLZ"},default="")
-    role = SelectField(label="Rolle",choices=[("1", "Gast"),("2", "Student"),("3", "Sia Alumni"),("4", "Mitglied aktiv"),("5", "moderator"),("6", "admin")] ,coerce=str, render_kw={"class": "form-select", "id": "inputRole"})
-    #confirm_privacy_policy = SelectField(label="Rolle", choices=[(0, "Gast"), (1, "Student"), (2, "Sia-Mitglied"), (3, "Sia-Alumni")])
-    #, EqualTo('password', message='Passwörter nicht gleich')
-
-class LoginForm(FlaskForm):
-    username = StringField(render_kw={"placeholder": "Benutzername"})
-    password = PasswordField(render_kw={"placeholder": "Passwort"})
-    submit = SubmitField('Login')
-
-
-#---TEST--DATABASE--CONN--
-with app.app_context():
-    print("DATABASETEST")
-    password= bcrypt.generate_password_hash("3dE$N4U$7hfWkG7VK6bEQ*MW9").decode('utf-8')
-    user1 = User(username="default",role=7,password=password)
-    db.session.add(user1)
-    db.session.commit()
-    users = User.query.all()
-    print(users)
-
-
+#-------LOGIN-ROUTES--------
 @ app.route('/register', methods=['GET', 'POST'])
 def register():
-    form = RegisterForm()
+    form = Forms.RegisterForm()
     if form.username.data:
         username = form.username.data.lower()
-        existing_user_username = User.query.filter_by(username=username).first()
+        existing_user_username = Tables.User.query.filter_by(username=username).first()
         if existing_user_username or not username.isalnum() or form.password.data != form.password_confirm.data:
             if not username.isalnum():
                 flash('Nur Buchstaben und Zahlen im Benutzernamen', 'error')
@@ -151,7 +72,7 @@ def register():
             if form.validate_on_submit():
                 now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-                new_user = User(username=username, password=hashed_password, register_date="", last_login="",surname=form.surname.data,lastname=form.lastname.data,email=form.email.data,street=form.street.data,street_no=form.street_no.data,city=form.city.data,postalcode=form.postalcode.data,role=form.role.data)
+                new_user = Tables.User(username=username, password=hashed_password, register_date="", last_login="",surname=form.surname.data,lastname=form.lastname.data,email=form.email.data,street=form.street.data,street_no=form.street_no.data,city=form.city.data,postalcode=form.postalcode.data,role=form.role.data)
                 new_user.register_date = now
                 new_user.last_login = now
                 db.session.add(new_user)
@@ -160,21 +81,16 @@ def register():
             else:
                 print(form.errors)  # Debugging: Show validation errors
                 flash('Form submission failed. Check your input.', 'error')
-            
-    with app.app_context():
-        print("ALL USERS")
-        users = User.query.all()
-        print(users)
     
     return render_template('register.html', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm()
+    form = Forms.LoginForm()
     if form.username.data:
         username = form.username.data.lower()
         if form.validate_on_submit():
-            user = User.query.filter_by(username=username).first()
+            user = Tables.User.query.filter_by(username=username).first()
             if user:
                 print(f"Username: {user.username}")
                 print(f"Role: {user.role}")
@@ -269,6 +185,6 @@ def verein():
     return render_template('verein.html', title='Verein')
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0',debug=True)
+    app.run(host='0.0.0.0')
 
 

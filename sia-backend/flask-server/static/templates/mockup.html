@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sia-PlanB.de Mockup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            color: #000;
+        }
+        header, footer {
+            text-align: center;
+            padding: 20px;
+            border-bottom: 2px solid #000;
+        }
+        nav {
+            text-align: center;
+            margin: 20px 0;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #000;
+            font-weight: bold;
+        }
+        section {
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h2 {
+            border-bottom: 1px solid #000;
+            padding-bottom: 10px;
+        }
+        .card {
+            border: 1px solid #000;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #000;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #000;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #444;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #000;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Sia-PlanB.de</h1>
+    <nav>
+        <a href="#events">Events</a>
+        <a href="#admin">Admin</a>
+        <a href="#member">Mitglieder</a>
+        <a href="#visitor">Besucher</a>
+        <a href="#contact">Kontakt</a>
+    </nav>
+</header>
+
+<div class="container">
+    <!-- Events Section -->
+    <section id="events">
+        <h2>Upcoming Events</h2>
+        <div class="card">
+            <h3>Event 1: Sommerfest</h3>
+            <p>Datum: 15. Juni 2024</p>
+            <p>Ort: Berlin</p>
+            <p>Beschreibung: Öffentliches Sommerfest mit Grillen und Musik.</p>
+            <button>Anmelden</button>
+        </div>
+        <div class="card">
+            <h3>Event 2: Workshop für Mitglieder</h3>
+            <p>Datum: 30. Juni 2024</p>
+            <p>Ort: Hamburg</p>
+            <p>Beschreibung: Exklusiver Workshop nur für Mitglieder.</p>
+            <button>Anmelden</button>
+        </div>
+    </section>
+
+    <!-- Admin Section -->
+    <section id="admin">
+        <h2>Admin Panel</h2>
+        <div id="card">
+            <h2>Benutzerverwaltung</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Rolle</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Benutzer 1 -->
+                    <tr>
+                        <td>1</td>
+                        <td>Max Mustermann</td>
+                        <td>max@beispiel.de</td>
+                        <td>
+                            <select>
+                                <option value="unverified">Unverified</option>
+                                <option value="verified">Verified</option>
+                                <option value="admin">Admin</option>
+                                <option value="alumni">Alumni</option>
+                            </select>
+                        </td>
+                        <td class="actions">
+                            <button>Bearbeiten</button>
+                            <button>Löschen</button>
+                        </td>
+                    </tr>
+                    <!-- Benutzer 2 -->
+                    <tr>
+                        <td>2</td>
+                        <td>Lisa Beispiel</td>
+                        <td>lisa@beispiel.de</td>
+                        <td>
+                            <select>
+                                <option value="unverified">Unverified</option>
+                                <option value="verified">Verified</option>
+                                <option value="admin">Admin</option>
+                                <option value="alumni">Alumni</option>
+                            </select>
+                        </td>
+                        <td class="actions">
+                            <button>Bearbeiten</button>
+                            <button>Löschen</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card">
+            <h3>Event erstellen</h3>
+            <input type="text" placeholder="Event Name">
+            <input type="date" placeholder="Datum">
+            <input type="text" placeholder="Ort">
+            <textarea placeholder="Beschreibung"></textarea>
+            <label>Sichtbarkeit:</label>
+            <select>
+                <option value="public">Öffentlich</option>
+                <option value="private">Privat</option>
+                <option value="admin">Nur für Admins</option>
+            </select>
+            <button>Event erstellen</button>
+        </div>
+    </section>
+
+    <!-- Member Section -->
+    <section id="member">
+        <h2>Mitgliederbereich</h2>
+        <div class="card">
+            <h3>Deine Events</h3>
+            <p>Event 1: Sommerfest (Schicht: Grillen)</p>
+            <button>Kommentar hinzufügen</button>
+        </div>
+        <div class="card">
+            <h3>Mietanfrage</h3>
+            <textarea placeholder="Anfrage"></textarea>
+            <button>Verifizierte Mietanfrage senden</button>
+        </div>
+    </section>
+
+    <!-- Visitor Section -->
+    <section id="visitor">
+        <h2>Besucherbereich</h2>
+        <div class="card">
+            <h3>Öffentliche Events</h3>
+            <p>Event 1: Sommerfest</p>
+            <button>Anmelden</button>
+        </div>
+        <div class="card">
+            <h3>Mietanfrage</h3>
+            <textarea placeholder="Mietanfrage"></textarea>
+            <button>Mietanfrage senden</button>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <h2>Kontaktformular</h2>
+        <input type="text" placeholder="Name">
+        <input type="email" placeholder="E-Mail">
+        <textarea placeholder="Nachricht"></textarea>
+        <button>Nachricht senden</button>
+    </section>
+</div>
+
+</body>
+</html>

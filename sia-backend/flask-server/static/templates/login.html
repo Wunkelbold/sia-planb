@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Login
+{% endblock %}
+
+{% block content %}
+
+<style>
+    input {
+      padding: 5px;
+      margin: 10px
+    }
+</style>
+
+    <div style="display: flex; justify-content: center; align-items: center;"data-bs-theme="dark">
+        <div class="card" style="width: 50rem; margin: 30px; padding: 15px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" data-bs-theme="dark">
+        <h5 class="card-header">Anmelden</h5>
+            <form method="POST" action="">
+                {{ form.hidden_tag() }}
+                <div class="col-md-12">{{ form.username }}</div>
+                <div class="col-md-12">{{ form.password }}</div>
+                <div>{{ form.hidden_tag() }}</div>
+                <div class="col-md-12">{{ form.submit }}</div>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    <ul class="error-message-list">
+                        {% for message in messages %}
+                            <p class="error-message">{{ message|safe }}</p>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                {% endwith %}
+            </form>
+            <div class="mt-3"><a href="{{ url_for('register') }}" class="link" style="margin:20px;">Kein Benuterkonto? Registriere dich!</a></div>
+        </div>
+    </div>
+{% endblock %}

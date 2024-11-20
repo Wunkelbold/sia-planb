@@ -19,11 +19,18 @@ services:
     ports:
       - 5005:80
     environment:
-      - DATABASE_HOST=database
-      - DATABASE_PORT=5432
-      - DATABASE_NAME=postgres
-      - DATABASE_USER=postgres
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_PORT=${DATABASE_PORT}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_USER=${DATABASE_USER}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_URI=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}/${DATABASE_NAME}
+      - DEFAULT_USER=${DEFAULT_USER}
+      - DEFAULT_USER_PASSWORD=${DEFAULT_USER_PASSWORD}
+      - DROP_DATABASE=false
+      - CREATE_DATABASE=true
+      - Debug=false
+
     depends_on:
       database:
         condition: service_healthy

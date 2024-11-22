@@ -17,7 +17,7 @@ services:
   flask:
     build: ./flask-server 
     ports:
-      - 5005:80
+      - "127.0.0.1:5005:80"
       - "127.0.0.1:9191:9191"
     environment:
       - DATABASE_HOST=${DATABASE_HOST}

@@ -12,7 +12,7 @@ services:
       test: pg_isready -U postgres
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   flask:
     build: ./flask-server 

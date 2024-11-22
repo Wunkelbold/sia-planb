@@ -32,8 +32,15 @@ class Tables:
         postalcode = db.Column(db.String(25))
         register_date = db.Column(db.TEXT)
         last_login = db.Column(db.TEXT)
+        # role = db.Column(db.TEXT, db.ForeignKey("roles.name"))
         role = db.Column(db.Integer)
-        pass
+        permissions = db.Column(db.ARRAY(db.TEXT))
+
+    class Role(db.Model):
+        __tablename__ = 'roles'
+        name = db.Column(db.TEXT, primary_key=True)
+        permissions = db.Column(db.ARRAY(db.TEXT))
+        
 
 class DAO:
     def init():

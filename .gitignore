@@ -1,2 +1,4 @@
 */password.txt
 update-containers.sh
+.venv
+__pycache__

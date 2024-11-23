@@ -1,3 +1,4 @@
+from globals import *
 from flask import Flask, Blueprint, flash, jsonify, render_template, request, send_from_directory, url_for, redirect
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_user import roles_required
@@ -16,9 +17,8 @@ from functools import wraps
 from config import Config
 from database import Tables, DAO
 from forms import Forms
-from extensions import db
+from permissions import *
 
-app = Flask(__name__, template_folder='static/templates', static_folder='static')
 app.config.from_object(Config)
 db.init_app(app)
 bcrypt = Bcrypt(app)
@@ -34,26 +34,12 @@ Database = DAO
 with app.app_context():
     DAO.init()
 
-#---------PERMISSIONS--------
-
-def role_required(role):
-    def decorator(func):
-        @wraps(func)
-        def decorated_function(*args, **kwargs):
-            user = current_user
-            if user.role >= role:
-                return func(*args, **kwargs)
-            else:
-                return redirect(url_for('login'))
-        return decorated_function
-    return decorator
-
 @login_manager.unauthorized_handler
 def unauthorized():
     return redirect(url_for('login'))
 
 #-------LOGIN-ROUTES--------
-@ app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     form = Forms.RegisterForm()
     if form.username.data:
@@ -72,11 +58,28 @@ def register():
             if form.validate_on_submit():
                 now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-                new_user = Tables.User(username=username, password=hashed_password, register_date="", last_login="",surname=form.surname.data,lastname=form.lastname.data,email=form.email.data,street=form.street.data,street_no=form.street_no.data,city=form.city.data,postalcode=form.postalcode.data,role=form.role.data)
+                new_Role = Tables.Role(name=form.role.data, permissions=["adminpanel.show"]) # TODO create roles somewhere else
+                new_user = Tables.User(
+                    username = username,
+                    password = hashed_password,
+                    register_date = "", 
+                    last_login = "",
+                    surname = form.surname.data,
+                    lastname = form.lastname.data,
+                    email = form.email.data,
+                    street = form.street.data,
+                    street_no = form.street_no.data,
+                    city = form.city.data,
+                    postalcode = form.postalcode.data,
+                    role = new_Role.name,
+                    permissions = []
+                    )
                 new_user.register_date = now
                 new_user.last_login = now
+                db.session.add(new_Role)
                 db.session.add(new_user)
                 db.session.commit()
+                login_user(new_user)
                 return redirect(url_for('login'))
             else:
                 print(form.errors)  # Debugging: Show validation errors
@@ -93,7 +96,7 @@ def login():
             user = Tables.User.query.filter_by(username=username).first()
             if user:
                 print(f"Username: {user.username}")
-                print(f"Role: {user.role}")
+                print(f"Role: {user.role.name}")
 
                 if bcrypt.check_password_hash(user.password, form.password.data):
                     login_user(user)
@@ -119,15 +122,13 @@ def logout():
 #----------ROUTES---------
 
 @app.route("/admin",methods=['GET'])
-@login_required
-@role_required(6)
+@require_permissions("adminpanel.show")
 def admin():
     users=Database.get_all_users()
     return render_template('admin.html', title='Sia-PlanB.de', users=users)
 
 @app.route("/eventmanager",methods=['GET'])
-@login_required
-@role_required(3)
+@require_permissions("eventmanager.show")
 def eventmanager():
     events=Database.get_all_events()
     return render_template('eventmanager.html', title='Sia-PlanB.de',events=events)

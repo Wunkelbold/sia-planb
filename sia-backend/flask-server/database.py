@@ -3,7 +3,7 @@ import psycopg2
 from psycopg2 import OperationalError, DatabaseError, InterfaceError, sql
 from flask_login import UserMixin
 import logging
-from extensions import db
+from globals import db
 
 class Tables:
     class Event(db.Model, UserMixin):
@@ -32,8 +32,13 @@ class Tables:
         postalcode = db.Column(db.String(25))
         register_date = db.Column(db.TEXT)
         last_login = db.Column(db.TEXT)
-        role = db.Column(db.Integer)
-        pass
+        role = db.Column(db.TEXT, db.ForeignKey("roles.name"), nullable=False)
+        permissions = db.Column(db.ARRAY(db.TEXT), nullable=False)
+
+    class Role(db.Model):
+        __tablename__ = 'roles'
+        name = db.Column(db.TEXT, primary_key=True)
+        permissions = db.Column(db.ARRAY(db.TEXT), nullable=False)
 
 class DAO:
     def init():

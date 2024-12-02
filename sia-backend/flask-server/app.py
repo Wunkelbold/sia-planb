@@ -96,7 +96,7 @@ def login():
             user = Tables.User.query.filter_by(username=username).first()
             if user:
                 print(f"Username: {user.username}")
-                print(f"Role: {user.role.name}")
+                print(f"Role: {user.role}")
 
                 if bcrypt.check_password_hash(user.password, form.password.data):
                     login_user(user)

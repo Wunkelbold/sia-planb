@@ -20,5 +20,5 @@ def eventmanager():
 
 @app.route("/api/events/all",methods=['GET'])
 @require_permissions("events.all")
-def eventmanager():
+def apiGetAllEvents():
     return jsonify(getAllEvents())

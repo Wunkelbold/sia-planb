@@ -13,7 +13,7 @@ def hasPermissions(*permissions_required: str) -> bool:
     for permission_required in permissions_required:
         match = False
         for permission in userPermissions:
-            if fnmatch(permission, permission_required):
+            if fnmatch(permission_required, permission):
                 match = True
                 break
         if not match: return False

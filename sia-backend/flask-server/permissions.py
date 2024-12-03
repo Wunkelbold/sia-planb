@@ -1,6 +1,7 @@
 from globals import app
 from database import Tables
 from functools import wraps
+from fnmatch import fnmatch
 from flask_login import login_required, current_user
 
 
@@ -8,7 +9,15 @@ def hasPermissions(*permissions_required: str) -> bool:
     if not current_user.is_authenticated: return False
     userRolePermissions = Tables.Role.query.filter_by(name=current_user.role).first().permissions
     userPermissions = userRolePermissions + current_user.permissions
-    return all(permission in userPermissions for permission in permissions_required)
+
+    for permission_required in permissions_required:
+        match = False
+        for permission in userPermissions:
+            if fnmatch(permission_required, permission):
+                match = True
+                break
+        if not match: return False
+    return True
 
 
 def require_permissions(*permissions_required: str):

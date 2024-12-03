@@ -1,26 +1,26 @@
 from globals import *
-from flask import Flask, Blueprint, flash, jsonify, render_template, request, send_from_directory, url_for, redirect
-from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
-from flask_user import roles_required
+from flask import flash, render_template, send_from_directory, url_for, redirect
+from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf.csrf import CSRFProtect
 from flask_bcrypt import Bcrypt
+<<<<<<< HEAD
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Table, Column, MetaData, Integer, Computed, func
 from http import HTTPStatus
+=======
+>>>>>>> 4601bd5 (init app and db in globals)
 import os
-import psycopg2
 from datetime import datetime
-import random
-import secrets
 from functools import wraps
 #-----FILES-----
-from config import Config
 from database import Tables, DAO
 from forms import Forms
 from permissions import *
 
-app.config.from_object(Config)
-db.init_app(app)
+#-----Load Sections-----
+
+import Sections.EventHandler as _
+
 bcrypt = Bcrypt(app)
 csrf = CSRFProtect(app)
 login_manager = LoginManager(app)

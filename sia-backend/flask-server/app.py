@@ -132,12 +132,6 @@ def admin():
     return render_template('admin.html', title='Sia-PlanB.de', users=users, contacts=contacts)
 
 
-@app.route("/eventmanager",methods=['GET'])
-@require_permissions("eventmanager.show")
-def eventmanager():
-    events=Database.get_all_events()
-    return render_template('eventmanager.html', title='Sia-PlanB.de',events=events)
-
 @app.route("/favicon.ico")
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static/images'),
@@ -186,15 +180,9 @@ def datenschutz():
 def faq():
     return render_template('faq.html', title='Sia-PlanB.de')
 
-@app.route("/events",methods=['GET'])
-def events():
-    events=Database.get_all_events()
-    return render_template('events.html', title='Sia-PlanB.de',events=events)
-
 @app.route("/impressum",methods=['GET'])
 def impressum():
     return render_template('impressum.html', title='Sia-PlanB.de')
-
 
 @app.route("/newsletter",methods=['GET'])
 def newsletter():

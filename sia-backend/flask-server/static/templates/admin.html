@@ -129,19 +129,23 @@
             </tbody>
         </table>
     </div>
+
+    {% if submitted %}
+        <div>
+            Event wurde erstellt
+        </div>
+    {% endif %}
+
     <div class="card" id="teleport_event">
         <h3>Event erstellen</h3>
-        <input type="text" placeholder="Event Name">
-        <input type="date" placeholder="Datum">
-        <input type="text" placeholder="Ort">
-        <textarea placeholder="Beschreibung"></textarea>
-        <label>Sichtbarkeit:</label>
-        <select>
-            <option value="public">Öffentlich</option>
-            <option value="private">Privat</option>
-            <option value="admin">Nur für Admins</option>
-        </select>
-        <button>Event erstellen</button>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            {{ form.name() }}
+            {{ form.date() }}
+            {{ form.place() }}
+            {{ form.description() }}
+            {{ form.submit() }}
+        </form>
     </div>
 </section>
 {% endblock %}

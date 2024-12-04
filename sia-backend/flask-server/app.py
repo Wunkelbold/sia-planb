@@ -1,5 +1,5 @@
 from globals import *
-from flask import flash, render_template, send_from_directory, url_for, redirect
+from flask import Response, flash, render_template, send_from_directory, url_for, redirect
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf.csrf import CSRFProtect
 from flask_bcrypt import Bcrypt
@@ -58,7 +58,7 @@ def register():
             if form.validate_on_submit():
                 now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-                new_Role = Tables.Role(name=form.role.data, permissions=["adminpanel.show"]) # TODO create roles somewhere else
+                new_Role = Tables.Role(name=form.role.data, permissions=["*"]) # TODO create roles somewhere else
                 new_user = Tables.User(
                     username = username,
                     password = hashed_password,
@@ -124,18 +124,43 @@ def logout():
 
 #----------ROUTES---------
 
-@app.route("/admin",methods=['GET'])
+@app.route("/admin", methods=['GET', 'POST'])
 @require_permissions("adminpanel.show")
 def admin():
+<<<<<<< HEAD
     users= Tables.User.query.all()
     contacts = Tables.Contact.query.all()
     return render_template('admin.html', title='Sia-PlanB.de', users=users, contacts=contacts)
 
+=======
+    users=Database.get_all_users()
+>>>>>>> bf5f0e7 (use new form to create an event)
 
-@app.route("/favicon.ico")
-def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static/images'),
-                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+    submitted=False
+    form = Forms.EventForm()
+
+    if form.is_submitted():
+        if not hasPermissions("events.create"):
+            return Response(status=403)
+        
+        if not form.validate():
+            return Response(form.errors.items(), status=400)
+        
+        submitted=True
+        newEvent = Tables.Event(
+            name = form.name.data,
+            visibility = form.visibility.data,
+            place = form.place.data,
+            author = current_user.id,
+            created = datetime.now(),
+            date = form.date.data,
+            description = form.description.data,
+            postername = current_user.username
+        )
+        db.session.add(newEvent)
+        db.session.commit()
+
+    return render_template('admin.html', title='Sia-PlanB.de', users=users, submitted=submitted, form=Forms.EventForm())
 
 @app.route("/slider/<name>")
 def slider(name):

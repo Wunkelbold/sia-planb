@@ -1,14 +1,11 @@
 from globals import *
-from flask import Response, flash, render_template, send_from_directory, url_for, redirect
+from flask import Response, flash, render_template, request, send_from_directory, url_for, redirect
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf.csrf import CSRFProtect
 from flask_bcrypt import Bcrypt
-<<<<<<< HEAD
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Table, Column, MetaData, Integer, Computed, func
 from http import HTTPStatus
-=======
->>>>>>> 4601bd5 (init app and db in globals)
 import os
 from datetime import datetime
 from functools import wraps
@@ -127,14 +124,8 @@ def logout():
 @app.route("/admin", methods=['GET', 'POST'])
 @require_permissions("adminpanel.show")
 def admin():
-<<<<<<< HEAD
-    users= Tables.User.query.all()
-    contacts = Tables.Contact.query.all()
-    return render_template('admin.html', title='Sia-PlanB.de', users=users, contacts=contacts)
 
-=======
     users=Database.get_all_users()
->>>>>>> bf5f0e7 (use new form to create an event)
 
     submitted=False
     form = Forms.EventForm()
@@ -160,7 +151,9 @@ def admin():
         db.session.add(newEvent)
         db.session.commit()
 
-    return render_template('admin.html', title='Sia-PlanB.de', users=users, submitted=submitted, form=Forms.EventForm())
+    users= Tables.User.query.all()
+    contacts = Tables.Contact.query.all()
+    return render_template('admin.html', title='Sia-PlanB.de', users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm())
 
 @app.route("/slider/<name>")
 def slider(name):

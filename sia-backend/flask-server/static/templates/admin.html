@@ -130,6 +130,7 @@
             </tbody>
         </table>
     </div>
+    
     <div>
         <h1>Kontaktanfragen</h1>
         <table class="table table-dark table-striped">
@@ -158,6 +159,23 @@
                 </tr>
             </tbody>
         </table>
+
+    {% if submitted %}
+        <div>
+            Event wurde erstellt
+        </div>
+    {% endif %}
+
+    <div class="card" id="teleport_event">
+        <h3>Event erstellen</h3>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            {{ form.name() }}
+            {{ form.date() }}
+            {{ form.place() }}
+            {{ form.description() }}
+            {{ form.submit() }}
+        </form>
     </div>
 </section>
 {% endblock %}

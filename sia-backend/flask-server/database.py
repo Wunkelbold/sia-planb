@@ -35,9 +35,9 @@ class Tables:
         name = db.Column(db.String(50), nullable=False)
         visibility = db.Column(db.String(10))
         place = db.Column(db.String(50))
-        author = db.Column(db.String(20), nullable=False)
-        created = db.Column(db.TEXT)
-        date = db.Column(db.TEXT)
+        author = db.Column(db.Integer, nullable=False)
+        created = db.Column(db.DateTime)
+        date = db.Column(db.DateTime)
         description = db.Column(db.String(200))
         postername = db.Column(db.String(50))
 

@@ -1,5 +1,5 @@
-from wtforms import StringField, PasswordField, SubmitField, EmailField, IntegerField, SelectField
-from wtforms.validators import InputRequired, Length, ValidationError, EqualTo, Email
+from wtforms import DateField, StringField, PasswordField, SubmitField, EmailField, IntegerField, SelectField, DateTimeField
+from wtforms.validators import InputRequired, Length, ValidationError, EqualTo, Email, Optional
 from flask_wtf import FlaskForm
 
 class Forms:
@@ -23,4 +23,12 @@ class Forms:
         username = StringField(render_kw={"placeholder": "Benutzername"})
         password = PasswordField(render_kw={"placeholder": "Passwort"})
         submit = SubmitField('Login')
+
+    class EventForm(FlaskForm):
+        name = StringField("Event Name", validators=[InputRequired(), Length(max=50)])
+        visibility = StringField("Benötigte Berechtigung", validators=[Length(min=0, max=10)])
+        place = StringField("Ort", validators=[Length(min=0, max=50)])
+        date = DateField("Event Date", validators=[Optional()])
+        description = StringField("Beschreibung", validators=[Length(min=0, max=200)])
+        submit = SubmitField("Submit")
 

@@ -127,7 +127,9 @@ def logout():
 @require_permissions("adminpanel.show")
 def admin():
     users=Database.get_all_users()
-    return render_template('admin.html', title='Sia-PlanB.de', users=users)
+    contacts = Tables.User.query.all()
+    return render_template('admin.html', title='Sia-PlanB.de', users=users,contacts=contacts)
+
 
 @app.route("/eventmanager",methods=['GET'])
 @require_permissions("eventmanager.show")
@@ -153,9 +155,12 @@ def index():
     events=Database.get_all_events()
     return render_template('index.html', title='Sia-PlanB.de', events=events)
 
-@app.route("/contact",methods=['GET'])
+@app.route("/contact",methods=['GET', 'POST'])
 def contact():
-    return render_template('contact.html', title='Sia-PlanB.de')
+    form = Forms.ContactForm()
+    if form.validate_on_submit():
+        Tables.User.query.add(Tables.Contact())
+    return render_template('contact.html', title='Sia-PlanB.de', form = form)
 
 @app.route("/datenschutz",methods=['GET'])
 def datenschutz():

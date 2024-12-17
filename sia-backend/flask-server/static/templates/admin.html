@@ -131,16 +131,31 @@
     </div>
     <div class="card" id="teleport_event">
         <h3>Event erstellen</h3>
-        <input type="text" placeholder="Event Name">
-        <input type="date" placeholder="Datum">
-        <input type="text" placeholder="Ort">
-        <textarea placeholder="Beschreibung"></textarea>
-        <label>Sichtbarkeit:</label>
-        <select>
-            <option value="public">Öffentlich</option>
-            <option value="private">Privat</option>
-            <option value="admin">Nur für Admins</option>
-        </select>
+        <form action="/create_event" method="POST">
+            {{ form.hidden_tag() }}
+            <label for="name">Event Name*</label>
+            <input type="text" id="name" name="name" maxlength="50" required>
+
+            <label for="visibility">Sichtbarkeit</label>
+            <select id="visibility" name="visibility">
+                <option value="public">Public</option>
+                <option value="private">Private</option>
+            </select>
+
+            <label for="place">Ort</label>
+            <input type="text" id="place" name="place" maxlength="50">
+
+            <label for="date">Datum</label>
+            <input type="date" id="date" name="date">
+
+            <label for="description">Beschreibung</label>
+            <textarea id="description" name="description" rows="4" maxlength="200"></textarea>
+
+            <label for="postername">Bild</label>
+            <input type="text" id="postername" name="postername" maxlength="50">
+
+            <button type="submit">Create Event</button>
+        </form>
         <button>Event erstellen</button>
     </div>
 </section>

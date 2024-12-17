@@ -5,7 +5,7 @@ from flask_user import roles_required
 from flask_wtf.csrf import CSRFProtect
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Table, Column, MetaData, Integer, Computed
+from sqlalchemy import Table, Column, MetaData, Integer, Computed, func
 from http import HTTPStatus
 import os
 import psycopg2
@@ -155,30 +155,32 @@ def index():
     events=Database.get_all_events()
     return render_template('index.html', title='Sia-PlanB.de', events=events)
 
-@app.route("/contact",methods=['GET', 'POST'])
+@app.route("/contact", methods=['GET', 'POST'])
 def contact():
     form = Forms.ContactForm()
     if form.is_submitted():
         if not hasPermissions("contact.view"):
-            return Response(status=403)
-        
+            flash("Du besitzt nicht die Berechtigungen die Nachrichten des Kontaktformulars zu sehen.")
+            return render_template('contact.html', title='Sia-PlanB.de', form = form)
         if not form.validate():
-            return Response(form.errors.items(), status=400)
-        
-        submitted=True
+            flash("Fülle alle Felder aus damit wir deine Anfrage bearbeiten können")
         newEvent = Tables.Event(
-            name = form.name.data,
-            visibility = form.visibility.data,
-            place = form.place.data,
+            surname = form.name.data,
+            lastname = form.visibility.data,
+            email = form.place.data,
             author = current_user.id,
             created = datetime.now(),
-            date = form.date.data,
-            description = form.description.data,
-            postername = current_user.username
         )
         db.session.add(newEvent)
         db.session.commit()
-    return render_template('contact.html', title='Sia-PlanB.de', form = form)
+    if current_user:
+        if current_user.email:
+            email=current_user.email
+        if current_user.surname:
+            surname=current_user.surname
+        if current_user.lastname:
+            lastname=current_user.surname
+    return render_template('contact.html', title='Sia-PlanB.de', form=form, surname=surname, lastname=lastname, email=email)
 
 @app.route("/datenschutz",methods=['GET'])
 def datenschutz():

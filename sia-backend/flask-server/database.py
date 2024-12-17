@@ -49,7 +49,7 @@ class Tables:
         lastname = db.Column(db.String(20))
         email = db.Column(db.String(30))
         message = db.Column(db.String(500))
-        created = db.Column(db.)
+        created = db.Column(db.TEXT)
 
 class DAO:
     def init():

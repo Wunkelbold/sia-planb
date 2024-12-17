@@ -43,3 +43,4 @@ class Forms:
         lastname = StringField(render_kw={"placeholder": "Nachname"})
         email = StringField(render_kw={"placeholder": "Email"})
         message = TextAreaField(render_kw={"placeholder": "Nachricht"})
+        submit = SubmitField('Senden')

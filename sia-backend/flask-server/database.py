@@ -41,7 +41,7 @@ class Tables:
         description = db.Column(db.String(200))
         postername = db.Column(db.String(50))
 
-    class Shifts(db.Model):
+    class Shift(db.Model):
         __tablename__ = 'shifts'
         id = db.Column(db.Integer, primary_key=True)
         user = db.Column(db.Integer, db.ForeignKey("user.id"))

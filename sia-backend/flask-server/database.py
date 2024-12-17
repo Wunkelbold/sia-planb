@@ -32,10 +32,10 @@ class Tables:
     class Event(db.Model):
         __tablename__ = 'events'
         id = db.Column(db.Integer, primary_key=True)
+        author = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
         name = db.Column(db.String(50), nullable=False)
         visibility = db.Column(db.String(10))
         place = db.Column(db.String(50))
-        author = db.Column(db.Integer, nullable=False)
         created = db.Column(db.DateTime)
         date = db.Column(db.DateTime)
         description = db.Column(db.String(200))

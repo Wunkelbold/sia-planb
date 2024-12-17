@@ -158,8 +158,26 @@ def index():
 @app.route("/contact",methods=['GET', 'POST'])
 def contact():
     form = Forms.ContactForm()
-    if form.validate_on_submit():
-        Tables.User.query.add(Tables.Contact())
+    if form.is_submitted():
+        if not hasPermissions("contact.view"):
+            return Response(status=403)
+        
+        if not form.validate():
+            return Response(form.errors.items(), status=400)
+        
+        submitted=True
+        newEvent = Tables.Event(
+            name = form.name.data,
+            visibility = form.visibility.data,
+            place = form.place.data,
+            author = current_user.id,
+            created = datetime.now(),
+            date = form.date.data,
+            description = form.description.data,
+            postername = current_user.username
+        )
+        db.session.add(newEvent)
+        db.session.commit()
     return render_template('contact.html', title='Sia-PlanB.de', form = form)
 
 @app.route("/datenschutz",methods=['GET'])

@@ -38,7 +38,7 @@ class Forms:
         postalcode = StringField(render_kw={"placeholder": "PLZ"},default="")
 
     class ContactForm(FlaskForm):
-        category = StringField(render_kw={"placeholder": "Kategorie"})
+        category = SelectField(render_kw={"placeholder": "Art der Anfrage"},choices=[('kontakt', 'Kontakt'), ('mieten', 'Das Plan B Mieten'), ('feedback', 'Kritik/Lob'), ('events', 'Vorschlag für ein Event')])
         surname = StringField(render_kw={"placeholder": "Vorname"})
         lastname = StringField(render_kw={"placeholder": "Nachname"})
         email = StringField(render_kw={"placeholder": "Email"})

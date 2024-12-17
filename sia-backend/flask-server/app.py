@@ -76,8 +76,8 @@ def register():
                     last_updated = ""
                     )
                 new_user.register_date = now
-                new_user.last_login = now
                 new_user.last_updated = now
+                new_user.last_login = now #TODO ungewöhnlicher Fall aber register != login
                 db.session.add(new_Role)
                 db.session.add(new_user)
                 db.session.commit()
@@ -112,6 +112,7 @@ def login():
         else:
                 print(form.errors)  # Debugging: Show validation errors
                 flash('Form submission failed. Check your input.', 'error')
+        #TODO last_login = datetime.now() 
     return render_template('login.html', form=form)
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -127,8 +128,8 @@ def logout():
 @require_permissions("adminpanel.show")
 def admin():
     users=Database.get_all_users()
-    contacts = Tables.User.query.all()
-    return render_template('admin.html', title='Sia-PlanB.de', users=users,contacts=contacts)
+    contacts = Tables.Contact.query.all()
+    return render_template('admin.html', title='Sia-PlanB.de', users=users, contacts=contacts)
 
 
 @app.route("/eventmanager",methods=['GET'])
@@ -159,28 +160,22 @@ def index():
 def contact():
     form = Forms.ContactForm()
     if form.is_submitted():
-        if not hasPermissions("contact.view"):
-            flash("Du besitzt nicht die Berechtigungen die Nachrichten des Kontaktformulars zu sehen.")
-            return render_template('contact.html', title='Sia-PlanB.de', form = form)
-        if not form.validate():
-            flash("Fülle alle Felder aus damit wir deine Anfrage bearbeiten können")
-        newEvent = Tables.Event(
-            surname = form.name.data,
-            lastname = form.visibility.data,
-            email = form.place.data,
-            author = current_user.id,
-            created = datetime.now(),
+        print("---New Contact Form Submit!---")
+        newContact = Tables.Contact(
+            category = form.category.data,
+            surname = form.surname.data,
+            lastname = form.lastname.data,
+            email = form.email.data,
+            message = form.message.data,
+            created = datetime.now()
         )
-        db.session.add(newEvent)
+        db.session.add(newContact)
         db.session.commit()
-    if current_user:
-        if current_user.email:
-            email=current_user.email
-        if current_user.surname:
-            surname=current_user.surname
-        if current_user.lastname:
-            lastname=current_user.surname
-    return render_template('contact.html', title='Sia-PlanB.de', form=form, surname=surname, lastname=lastname, email=email)
+    if current_user.is_authenticated:
+        if current_user.email: form.email.data=current_user.email 
+        if current_user.surname: form.surname.data=current_user.surname 
+        if current_user.lastname: form.lastname.data=current_user.lastname
+    return render_template('contact.html', title='Sia-PlanB.de', form=form)
 
 @app.route("/datenschutz",methods=['GET'])
 def datenschutz():

@@ -107,20 +107,21 @@
                 {% if users %}
                     {% for user in users %}
                         <tr>
-                            <td>{{user[0]}}</td>
-                            <td>{{user[1]}}</td>
-                            <td>{{user[2]}}</td>
-                            <td>{{user[3]}}</td>
-                            <td>{{user[4]}}</td>
-                            <td>{{user[5]}}</td>
-                            <td>{{user[7]}}</td>
-                            <td>{{user[8]}}</td>
-                            <td>{{user[9]}}</td>
-                            <td>{{user[12]}}</td>
+                            <td>{{user.id}}</td>
+                            <td>{{user.username}}</td>
+                            <td>{{user.surname}}</td>
+                            <td>{{user.lastname}}</td>
+                            <td>{{user.street}}</td>
+                            <td>{{user.street_no}}</td>
+                            <td>{{user.email}}</td>
+                            <td>{{user.city}}</td>
+                            <td>{{user.postalcode}}</td>
+                            <td>{{user.role}}</td>
                             <td>
                                 <div class="card-body">
-                                    <a href="#" class="card-link">Bearbeiten</a>
-                                    <a href="#" class="card-link">Löschen</a>
+                                    <a href="#" class="card-link">Edit</a>
+                                    <a href="#" class="card-link">Delete</a>
+                                    <a href="#" class="card-link">reset PW</a>
                                 </div>
                             </td>          
                     {% endfor %}

@@ -127,7 +127,7 @@ def logout():
 @app.route("/admin",methods=['GET'])
 @require_permissions("adminpanel.show")
 def admin():
-    users=Database.get_all_users()
+    users= Tables.User.query.all()
     contacts = Tables.Contact.query.all()
     return render_template('admin.html', title='Sia-PlanB.de', users=users, contacts=contacts)
 

@@ -169,6 +169,7 @@ def contact():
         )
         db.session.add(newContact)
         db.session.commit()
+        flash("Danke für deine Nachricht!")
     if current_user.is_authenticated:
         if current_user.email: form.email.data=current_user.email 
         if current_user.surname: form.surname.data=current_user.surname 

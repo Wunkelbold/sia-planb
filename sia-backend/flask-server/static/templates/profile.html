@@ -16,35 +16,33 @@
           padding: 5px;
           margin: 10px
         }
-      </style>
-      
+    </style>
       
       <div style="display: flex; justify-content: center; align-items: center;"data-bs-theme="dark">
         <div class="card" style="width: 50rem; margin: 30px; padding: 15px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" data-bs-theme="dark">
           <h5 class="card-header">Ändere Deine Daten</h5>
-          <form class="row g-2" method="POST" action="/register">
+          <form class="row g-2" method="POST" action="/profile">
             {{ form.hidden_tag() }}
-            <div class="col-md-3">
+            <div class="col-md-4">
               {{ form.username }}
             </div>
-            <div class="col-md-3">
-              {{ form.surname }}
+            <div class="col-md-4">
+                <input id="disabledTextInput" name="role" placeholder="{{role}}" type="text" value="{{role}}" disabled>
             </div>
-            <div class="col-md-3">
-              {{ form.lastname }}
-            </div>
-            <div class="col-md-12">
-              {{ form.password }}
-            </div>
-            <div class="col-md-12">
-              {{ form.password_confirm }}
+            <div class="col-md-4">
+                {{ form.email }}
             </div>
             <div class="col-md-5">
-              {{ form.email }}
+              {{ form.surname }}
             </div>
-            <div class="col-md-7">
-              <label class="visually-hidden" for="inputRole">Rolle</label>
-              {{ form.role }}
+            <div class="col-md-5">
+              {{ form.lastname }}
+            </div>
+            <div class="col-md-5">
+              {{ form.password }}
+            </div>
+            <div class="col-md-5">
+              {{ form.password_confirm }}
             </div>
             <div class="col-md-3">
               {{ form.street }}

@@ -1,4 +1,5 @@
 import os
+from flask import json
 import psycopg2
 from psycopg2 import OperationalError, DatabaseError, InterfaceError
 from flask_login import UserMixin
@@ -41,6 +42,19 @@ class Tables:
         description = db.Column(db.String(200))
         postername = db.Column(db.String(50))
 
+        def toJSON(self):
+            return json.dumps({
+                "id": self.id,
+                "author": self.author,
+                "name": self.name,
+                "visibility": self.visibility,
+                "place": self.place,
+                "created": self.created,
+                "date": self.date,
+                "description": self.description,
+                "postername": self.postername
+            })
+    
     class Shift(db.Model):
         __tablename__ = 'shifts'
         id = db.Column(db.Integer, primary_key=True)
@@ -49,6 +63,16 @@ class Tables:
         type = db.Column(db.TEXT, nullable=False)
         start = db.Column(db.DateTime, nullable=False)
         end = db.Column(db.DateTime, nullable=False)
+        
+        def toJSON(self):
+            return json.dumps({
+                "id": self.id,
+                "user": self.user,
+                "event": self.event,
+                "type": self.type,
+                "start": self.start,
+                "end": self.end
+            })
 
     class Contact(db.Model):
         __tablename__ = 'contact'

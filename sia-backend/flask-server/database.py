@@ -4,7 +4,7 @@ import psycopg2
 from psycopg2 import OperationalError, DatabaseError, InterfaceError
 from flask_login import UserMixin
 import logging
-from globals import db
+from globals import app, db
 
 class Tables:
     class User(db.Model, UserMixin):
@@ -72,6 +72,10 @@ class Tables:
                 "start": self.start,
                 "end": self.end
             })
+        
+
+with app.app_context():
+    db.create_all()
 
 class DAO:
     def init():

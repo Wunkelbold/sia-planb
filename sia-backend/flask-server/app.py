@@ -50,7 +50,7 @@ def register():
                 flash('Nur Buchstaben und Zahlen im Benutzernamen', 'error')
             if existing_user_username:
                 flash('Benutzername bereits vergeben', 'error')
-            #if username in manager.config.get_config("banned_usernames"):
+            #if username in manager.config.get_config("banned_usernames"): #TODO ADD BANNED CHARACTERS
                 #flash('- That username is not allowed. Please choose a different name.', 'error')
             if form.password.data != form.password_confirm.data:
                 flash('Passwörter stimmen nicht überein', 'error')
@@ -72,10 +72,12 @@ def register():
                     city = form.city.data,
                     postalcode = form.postalcode.data,
                     role = new_Role.name,
-                    permissions = []
+                    permissions = [],
+                    last_updated = ""
                     )
                 new_user.register_date = now
                 new_user.last_login = now
+                new_user.last_updated = now
                 db.session.add(new_Role)
                 db.session.add(new_user)
                 db.session.commit()
@@ -179,6 +181,52 @@ def newsletter():
 
 @app.route("/profile",methods=['GET'])
 def profile():
+    form = Forms.ChangeData()
+    if form.validate_on_submit:
+        username = form.username.data.lower()
+        existing_user_username = Tables.User.query.filter_by(username=username).first()
+        if existing_user_username or not username.isalnum() or form.password.data != form.password_confirm.data:
+            if not username.isalnum():
+                flash('Nur Buchstaben und Zahlen im Benutzernamen', 'error')
+            if existing_user_username:
+                flash('Benutzername bereits vergeben', 'error')
+            #if username in manager.config.get_config("banned_usernames"): #TODO ADD BANNED CHARACTERS
+                #flash('- That username is not allowed. Please choose a different name.', 'error')
+            if form.password.data != form.password_confirm.data:
+                flash('Passwörter stimmen nicht überein', 'error')
+        else:
+            if form.validate_on_submit():
+                now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+                new_Role = Tables.Role(name=form.role.data, permissions=["adminpanel.show"]) # TODO create roles somewhere else
+                changed_user = Tables.User(
+                    username = username,
+                    password = hashed_password,
+                    register_date = "", 
+                    last_login = "",
+                    surname = form.surname.data,
+                    lastname = form.lastname.data,
+                    email = form.email.data,
+                    street = form.street.data,
+                    street_no = form.street_no.data,
+                    city = form.city.data,
+                    postalcode = form.postalcode.data,
+                    role = new_Role.name,
+                    permissions = [],
+                    last_updated=""
+                    )
+                new_user.register_date = now
+                new_user.last_login = now
+                new_user.last_updated = now
+                db.session.add(new_Role)
+                db.session.add(new_user)
+                db.session.commit()
+                login_user(new_user)
+                return redirect(url_for('login'))
+            else:
+                print(form.errors)  # Debugging: Show validation errors
+                flash('Form submission failed. Check your input.', 'error')
+        
     return render_template('profile.html', title='Sia-PlanB.de')
 
 @app.route("/verein",methods=['GET'])

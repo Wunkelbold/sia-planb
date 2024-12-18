@@ -24,3 +24,17 @@ class Forms:
         password = PasswordField(render_kw={"placeholder": "Passwort"})
         submit = SubmitField('Login')
 
+
+    class ChangeData(FlaskForm):
+        username = StringField(render_kw={"placeholder": "Benutzername"})
+        password = PasswordField(render_kw={"placeholder": "Passwort"})
+        password_confirm = PasswordField( render_kw={"placeholder": "Passwörter bestätigen"})
+        submit = SubmitField('Register')
+        surname = StringField(label="Vorname",render_kw={"placeholder": "Vorname"},default="")
+        lastname = StringField(label="Nachname",render_kw={"placeholder": "Nachname"},default="")
+        email = EmailField(render_kw={"placeholder": "Email"},default="")
+        street = StringField(render_kw={"placeholder": "Straße"},default="")
+        street_no = StringField(render_kw={"placeholder": "Nr"},default="")
+        city = StringField( render_kw={"placeholder": "Stadt"},default="")
+        postalcode = StringField(render_kw={"placeholder": "PLZ"},default="")
+

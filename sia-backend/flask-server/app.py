@@ -5,7 +5,7 @@ from flask_user import roles_required
 from flask_wtf.csrf import CSRFProtect
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Table, Column, MetaData, Integer, Computed
+from sqlalchemy import Table, Column, MetaData, Integer, Computed, func
 from http import HTTPStatus
 import os
 import psycopg2
@@ -76,8 +76,8 @@ def register():
                     last_updated = ""
                     )
                 new_user.register_date = now
-                new_user.last_login = now
                 new_user.last_updated = now
+                new_user.last_login = now #TODO ungewöhnlicher Fall aber register != login
                 db.session.add(new_Role)
                 db.session.add(new_user)
                 db.session.commit()
@@ -112,6 +112,7 @@ def login():
         else:
                 print(form.errors)  # Debugging: Show validation errors
                 flash('Form submission failed. Check your input.', 'error')
+        #TODO last_login = datetime.now() 
     return render_template('login.html', form=form)
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -126,8 +127,10 @@ def logout():
 @app.route("/admin",methods=['GET'])
 @require_permissions("adminpanel.show")
 def admin():
-    users=Database.get_all_users()
-    return render_template('admin.html', title='Sia-PlanB.de', users=users)
+    users= Tables.User.query.all()
+    contacts = Tables.Contact.query.all()
+    return render_template('admin.html', title='Sia-PlanB.de', users=users, contacts=contacts)
+
 
 @app.route("/eventmanager",methods=['GET'])
 @require_permissions("eventmanager.show")
@@ -153,9 +156,27 @@ def index():
     events=Database.get_all_events()
     return render_template('index.html', title='Sia-PlanB.de', events=events)
 
-@app.route("/contact",methods=['GET'])
+@app.route("/contact", methods=['GET', 'POST'])
 def contact():
-    return render_template('contact.html', title='Sia-PlanB.de')
+    form = Forms.ContactForm()
+    if form.is_submitted():
+        print("---New Contact Form Submit!---")
+        newContact = Tables.Contact(
+            category = form.category.data,
+            surname = form.surname.data,
+            lastname = form.lastname.data,
+            email = form.email.data,
+            message = form.message.data,
+            created = datetime.now()
+        )
+        db.session.add(newContact)
+        db.session.commit()
+        flash("Danke für deine Nachricht!")
+    if current_user.is_authenticated:
+        if current_user.email: form.email.data=current_user.email 
+        if current_user.surname: form.surname.data=current_user.surname 
+        if current_user.lastname: form.lastname.data=current_user.lastname
+    return render_template('contact.html', title='Sia-PlanB.de', form=form)
 
 @app.route("/datenschutz",methods=['GET'])
 def datenschutz():

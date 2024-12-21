@@ -1,4 +1,4 @@
-from wtforms import StringField, PasswordField, SubmitField, EmailField, IntegerField, SelectField
+from wtforms import StringField, PasswordField, SubmitField, EmailField, IntegerField, SelectField, TextAreaField
 from wtforms.validators import InputRequired, Length, ValidationError, EqualTo, Email
 from flask_wtf import FlaskForm
 
@@ -37,3 +37,10 @@ class Forms:
         city = StringField( render_kw={"placeholder": "Stadt"},default="")
         postalcode = StringField(render_kw={"placeholder": "PLZ"},default="")
 
+    class ContactForm(FlaskForm):
+        category = SelectField(render_kw={"placeholder": "Art der Anfrage"},choices=[('kontakt', 'Kontakt'), ('mieten', 'Das Plan B Mieten'), ('feedback', 'Kritik/Lob'), ('events', 'Vorschlag für ein Event')])
+        surname = StringField(render_kw={"placeholder": "Vorname"})
+        lastname = StringField(render_kw={"placeholder": "Nachname"})
+        email = StringField(render_kw={"placeholder": "Email"})
+        message = TextAreaField(render_kw={"placeholder": "Nachricht"},validators=[Length(max=500)])
+        submit = SubmitField('Senden')

@@ -41,6 +41,16 @@ class Tables:
         name = db.Column(db.TEXT, primary_key=True)
         permissions = db.Column(db.ARRAY(db.TEXT), nullable=False)
 
+    class Contact(db.Model):
+        __tablename__ = 'contact'
+        id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+        category = db.Column(db.String(20))
+        surname = db.Column(db.String(20))
+        lastname = db.Column(db.String(20))
+        email = db.Column(db.String(30))
+        message = db.Column(db.String(500))
+        created = db.Column(db.TEXT)
+
 class DAO:
     def init():
         if os.getenv("DROP_DATABASE"):

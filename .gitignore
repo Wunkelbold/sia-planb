@@ -2,3 +2,4 @@
 update-containers.sh
 .venv
 __pycache__
+.vscode/launch.json

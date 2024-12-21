@@ -224,7 +224,7 @@ def profile():
         if current_user.username: form.username.data=current_user.username 
         form.password.data=""
         form.password_confirm.data=""
-        if current_user.surname: form.surname.data=current_user.surname
+        if current_user.surname: form.surname.data=current_user.surname # Man weiß ja nie und lieber auf Nummer sicher
         if current_user.email: form.email.data=current_user.email  
         if current_user.lastname: form.lastname.data=current_user.lastname
         if current_user.email: form.email.data=current_user.email 

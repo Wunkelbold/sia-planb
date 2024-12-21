@@ -50,7 +50,7 @@ def register():
                 flash('Nur Buchstaben und Zahlen im Benutzernamen', 'error')
             if existing_user_username:
                 flash('Benutzername bereits vergeben', 'error')
-            #if username in manager.config.get_config("banned_usernames"):
+            #if username in manager.config.get_config("banned_usernames"): #TODO ADD BANNED CHARACTERS
                 #flash('- That username is not allowed. Please choose a different name.', 'error')
             if form.password.data != form.password_confirm.data:
                 flash('Passwörter stimmen nicht überein', 'error')
@@ -72,10 +72,12 @@ def register():
                     city = form.city.data,
                     postalcode = form.postalcode.data,
                     role = new_Role.name,
-                    permissions = []
+                    permissions = [],
+                    last_updated = ""
                     )
                 new_user.register_date = now
                 new_user.last_login = now
+                new_user.last_updated = now
                 db.session.add(new_Role)
                 db.session.add(new_user)
                 db.session.commit()
@@ -177,9 +179,61 @@ def impressum():
 def newsletter():
     return render_template('newsletter.html', title='Sia-PlanB.de')
 
-@app.route("/profile",methods=['GET'])
+@app.route("/profile",methods=['GET','POST'])
+@login_required
 def profile():
-    return render_template('profile.html', title='Sia-PlanB.de')
+    form = Forms.ChangeData()
+    user = db.session.query(Tables.User).filter_by(username=current_user.username).first()
+    if request.method == "POST" and form.validate_on_submit():
+        new_username = form.username.data.lower()
+        if current_user.username != new_username:
+            existing_user_username = Tables.User.query.filter_by(username=new_username).first()
+            if existing_user_username or not new_username.isalnum():
+                if not new_username.isalnum():
+                    flash('Nur Buchstaben und Zahlen im Benutzernamen', 'error')
+                if existing_user_username:
+                    flash('Benutzername bereits vergeben', 'error')
+                #if username in manager.config.get_config("banned_usernames"): #TODO ADD BANNED CHARACTERS
+                    #flash('- That username is not allowed. Please choose a different name.', 'error')
+            else:
+                user.username=new_username
+        if form.password.data and form.password_confirm.data:
+            if form.password.data != form.password_confirm.data:
+                flash('Passwörter sind nicht gleich', 'error')
+            else:
+                hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+                user.password=hashed_password
+        if form.surname.data:
+            user.surname = form.surname.data
+        if form.lastname.data:
+            user.lastname = form.lastname.data
+        if form.email.data:
+            user.email = form.email.data
+        if form.street.data:
+            user.street = form.street.data
+        if form.street_no.data:
+            user.street_no = form.street_no.data
+        if form.city.data:
+            user.city = form.city.data
+        if form.postalcode.data:
+            user.postalcode = form.postalcode.data
+        user.last_updated = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        db.session.commit()
+        flash('Daten geändert', 'info')
+    if current_user.is_authenticated: #eigentlich unnötig da Profile nicht sichtbar ist für Anonyme User
+        if current_user.username: form.username.data=current_user.username 
+        form.password.data=""
+        form.password_confirm.data=""
+        if current_user.surname: form.surname.data=current_user.surname # Man weiß ja nie und lieber auf Nummer sicher
+        if current_user.email: form.email.data=current_user.email  
+        if current_user.lastname: form.lastname.data=current_user.lastname
+        if current_user.email: form.email.data=current_user.email 
+        if current_user.street: form.street.data=current_user.street 
+        if current_user.city: form.city.data=current_user.city 
+        if current_user.street_no: form.street_no.data=current_user.street_no 
+        if current_user.postalcode: form.postalcode.data=current_user.postalcode 
+        role=current_user.role if current_user.role else ""
+    return render_template('profile.html', title='Sia-PlanB.de',form=form,role=role)
 
 @app.route("/verein",methods=['GET'])
 def verein():

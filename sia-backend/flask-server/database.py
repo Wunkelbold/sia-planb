@@ -34,6 +34,7 @@ class Tables:
         last_login = db.Column(db.TEXT)
         role = db.Column(db.TEXT, db.ForeignKey("roles.name"), nullable=False)
         permissions = db.Column(db.ARRAY(db.TEXT), nullable=False)
+        last_updated = db.Column(db.TEXT)
 
     class Role(db.Model):
         __tablename__ = 'roles'

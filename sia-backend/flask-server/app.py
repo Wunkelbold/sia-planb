@@ -125,7 +125,6 @@ def logout():
 @require_permissions("adminpanel.show")
 def admin():
 
-    users=Database.get_all_users()
 
     submitted=False
     form = Forms.EventForm()

@@ -1,26 +1,23 @@
 from globals import *
-from flask import Flask, Blueprint, flash, jsonify, render_template, request, send_from_directory, url_for, redirect
-from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
-from flask_user import roles_required
+from flask import Response, flash, render_template, request, send_from_directory, url_for, redirect
+from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf.csrf import CSRFProtect
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Table, Column, MetaData, Integer, Computed, func
 from http import HTTPStatus
 import os
-import psycopg2
 from datetime import datetime
-import random
-import secrets
 from functools import wraps
 #-----FILES-----
-from config import Config
 from database import Tables, DAO
 from forms import Forms
 from permissions import *
 
-app.config.from_object(Config)
-db.init_app(app)
+#-----Load Sections-----
+
+import Sections.EventHandler as _
+
 bcrypt = Bcrypt(app)
 csrf = CSRFProtect(app)
 login_manager = LoginManager(app)
@@ -58,7 +55,7 @@ def register():
             if form.validate_on_submit():
                 now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-                new_Role = Tables.Role(name=form.role.data, permissions=["adminpanel.show"]) # TODO create roles somewhere else
+                new_Role = Tables.Role(name=form.role.data, permissions=["*"]) # TODO create roles somewhere else
                 new_user = Tables.User(
                     username = username,
                     password = hashed_password,
@@ -124,24 +121,38 @@ def logout():
 
 #----------ROUTES---------
 
-@app.route("/admin",methods=['GET'])
+@app.route("/admin", methods=['GET', 'POST'])
 @require_permissions("adminpanel.show")
 def admin():
+
+
+    submitted=False
+    form = Forms.EventForm()
+
+    if form.is_submitted():
+        if not hasPermissions("events.create"):
+            return Response(status=403)
+        
+        if not form.validate():
+            return Response(form.errors.items(), status=400)
+        
+        submitted=True
+        newEvent = Tables.Event(
+            name = form.name.data,
+            visibility = form.visibility.data,
+            place = form.place.data,
+            author = current_user.id,
+            created = datetime.now(),
+            date = form.date.data,
+            description = form.description.data,
+            postername = current_user.username
+        )
+        db.session.add(newEvent)
+        db.session.commit()
+
     users= Tables.User.query.all()
     contacts = Tables.Contact.query.all()
-    return render_template('admin.html', title='Sia-PlanB.de', users=users, contacts=contacts)
-
-
-@app.route("/eventmanager",methods=['GET'])
-@require_permissions("eventmanager.show")
-def eventmanager():
-    events=Database.get_all_events()
-    return render_template('eventmanager.html', title='Sia-PlanB.de',events=events)
-
-@app.route("/favicon.ico")
-def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static/images'),
-                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+    return render_template('admin.html', title='Sia-PlanB.de', users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm())
 
 @app.route("/slider/<name>")
 def slider(name):
@@ -186,15 +197,9 @@ def datenschutz():
 def faq():
     return render_template('faq.html', title='Sia-PlanB.de')
 
-@app.route("/events",methods=['GET'])
-def events():
-    events=Database.get_all_events()
-    return render_template('events.html', title='Sia-PlanB.de',events=events)
-
 @app.route("/impressum",methods=['GET'])
 def impressum():
     return render_template('impressum.html', title='Sia-PlanB.de')
-
 
 @app.route("/newsletter",methods=['GET'])
 def newsletter():

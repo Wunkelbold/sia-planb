@@ -1,23 +1,12 @@
 import os
+from flask import json
 import psycopg2
-from psycopg2 import OperationalError, DatabaseError, InterfaceError, sql
+from psycopg2 import OperationalError, DatabaseError, InterfaceError
 from flask_login import UserMixin
 import logging
-from globals import db
+from globals import app, db
 
 class Tables:
-    class Event(db.Model, UserMixin):
-        __tablename__ = 'events'
-        id = db.Column(db.Integer, primary_key=True)
-        name = db.Column(db.String(50), nullable=False)
-        visibility = db.Column(db.String(10))
-        place = db.Column(db.String(50))
-        author = db.Column(db.String(20), nullable=False)
-        created = db.Column(db.TEXT)
-        date = db.Column(db.TEXT)
-        description = db.Column(db.String(200))
-        postername = db.Column(db.String(50))
-
     class User(db.Model, UserMixin):
         __tablename__ = 'user'
         id = db.Column(db.Integer, primary_key=True)
@@ -40,6 +29,54 @@ class Tables:
         __tablename__ = 'roles'
         name = db.Column(db.TEXT, primary_key=True)
         permissions = db.Column(db.ARRAY(db.TEXT), nullable=False)
+        
+    class Event(db.Model):
+        __tablename__ = 'events'
+        id = db.Column(db.Integer, primary_key=True)
+        author = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+        name = db.Column(db.String(50), nullable=False)
+        visibility = db.Column(db.String(10))
+        place = db.Column(db.String(50))
+        created = db.Column(db.DateTime)
+        date = db.Column(db.DateTime)
+        description = db.Column(db.String(200))
+        postername = db.Column(db.String(50))
+
+        def toJSON(self):
+            return json.dumps({
+                "id": self.id,
+                "author": self.author,
+                "name": self.name,
+                "visibility": self.visibility,
+                "place": self.place,
+                "created": self.created,
+                "date": self.date,
+                "description": self.description,
+                "postername": self.postername
+            })
+    
+    class Shift(db.Model):
+        __tablename__ = 'shifts'
+        id = db.Column(db.Integer, primary_key=True)
+        user = db.Column(db.Integer, db.ForeignKey("user.id"))
+        event = db.Column(db.Integer, db.ForeignKey("events.id"), nullable=False)
+        type = db.Column(db.TEXT, nullable=False)
+        start = db.Column(db.DateTime, nullable=False)
+        end = db.Column(db.DateTime, nullable=False)
+        
+        def toJSON(self):
+            return json.dumps({
+                "id": self.id,
+                "user": self.user,
+                "event": self.event,
+                "type": self.type,
+                "start": self.start,
+                "end": self.end
+            })
+        
+
+with app.app_context():
+    db.create_all()
 
     class Contact(db.Model):
         __tablename__ = 'contact'

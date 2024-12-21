@@ -6,7 +6,9 @@ from flask_login import login_required, current_user
 
 
 def hasPermissions(*permissions_required: str) -> bool:
-    if not current_user.is_authenticated: return False
+    if not permissions_required: return True
+    if not current_user.is_authenticated: return  False
+    
     userRolePermissions = Tables.Role.query.filter_by(name=current_user.role).first().permissions
     userPermissions = userRolePermissions + current_user.permissions
 

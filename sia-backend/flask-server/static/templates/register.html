@@ -74,6 +74,21 @@
           {% endif %}
         {% endwith %}
       </div>
+      <div>
+          {% if messages %}
+            <ul class="error-message-list">
+                {% for field, message in messages.items() %}
+                  <li><strong>{{ field }}</strong>:
+                    <ul>
+                        {% for msg in message %}
+                            <li>{{ msg }}</li>
+                        {% endfor %}
+                    </ul>
+                  </li>
+                {% endfor %}
+            </ul>
+          {% endif %}
+      </div>
 
     </form>
   </div>

@@ -73,10 +73,6 @@ class Tables:
                 "start": self.start,
                 "end": self.end
             })
-        
-
-with app.app_context():
-    db.create_all()
 
     class Contact(db.Model):
         __tablename__ = 'contact'
@@ -87,6 +83,9 @@ with app.app_context():
         email = db.Column(db.String(30))
         message = db.Column(db.String(500))
         created = db.Column(db.TEXT)
+
+with app.app_context():
+    db.create_all()
 
 class DAO:
     def init():

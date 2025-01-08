@@ -87,9 +87,9 @@ def register():
                     flash('Nice Try!', 'error')
             else:
                 print(form.errors)  # Debugging: Show validation errors
-                flash('Form submission failed. Check your input.', 'error')
-    
-    return render_template('register.html', form=form)
+                flash('Etwas hat nicht gestimmt:', 'error')
+    messages=form.errors
+    return render_template('register.html', form=form, messages=messages)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

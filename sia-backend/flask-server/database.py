@@ -1,4 +1,6 @@
 import os
+import sys
+import traceback
 from flask import json
 import psycopg2
 from psycopg2 import OperationalError, DatabaseError, InterfaceError
@@ -29,6 +31,7 @@ class Tables:
         __tablename__ = 'roles'
         name = db.Column(db.TEXT, primary_key=True)
         permissions = db.Column(db.ARRAY(db.TEXT), nullable=False)
+        selectable_on_register = db.Column(db.String(10))
         
     class Event(db.Model):
         __tablename__ = 'events'
@@ -84,18 +87,9 @@ class Tables:
         message = db.Column(db.String(500))
         created = db.Column(db.TEXT)
 
-with app.app_context():
-    db.create_all()
 
+##LEGACY KANN GELÖSCHT WERDEN
 class DAO:
-    def init():
-        if os.getenv("DROP_DATABASE"):
-            db.drop_all()
-            print("---DATABASE WAS DROPPED DUE TO COMPOSE SETTING---")
-        if os.getenv("CREATE_DATABASE"):
-            db.create_all()
-            print("---DATABASE WAS CREATED DUE TO COMPOSE SETTING---")
-
     def get_database_connection():
         conn = None
         cur = None
@@ -187,3 +181,48 @@ class DAO:
     
     def get_all_admin_events():
         return None
+    
+with app.app_context():
+    if os.getenv("DROP_DATABASE"):
+        db.drop_all()
+        print("---DATABASE WAS DROPPED DUE TO COMPOSE SETTING---")
+    if os.getenv("CREATE_DATABASE"):
+        db.create_all()
+        print("---DATABASE WAS CREATED DUE TO COMPOSE SETTING---")
+    if os.getenv("INIT_ROLES","true"):
+        print("Rollen werden initialisiert aufgrund INIT_ROLES=true")
+        try:
+            #keine Ahnung warum, aber roles.json liegt in neben app.py und es hat trotzdem nicht funktioniert deshalb die folgenden drei Zeilen "Umweg""
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            print("current script directory: " + script_dir)
+            roles_path = os.path.join(script_dir, "roles.json")
+            with open(roles_path, "r") as f:
+                roles = json.load(f)
+                # Process public roles
+                for name, perm in roles.get("public", {}).items():
+                    if Tables.Role.query.filter_by(name=name).first():
+                        print(f"Rolle {name} existiert bereits in der Datenbank und wurde übersprungen.")
+                    else:
+                        permissions = perm if perm else []  # Handle empty permissions
+                        new_role = Tables.Role(name=name, permissions=permissions, selectable_on_register="yes")
+                        db.session.add(new_role)
+                
+                # Process private roles
+                for name, perm in roles.get("private", {}).items():
+                    if Tables.Role.query.filter_by(name=name).first():
+                        print(f"Rolle {name} existiert bereits in der Datenbank und wurde übersprungen.")
+                    else:
+                        permissions = perm if perm else []  # Handle empty permissions
+                        new_role = Tables.Role(name=name, permissions=permissions, selectable_on_register="no")
+                        db.session.add(new_role)
+            
+            db.session.commit()
+            print("Alle Rollen wurden erfolgreich initialisiert.")
+    
+        except Exception as e:
+            print("Ein Fehler ist aufgetreten:", file=sys.stderr)
+            traceback.print_exc(file=sys.stderr)
+    else:
+        print("Rollen werden nicht initialisiert aufgrund INIT_ROLES=false")
+
+

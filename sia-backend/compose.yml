@@ -30,6 +30,7 @@ services:
       - DEFAULT_USER_PASSWORD=${DEFAULT_USER_PASSWORD}
       - DROP_DATABASE=false
       - CREATE_DATABASE=true
+      - INIT_ROLES=true
       - Debug=false
 
     depends_on:

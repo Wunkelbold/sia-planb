@@ -1,0 +1,12 @@
+{
+    "public":{
+        "Gast":[""],
+        "Student":[""],
+        "Sia-Alumni":[""]
+    },
+    "private":{
+        "Mitglied":[""],
+        "Moderator":[""],
+        "Admin":["*"]
+    }
+}

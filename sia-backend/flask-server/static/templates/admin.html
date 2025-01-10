@@ -87,78 +87,132 @@
 <section id="admin">
     <div>
         <h3>Benutzerverwaltung</h3>
-        <table class="table table-dark table-striped">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Benutzername</th>
-                    <th>Vorname</th>
-                    <th>Nachname</th>
-                    <th>Straße</th>
-                    <th>Nr.</th>
-                    <th>email</th>
-                    <th>Stadt</th>
-                    <th>PLZ</th>
-                    <th>Rolle</th>
-                    <th>Admin</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if users %}
-                    {% for user in users %}
-                        <tr>
-                            <td>{{user.id}}</td>
-                            <td>{{user.username}}</td>
-                            <td>{{user.surname}}</td>
-                            <td>{{user.lastname}}</td>
-                            <td>{{user.street}}</td>
-                            <td>{{user.street_no}}</td>
-                            <td>{{user.email}}</td>
-                            <td>{{user.city}}</td>
-                            <td>{{user.postalcode}}</td>
-                            <td>{{user.role}}</td>
-                            <td>
-                                <div class="card-body">
-                                    <a href="#" class="card-link">Edit</a>
-                                    <a href="#" class="card-link">Delete</a>
-                                    <a href="#" class="card-link">reset PW</a>
-                                </div>
-                            </td>          
-                    {% endfor %}
-                {% endif %}
-                </tr>
-            </tbody>
-        </table>
+        <div class="table-container">
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Benutzername</th>
+                        <th>Vorname</th>
+                        <th>Nachname</th>
+                        <th>Straße</th>
+                        <th>Nr.</th>
+                        <th>email</th>
+                        <th>Stadt</th>
+                        <th>PLZ</th>
+                        <th>Rolle</th>
+                        <th>Verwaltung</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if users %}
+                        {% for user in users %}
+                            <tr>
+                                <td>{{user.id}}</td>
+                                <td>{{user.username}}</td>
+                                <td>{{user.surname}}</td>
+                                <td>{{user.lastname}}</td>
+                                <td>{{user.street}}</td>
+                                <td>{{user.street_no}}</td>
+                                <td>{{user.email}}</td>
+                                <td>{{user.city}}</td>
+                                <td>{{user.postalcode}}</td>
+                                <td>{{user.role}}</td>
+                                <td>
+                                    <div class="card-body">
+                                        <a href="#" class="card-link">Edit</a>
+                                        <a href="#" class="card-link">Delete</a>
+                                        <a href="#" class="card-link">reset PW</a>
+                                    </div>
+                                </td>          
+                        {% endfor %}
+                    {% endif %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
     
     <div>
         <h1>Kontaktanfragen</h1>
-        <table class="table table-dark table-striped">
-            <thead>
-                <tr>
-                    <th>Kategorie</th>
-                    <th>Vorname</th>
-                    <th>Nachname</th>
-                    <th>Email</th>
-                    <th>Nachricht</th>
-                    <th>Erstellt</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if contacts %}
-                    {% for contact in contacts %}
-                        <tr>
-                            <td>{{ contact.category }}</td>
-                            <td>{{ contact.surname }}</td>
-                            <td>{{ contact.lastname }}</td>
-                            <td>{{ contact.email }}</td>
-                            <td>{{ contact.message }}</td>     
-                            <td>{{ contact.created }}</td>       
-                    {% endfor %}
-                {% endif %}
-                </tr>
-            </tbody>
-        </table>
+        <div class="table-container">
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>Kategorie</th>
+                        <th>Vorname</th>
+                        <th>Nachname</th>
+                        <th>Email</th>
+                        <th>Nachricht</th>
+                        <th>Erstellt</th>
+                        <th>Verwaltung</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if contacts %}
+                        {% for contact in contacts %}
+                            <tr data-uid="{{ contact.uid }}">
+                                <td>{{ contact.category }}</td>
+                                <td>{{ contact.surname }}</td>
+                                <td>{{ contact.lastname }}</td>
+                                <td>{{ contact.email }}</td>
+                                <td>{{ contact.message }}</td>     
+                                <td>{{ contact.created }}</td>  
+                                <td>
+                                    <div class="card-body">
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#deleteModal" data-uid="{{ contact.uid }}">
+                                                Delete
+                                            </button>
+                                    </div>
+                                </td>      
+                        {% endfor %}
+                    {% endif %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteModalLabel">Löschung bestätigen</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  Sicher dass du die Kontaktanfrage löschen möchtest?
+                </div>
+                <div class="modal-footer">
+                  <form id="delete-form" method="POST" action="/delete_contact">
+                    {{ form.hidden_tag() }}
+                    <input type="hidden" name="uid" id="uid-input" value="">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                  </form>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+              </div>
+            </div>
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+            const deleteModal = document.getElementById('deleteModal');
+            const uidInput = document.getElementById('uid-input');
+
+            // Bootstrap's modal event listener
+            deleteModal.addEventListener('show.bs.modal', (event) => {
+                // Button that triggered the modal
+                const button = event.relatedTarget;
+
+                // Extract UID from data-uid attribute
+                const uid = button.getAttribute('data-uid');
+
+                // Update the hidden input value
+                uidInput.value = uid;
+            });
+            });
+        </script>
+    </div>
+
 
     {% if submitted %}
         <div>

@@ -194,6 +194,20 @@ def contact():
         if current_user.lastname: form.lastname.data=current_user.lastname
     return render_template('contact.html', title='Sia-PlanB.de', form=form)
 
+@app.route("/delete_contact", methods=['POST'])
+@require_permissions("adminpanel.delete")
+def delete_contact():
+    form = Forms.contactDelete()
+    if form.validate_on_submit():
+        uid = form.uid.data
+        contact = db.session.query(Tables.Contact).filter_by(uid=uid).first()
+        if contact:
+            db.session.delete(contact)
+            db.session.commit()
+        return redirect(url_for('newsletter'))
+    else:
+        return redirect(url_for('admin'))
+
 @app.route("/datenschutz",methods=['GET'])
 def datenschutz():
     return render_template('datenschutz.html', title='Sia-PlanB.de')

@@ -2,3 +2,22 @@
     width: 100%;
     background-color: rgb(43, 48, 53);
 }
+
+
+.table-container {
+    max-height: 600px; /* Maximale Höhe der Tabelle */ 
+    overflow: auto;    /* Scrollbars hinzufügen, wenn nötig */
+  }
+  
+  table {
+    width: 100%; /* Tabelle nimmt die volle Breite des Containers ein */
+  }
+  
+  th, td {
+    text-align: left;
+  }
+  
+  thead {
+    position: sticky; /* Optional: Header bleibt sichtbar */
+    top: 0;
+  }

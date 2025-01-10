@@ -7,6 +7,8 @@ from psycopg2 import OperationalError, DatabaseError, InterfaceError
 from flask_login import UserMixin
 import logging
 from globals import app, db
+import uuid
+from sqlalchemy.dialects.postgresql import UUID
 
 class Tables:
     class User(db.Model, UserMixin):
@@ -80,6 +82,7 @@ class Tables:
     class Contact(db.Model):
         __tablename__ = 'contact'
         id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+        uid = db.Column(UUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False)  # Add UUID
         category = db.Column(db.String(20))
         surname = db.Column(db.String(20))
         lastname = db.Column(db.String(20))
@@ -183,7 +186,7 @@ class DAO:
         return None
     
 def init_database():
-    if os.getenv("DROP_AND_CREATE_DATABASE")=="true":
+    if os.getenv("DROP_AND_CREATE_DATABASE")=="true": #für dev einmalig mit if os.getenv("DROP_AND_CREATE_DATABASE","true")=="true": ausführen
         db.drop_all()
         db.create_all()
         print("--- DROP_AND_CREATE_DATABASE \t true ---")

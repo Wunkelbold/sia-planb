@@ -1,4 +1,4 @@
-from wtforms import StringField, PasswordField, SubmitField, EmailField, IntegerField, SelectField, TextAreaField, DateField
+from wtforms import StringField, PasswordField, SubmitField, EmailField, IntegerField, SelectField, TextAreaField, DateField, HiddenField
 from wtforms.validators import InputRequired, Length, ValidationError, EqualTo, Email, Optional, Regexp
 from flask_wtf import FlaskForm
 
@@ -101,3 +101,7 @@ class Forms:
         date = DateField("Event Date", validators=[Optional()])
         description = StringField("Beschreibung", validators=[Length(min=0, max=200)])
         submit = SubmitField("Submit")
+
+    class contactDelete(FlaskForm):
+        uid = HiddenField('UID', validators=[InputRequired()])
+

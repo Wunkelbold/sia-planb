@@ -182,47 +182,50 @@ class DAO:
     def get_all_admin_events():
         return None
     
-with app.app_context():
-    if os.getenv("DROP_DATABASE"):
+def init_database():
+    if os.getenv("DROP_AND _CREATE_DATABASE")=="true":
         db.drop_all()
-        print("---DATABASE WAS DROPPED DUE TO COMPOSE SETTING---")
-    if os.getenv("CREATE_DATABASE"):
         db.create_all()
-        print("---DATABASE WAS CREATED DUE TO COMPOSE SETTING---")
-    if os.getenv("INIT_ROLES","true"):
-        print("Rollen werden initialisiert aufgrund INIT_ROLES=true")
+        print("--- DROP_AND _CREATE_DATABASE \t true ---")
+    else:
+        print("--- DROP_AND _CREATE_DATABASE \t false ---") 
+
+def init_roles():
+    if os.getenv("INIT_ROLES")=="true":
+        print("--- INIT_ROLES \t\t true ---")
         try:
-            #keine Ahnung warum, aber roles.json liegt in neben app.py und es hat trotzdem nicht funktioniert deshalb die folgenden drei Zeilen "Umweg""
             script_dir = os.path.dirname(os.path.abspath(__file__))
-            print("current script directory: " + script_dir)
             roles_path = os.path.join(script_dir, "roles.json")
             with open(roles_path, "r") as f:
                 roles = json.load(f)
-                # Process public roles
-                for name, perm in roles.get("public", {}).items():
+
+                for name, perm in roles.get("public").items():
                     if Tables.Role.query.filter_by(name=name).first():
-                        print(f"Rolle {name} existiert bereits in der Datenbank und wurde übersprungen.")
+                        print(f"--- role '{name}' already exists and was skipped ---")
                     else:
-                        permissions = perm if perm else []  # Handle empty permissions
+                        permissions = perm if perm else []
                         new_role = Tables.Role(name=name, permissions=permissions, selectable_on_register="yes")
                         db.session.add(new_role)
                 
-                # Process private roles
-                for name, perm in roles.get("private", {}).items():
+                for name, perm in roles.get("private").items():
                     if Tables.Role.query.filter_by(name=name).first():
-                        print(f"Rolle {name} existiert bereits in der Datenbank und wurde übersprungen.")
+                        print(f"--- role '{name}' already exists and was skipped ---")
                     else:
-                        permissions = perm if perm else []  # Handle empty permissions
+                        permissions = perm if perm else [] 
                         new_role = Tables.Role(name=name, permissions=permissions, selectable_on_register="no")
                         db.session.add(new_role)
             
             db.session.commit()
-            print("Alle Rollen wurden erfolgreich initialisiert.")
+            print("--- INIT_ROLES \t\t success ---")
     
         except Exception as e:
-            print("Ein Fehler ist aufgetreten:", file=sys.stderr)
+            print("--- init_roles() ERROR:", file=sys.stderr)
             traceback.print_exc(file=sys.stderr)
+
     else:
-        print("Rollen werden nicht initialisiert aufgrund INIT_ROLES=false")
+        print("--- INIT_ROLES \t false ---")
 
 
+with app.app_context():
+    init_database()
+    init_roles()

@@ -183,12 +183,14 @@ class DAO:
         return None
     
 def init_database():
-    if os.getenv("DROP_AND _CREATE_DATABASE")=="true":
+    if os.getenv("DROP_AND_CREATE_DATABASE")=="true":
         db.drop_all()
         db.create_all()
-        print("--- DROP_AND _CREATE_DATABASE \t true ---")
+        print("--- DROP_AND_CREATE_DATABASE \t true ---")
     else:
         print("--- DROP_AND _CREATE_DATABASE \t false ---") 
+        db.drop_all()
+        db.create_all()
 
 def init_roles():
     if os.getenv("INIT_ROLES")=="true":

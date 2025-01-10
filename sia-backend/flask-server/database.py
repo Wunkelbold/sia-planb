@@ -14,6 +14,7 @@ class Tables:
     class User(db.Model, UserMixin):
         __tablename__ = 'user'
         id = db.Column(db.Integer, primary_key=True)
+        uid = db.Column(UUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False)  # Add UUID
         username = db.Column(db.String(20), nullable=False, unique=True)
         surname = db.Column(db.String(20))
         lastname = db.Column(db.String(20))
@@ -38,6 +39,7 @@ class Tables:
     class Event(db.Model):
         __tablename__ = 'events'
         id = db.Column(db.Integer, primary_key=True)
+        uid = db.Column(UUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False)  # Add UUID
         author = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
         name = db.Column(db.String(50), nullable=False)
         visibility = db.Column(db.String(10))

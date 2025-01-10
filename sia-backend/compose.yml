@@ -1,5 +1,7 @@
 services:
   database:
+    ports:
+      - "5432:5432"
     build: ./database-server
     restart: always
     volumes:

@@ -157,7 +157,10 @@ def admin():
 
     users= Tables.User.query.all()
     contacts = Tables.Contact.query.all()
-    return render_template('admin.html', title='Sia-PlanB.de', users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(),form_edit_user=Forms.ChangeData())
+    roles = Tables.Role.query.all()
+    form_edit_user=Forms.AdminChangeData()
+    form_edit_user.role.choices = [(role.name, role.name) for role in roles] 
+    return render_template('admin.html', title='Sia-PlanB.de', users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(),form_edit_user=form_edit_user)
 
 @app.route("/slider/<name>")
 def slider(name):
@@ -212,6 +215,7 @@ def get_user():
             "street_no": user.street_no,
             "city": user.city,
             "postalcode": user.postalcode,
+            "role": user.role,
             "uid":user.uid
         })
     else:
@@ -248,7 +252,7 @@ def delete_user():
 @app.route("/update_user/<uid>", methods=['POST'])
 @require_permissions("adminpanel.update.user")
 def update_user(uid):
-    form = Forms.ChangeData()
+    form = Forms.AdminChangeData()
     user = db.session.query(Tables.User).filter_by(uid=uid).first()
     if form.validate_on_submit():
         new_username = form.username.data.lower()
@@ -283,6 +287,9 @@ def update_user(uid):
             user.city = form.city.data
         if form.postalcode.data:
             user.postalcode = form.postalcode.data
+        if form.role.data:
+            print("###### Role Data found: ", form.role.data)
+            user.role = form.role.data
         user.last_updated = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         db.session.commit()
         flash('Daten geändert', 'info')

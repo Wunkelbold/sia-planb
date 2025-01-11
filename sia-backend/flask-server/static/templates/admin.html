@@ -176,7 +176,7 @@
             <div class="modal-dialog modal-lg">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="editModalLabel">Ändere Die Nutzer Daten</h5>
+                  <h5 class="modal-title" id="editModalLabel">Benutzer ändern</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -187,7 +187,7 @@
                       {{ form_edit_user.username }}
                     </div>
                     <div class="col-md-4">
-                      <input id="disabledTextInput" name="role" placeholder="{{role}}" type="text" value="{{role}}" disabled>
+                        {{ form_edit_user.role }}
                     </div>
                     <div class="col-md-4">
                       {{ form_edit_user.email }}
@@ -268,21 +268,26 @@
                         if (data.error) {
                         console.error(data.error);
                         } else {
-                        formFields.username.value = data.username || '';
-                        formFields.email.value = data.email || '';
-                        formFields.surname.value = data.surname || '';
-                        formFields.lastname.value = data.lastname || '';
-                        formFields.street.value = data.street || '';
-                        formFields.street_no.value = data.street_no || '';
-                        formFields.city.value = data.city || '';
-                        formFields.postalcode.value = data.postalcode || '';
+                            formFields.username.value = data.username || '';
+                            formFields.email.value = data.email || '';
+                            formFields.surname.value = data.surname || '';
+                            formFields.lastname.value = data.lastname || '';
+                            formFields.street.value = data.street || '';
+                            formFields.street_no.value = data.street_no || '';
+                            formFields.city.value = data.city || '';
+                            formFields.postalcode.value = data.postalcode || '';
+                            const roleSelect = document.getElementById('inputRole');
+                            if (roleSelect) {
+                                for (let option of roleSelect.options) {
+                                    if (option.value === data.role) {
+                                        option.selected = true;
+                                        break;
+                                    }
+                                }
+                            }
                         }
-                        
                     })
                     .catch(error => console.error('An error occurred:', error));
-                });
-                form.addEventListener('submit', (event) => {
-                    event.preventDefault();  
                 });
             });
 

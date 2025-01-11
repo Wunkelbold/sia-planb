@@ -1,7 +1,7 @@
 services:
   database:
     ports:
-      - "5432:5432"
+      - "5432:5432" #TODO REMOVE
     build: ./database-server
     restart: always
     volumes:

@@ -188,7 +188,7 @@ class DAO:
         return None
     
 def init_database():
-    if os.getenv("DROP_AND_CREATE_DATABASE")=="true": #für dev einmalig mit if os.getenv("DROP_AND_CREATE_DATABASE","true")=="true": ausführen
+    if os.getenv("DROP_AND_CREATE_DATABASE")=="true": #TODO für dev einmalig mit if os.getenv("DROP_AND_CREATE_DATABASE","true")=="true": ausführen
         db.drop_all()
         db.create_all()
         print("--- DROP_AND_CREATE_DATABASE \t true ---")

@@ -153,7 +153,7 @@ def admin():
         db.session.commit()
 
     users = Tables.User.query.order_by(Tables.User.last_login.desc()).all()
-    contacts = Tables.Contact.query.order_by(Tables.Contact.created.desc()).all() #TODO Timestamp human readable 
+    contacts = Tables.Contact.query.order_by(Tables.Contact.created.desc()).all() 
     roles = Tables.Role.query.all()
     form_edit_user=Forms.AdminChangeData()
     form_edit_user.role.choices = [(role.name, role.name) for role in roles] 

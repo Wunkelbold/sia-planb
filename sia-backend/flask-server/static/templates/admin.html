@@ -194,7 +194,7 @@
                       <td><p name="display_uid" id="display_uid" value=""></p></td>
                     </tr>
                   </table>
-                  <form id="user_edit_modal_form" class="row g-2" method="POST" action="/update_user">
+                  <form id="user_edit_modal_form" class="row g-2" method="POST" action="/api/user/update/">
                     {{ form_edit_user.hidden_tag() }}
                     <input type="hidden" id="uid" name="uid" value="">
                     <div class="col-md-4">
@@ -273,14 +273,14 @@
                     const button = event.relatedTarget;
                     const uid = button.getAttribute('data-uid');
                     uidInput.value = uid;
-                    document.getElementById('user_edit_modal_form').setAttribute('action', `/update_user/${uid}`);
-                    fetch('/get_user', {
+                    document.getElementById('user_edit_modal_form').setAttribute('action', `/api/user/update/${uid}`);
+                    fetch(`/api/user/get/${uid}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRFToken': '{{ csrf_token() }}',
                     },
-                    body: JSON.stringify({ uid: uid }),
+                    body: "",
                     })
                     .then(response => response.json())
                     .then(data => {

@@ -107,7 +107,7 @@ def login():
                 else:
                     flash('Passwort falsch', 'error')
             else:
-                flash(f'Benutzer existiert nicht, <a href="{url_for("register")}">registriere dich zuerst!</a>', 'error')
+                flash(f'Benutzer existiert nicht!', 'error')
         else:
                 print(form.errors)  # Debugging: Show validation errors
                 flash('Form submission failed. Check your input.', 'error')
@@ -299,7 +299,7 @@ def update_user(uid):
     errors = []
     for field, error_list in form.errors.items():
         for error in error_list:
-            errors.append(f"{field}: {error}")
+            errors.append(f"{error}")
 
     return jsonify({'success': False, 'errors': errors})  # JSON-Antwort mit Fehlern
 

@@ -89,8 +89,7 @@ class Forms:
                                                                                     EqualTo('password_confirm', message='Passwörter sind nicht gleich.')])
         password_confirm = PasswordField( render_kw={"placeholder": "Passwörter bestätigen"}, validators=[
                                                                                                         Optional(),
-                                                                                                        Length(min=8, max=30, message="Das Passwort muss 8 bis 20 Zeichen lang sein."), 
-                                                                                                        EqualTo('password', message='Passwörter sind nicht gleich.')])
+                                                                                                        Length(min=8, max=30, message="Das Passwort muss 8 bis 20 Zeichen lang sein.")])
         submit = SubmitField('Ändern')
         surname = StringField(label="Vorname",render_kw={"placeholder": "Vorname"}, default="", validators=[Optional(),
                                                                                                             Length(min=0, max=30, message="Dein Vorname darf maximal 20 Zeichen lang sein.")])

@@ -160,7 +160,8 @@ def admin():
     roles = Tables.Role.query.all()
     form_edit_user=Forms.AdminChangeData()
     form_edit_user.role.choices = [(role.name, role.name) for role in roles] 
-    return render_template('admin.html', title='Sia-PlanB.de', users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(),form_edit_user=form_edit_user)
+    print(form_edit_user.role.choices)
+    return render_template('admin.html', title='Sia-PlanB.de', users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(), form_edit_user=form_edit_user)
 
 @app.route("/slider/<name>")
 def slider(name):
@@ -253,6 +254,8 @@ def delete_user():
 @require_permissions("adminpanel.update.user")
 def update_user(uid):
     form = Forms.AdminChangeData()
+    roles = Tables.Role.query.all() # sonst geht validate_on_submit nicht durch, TODO eventuell hier auf Rechte prüfen wer welche Rollen setzen kann
+    form.role.choices = [(role.name, role.name) for role in roles]
     user = db.session.query(Tables.User).filter_by(uid=uid).first()
     if form.validate_on_submit():
         new_username = form.username.data.lower()
@@ -293,6 +296,12 @@ def update_user(uid):
         user.last_updated = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         db.session.commit()
         flash('Daten geändert', 'info')
+    else:
+        for field_name, field_errors in form.errors.items():
+            print(f"Feld '{field_name}' hat folgende Fehler:")
+            for error in field_errors:
+                print(f"  - {error}")
+
     return redirect(url_for("admin"))
 
 

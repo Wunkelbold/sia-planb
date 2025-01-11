@@ -76,7 +76,7 @@ class Tables:
                 "start": self.start,
                 "end": self.end
             })
-        
+
     class Contact(db.Model):
         __tablename__ = 'contact'
         id = db.Column(db.Integer, primary_key=True, autoincrement=True)

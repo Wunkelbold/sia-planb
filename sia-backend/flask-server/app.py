@@ -1,5 +1,5 @@
 from globals import *
-from flask import Response, flash, render_template, request, send_from_directory, url_for, redirect
+from flask import Response, flash, render_template, request, send_from_directory, url_for, redirect, jsonify, get_flashed_messages
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf.csrf import CSRFProtect
 from flask_bcrypt import Bcrypt
@@ -157,7 +157,7 @@ def admin():
 
     users= Tables.User.query.all()
     contacts = Tables.Contact.query.all()
-    return render_template('admin.html', title='Sia-PlanB.de', users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm())
+    return render_template('admin.html', title='Sia-PlanB.de', users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(),form_edit_user=Forms.ChangeData())
 
 @app.route("/slider/<name>")
 def slider(name):
@@ -194,8 +194,31 @@ def contact():
         if current_user.lastname: form.lastname.data=current_user.lastname
     return render_template('contact.html', title='Sia-PlanB.de', form=form)
 
+@app.route("/get_user", methods=["POST"])
+@require_permissions("adminpanel.get.user")
+def get_user():
+    uid = request.json.get("uid")
+    if not uid:
+        return jsonify({"error": "UID is missing"}), 400
+
+    user = db.session.query(Tables.User).filter_by(uid=uid).first()
+    if user:
+        return jsonify({
+            "username": user.username,
+            "email": user.email,
+            "surname": user.surname,
+            "lastname": user.lastname,
+            "street": user.street,
+            "street_no": user.street_no,
+            "city": user.city,
+            "postalcode": user.postalcode,
+            "uid":user.uid
+        })
+    else:
+        return jsonify({"error": "User not found"}), 404
+    
 @app.route("/delete_contact", methods=['POST'])
-@require_permissions("adminpanel.delete")
+@require_permissions("adminpanel.delete.contact")
 def delete_contact():
     form = Forms.contactDelete()
     if form.validate_on_submit():
@@ -204,9 +227,67 @@ def delete_contact():
         if contact:
             db.session.delete(contact)
             db.session.commit()
-        return redirect(url_for('newsletter'))
+        return redirect(url_for('admin'))
     else:
         return redirect(url_for('admin'))
+    
+@app.route("/delete_user", methods=['POST'])
+@require_permissions("adminpanel.delete.user")
+def delete_user():
+    form = Forms.contactDelete() #braucht man keine neue Form dafür
+    if form.validate_on_submit():
+        uid = form.uid.data
+        user = db.session.query(Tables.User).filter_by(uid=uid).first()
+        if user:
+            db.session.delete(user)
+            db.session.commit()
+        return redirect(url_for('admin'))
+    else:
+        return redirect(url_for('admin'))
+    
+@app.route("/update_user/<uid>", methods=['POST'])
+@require_permissions("adminpanel.update.user")
+def update_user(uid):
+    form = Forms.ChangeData()
+    user = db.session.query(Tables.User).filter_by(uid=uid).first()
+    if form.validate_on_submit():
+        new_username = form.username.data.lower()
+        if user.username != new_username:
+            existing_user_username = Tables.User.query.filter_by(username=new_username).first()
+            if existing_user_username or not new_username.isalnum():
+                if not new_username.isalnum():
+                    flash('Nur Buchstaben und Zahlen im Benutzernamen', 'error')
+                if existing_user_username:
+                    flash('Benutzername bereits vergeben', 'error')
+                #if username in manager.config.get_config("banned_usernames"): #TODO ADD BANNED CHARACTERS
+                    #flash('- That username is not allowed. Please choose a different name.', 'error')
+            else:
+                user.username=new_username
+        if form.password.data and form.password_confirm.data:
+            if form.password.data != form.password_confirm.data:
+                flash('Passwörter sind nicht gleich', 'error')
+            else:
+                hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+                user.password=hashed_password
+        if form.surname.data:
+            user.surname = form.surname.data
+        if form.lastname.data:
+            user.lastname = form.lastname.data
+        if form.email.data:
+            user.email = form.email.data
+        if form.street.data:
+            user.street = form.street.data
+        if form.street_no.data:
+            user.street_no = form.street_no.data
+        if form.city.data:
+            user.city = form.city.data
+        if form.postalcode.data:
+            user.postalcode = form.postalcode.data
+        user.last_updated = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        db.session.commit()
+        flash('Daten geändert', 'info')
+    return redirect(url_for("admin"))
+
 
 @app.route("/datenschutz",methods=['GET'])
 def datenschutz():

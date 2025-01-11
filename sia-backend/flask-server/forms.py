@@ -105,7 +105,5 @@ class Forms:
     class contactDelete(FlaskForm):
         uid = HiddenField('UID', validators=[InputRequired()])
 
-    class userDelete(FlaskForm):
-        uid = HiddenField('UID', validators=[InputRequired()])
 
 

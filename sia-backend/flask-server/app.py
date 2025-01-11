@@ -28,8 +28,8 @@ def load_user(user_id):
     return Tables.User.query.get(int(user_id))
 
 Database = DAO
-with app.app_context():
-    DAO.init()
+#with app.app_context():  LEGACY AND NOT IN USE ANYMORE
+    #DAO.init()
 
 @login_manager.unauthorized_handler
 def unauthorized():
@@ -39,6 +39,9 @@ def unauthorized():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = Forms.RegisterForm()
+    public_roles = Tables.Role.query.filter_by(selectable_on_register="yes").all()
+    form.role.choices = [(role.name, role.name) for role in public_roles] #Nur manche Rollen sollen zur Auswahl stehen
+
     if form.username.data:
         username = form.username.data.lower()
         existing_user_username = Tables.User.query.filter_by(username=username).first()
@@ -55,31 +58,33 @@ def register():
             if form.validate_on_submit():
                 now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-                new_Role = Tables.Role(name=form.role.data, permissions=["*"]) # TODO create roles somewhere else
-                new_user = Tables.User(
-                    username = username,
-                    password = hashed_password,
-                    register_date = "", 
-                    last_login = "",
-                    surname = form.surname.data,
-                    lastname = form.lastname.data,
-                    email = form.email.data,
-                    street = form.street.data,
-                    street_no = form.street_no.data,
-                    city = form.city.data,
-                    postalcode = form.postalcode.data,
-                    role = new_Role.name,
-                    permissions = [],
-                    last_updated = ""
-                    )
-                new_user.register_date = now
-                new_user.last_updated = now
-                new_user.last_login = now #TODO ungewöhnlicher Fall aber register != login
-                db.session.add(new_Role)
-                db.session.add(new_user)
-                db.session.commit()
-                login_user(new_user)
-                return redirect(url_for('login'))
+                if form.role.data in [role.name for role in public_roles]: #ansonsten kann der user "admin" außerhalb der Form pushen und ich ´hab kein bock ein custom form validaotr zu schreiben
+                    role = form.role.data
+                    new_user = Tables.User(
+                        username = username,
+                        password = hashed_password,
+                        register_date = "", 
+                        last_login = "",
+                        surname = form.surname.data,
+                        lastname = form.lastname.data,
+                        email = form.email.data,
+                        street = form.street.data,
+                        street_no = form.street_no.data,
+                        city = form.city.data,
+                        postalcode = form.postalcode.data,
+                        role = role,
+                        permissions = [],
+                        last_updated = ""
+                        )
+                    new_user.register_date = now
+                    new_user.last_updated = now
+                    new_user.last_login = now #TODO ungewöhnlicher Fall aber register != login
+                    db.session.add(new_user)
+                    db.session.commit()
+                    login_user(new_user)
+                    return redirect(url_for('login'))
+                else:
+                    flash('Nice Try!', 'error')
             else:
                 print(form.errors)  # Debugging: Show validation errors
                 flash('Etwas hat nicht gestimmt:', 'error')
@@ -164,8 +169,8 @@ def slider(name):
 
 @app.route("/",methods=['GET'])
 def index():
-    events=Database.get_all_events()
-    return render_template('index.html', title='Sia-PlanB.de', events=events)
+    #events=Database.get_all_events() LEGACY NICHT MEHR VERWENDEN
+    return render_template('index.html', title='Sia-PlanB.de')
 
 @app.route("/contact", methods=['GET', 'POST'])
 def contact():

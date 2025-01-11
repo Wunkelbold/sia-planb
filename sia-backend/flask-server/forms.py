@@ -35,7 +35,9 @@ class Forms:
                                                                                         Optional(),
                                                                                         Length(min=5, max=5, message="Deine Postleitzahl scheint nicht ins Format zu passen XXXXX."),
                                                                                         Regexp(r"[0-9]{5}", message="Deine Postleitzahl muss aus Zahlen bestehen.")])
-        role = SelectField(label="Rolle",choices=["Gast", "Student", "Sia Alumni", "Mitglied aktiv", "Moderator", "Admin"] ,coerce=str, render_kw={"class": "form-select", "id": "inputRole"})
+        
+        role = SelectField(label="Rolle",choices=[] ,coerce=str, render_kw={"class": "form-select", "id": "inputRole"})
+        
         #confirm_privacy_policy = SelectField(label="Rolle", choices=[(0, "Gast"), (1, "Student"), (2, "Sia-Mitglied"), (3, "Sia-Alumni")])
         #, EqualTo('password', message='Passwörter nicht gleich')
 

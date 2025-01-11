@@ -99,9 +99,6 @@ def login():
         if form.validate_on_submit():
             user = Tables.User.query.filter_by(username=username).first()
             if user:
-                print(f"Username: {user.username}")
-                print(f"Role: {user.role}")
-
                 if bcrypt.check_password_hash(user.password, form.password.data):
                     login_user(user)
                     current_user.last_login = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -160,7 +157,6 @@ def admin():
     roles = Tables.Role.query.all()
     form_edit_user=Forms.AdminChangeData()
     form_edit_user.role.choices = [(role.name, role.name) for role in roles] 
-    print(form_edit_user.role.choices)
     return render_template('admin.html', title='Sia-PlanB.de', users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(), form_edit_user=form_edit_user)
 
 @app.route("/slider/<name>")
@@ -179,8 +175,7 @@ def index():
 @app.route("/contact", methods=['GET', 'POST'])
 def contact():
     form = Forms.ContactForm()
-    if form.is_submitted():
-        print("---New Contact Form Submit!---")
+    if form.validate_on_submit():
         newContact = Tables.Contact(
             category = form.category.data,
             surname = form.surname.data,
@@ -291,7 +286,6 @@ def update_user(uid):
         if form.postalcode.data:
             user.postalcode = form.postalcode.data
         if form.role.data:
-            print("###### Role Data found: ", form.role.data)
             user.role = form.role.data
         user.last_updated = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         db.session.commit()

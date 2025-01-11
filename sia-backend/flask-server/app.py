@@ -152,8 +152,8 @@ def admin():
         db.session.add(newEvent)
         db.session.commit()
 
-    users= Tables.User.query.all()
-    contacts = Tables.Contact.query.all()
+    users = Tables.User.query.order_by(Tables.User.last_login.desc()).all()
+    contacts = Tables.Contact.query.order_by(Tables.Contact.created.desc()).all() #TODO Timestamp human readable 
     roles = Tables.Role.query.all()
     form_edit_user=Forms.AdminChangeData()
     form_edit_user.role.choices = [(role.name, role.name) for role in roles] 
@@ -212,7 +212,11 @@ def get_user():
             "city": user.city,
             "postalcode": user.postalcode,
             "role": user.role,
-            "uid":user.uid
+            "uid":user.uid,
+            "registered":user.register_date,
+            "last_login":user.last_login,
+            "last_updated":user.last_updated,
+            "id":user.id,
         })
     else:
         return jsonify({"error": "User not found"}), 404

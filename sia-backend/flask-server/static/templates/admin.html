@@ -93,14 +93,14 @@
                     <tr>
                         <th>ID</th>
                         <th>Benutzername</th>
+                        <th>Rolle</th>
+                        <th>email</th>
                         <th>Vorname</th>
                         <th>Nachname</th>
                         <th>Straße</th>
                         <th>Nr.</th>
-                        <th>email</th>
                         <th>Stadt</th>
                         <th>PLZ</th>
-                        <th>Rolle</th>
                         <th>Verwaltung</th>
                     </tr>
                 </thead>
@@ -110,14 +110,14 @@
                             <tr>
                                 <td>{{user.id}}</td>
                                 <td>{{user.username}}</td>
+                                <td>{{user.role}}</td>
+                                <td>{{user.email}}</td>
                                 <td>{{user.surname}}</td>
                                 <td>{{user.lastname}}</td>
                                 <td>{{user.street}}</td>
                                 <td>{{user.street_no}}</td>
-                                <td>{{user.email}}</td>
                                 <td>{{user.city}}</td>
                                 <td>{{user.postalcode}}</td>
-                                <td>{{user.role}}</td>
                                 <td>
                                     <div class="card-body">
                                         <div class="card-body">
@@ -176,10 +176,24 @@
             <div class="modal-dialog modal-lg">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="editModalLabel">Benutzer ändern</h5>
+                  <h5 class="modal-title" id="editModalLabel">Benutzerdaten ändern</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                  <table>
+                    <tr>
+                      <td>registered</td>
+                      <td>last_login</td>
+                      <td>last_updated</td>
+                      <td>uid</td>
+                    </tr>
+                    <tr>
+                      <td><p name="registered" id="registered" value=""></p></td>
+                      <td><p name="last_login" id="last_login" value=""></p></td>
+                      <td><p name="last_updated" id="last_updated" value=""></p></td>
+                      <td><p name="display_uid" id="display_uid" value=""></p></td>
+                    </tr>
+                  </table>
                   <form id="user_edit_modal_form" class="row g-2" method="POST" action="/update_user">
                     {{ form_edit_user.hidden_tag() }}
                     <input type="hidden" id="uid" name="uid" value="">
@@ -193,16 +207,16 @@
                       {{ form_edit_user.email }}
                     </div>
                     <div class="col-md-5">
-                      {{ form_edit_user.surname }}
-                    </div>
-                    <div class="col-md-5">
-                      {{ form_edit_user.lastname }}
-                    </div>
-                    <div class="col-md-5">
                       {{ form_edit_user.password }}
                     </div>
                     <div class="col-md-5">
                       {{ form_edit_user.password_confirm }}
+                    </div>
+                    <div class="col-md-5">
+                      {{ form_edit_user.surname }}
+                    </div>
+                    <div class="col-md-5">
+                      {{ form_edit_user.lastname }}
                     </div>
                     <div class="col-md-3">
                       {{ form_edit_user.street }}
@@ -249,6 +263,10 @@
                     street_no: document.querySelector('input[name="street_no"]'),
                     city: document.querySelector('input[name="city"]'),
                     postalcode: document.querySelector('input[name="postalcode"]'),
+                    registered: document.getElementById('registered'),
+                    last_login: document.getElementById('last_login'),
+                    last_updated: document.getElementById('last_updated'),
+                    display_uid: document.getElementById('display_uid'),
                 };
 
                 editModal.addEventListener('show.bs.modal', (event) => {
@@ -277,6 +295,10 @@
                             formFields.street_no.value = data.street_no || '';
                             formFields.city.value = data.city || '';
                             formFields.postalcode.value = data.postalcode || '';
+                            formFields.registered.textContent = data.registered || '';
+                            formFields.last_login.textContent = data.last_login || '';
+                            formFields.last_updated.textContent = data.last_updated || '';
+                            formFields.display_uid.textContent = data.uid || '';
                             const roleSelect = document.getElementById('inputRole');
                             if (roleSelect) {
                                 for (let option of roleSelect.options) {

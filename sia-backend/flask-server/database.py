@@ -19,7 +19,7 @@ class Tables:
         surname = db.Column(db.String(20))
         lastname = db.Column(db.String(20))
         street = db.Column(db.String(25))
-        street_no = db.Column(db.String(25))
+        street_no = db.Column(db.String(10))
         password = db.Column(db.String(200))
         email = db.Column(db.String(30))
         city = db.Column(db.String(25))

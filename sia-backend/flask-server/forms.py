@@ -16,9 +16,9 @@ class Forms:
                                                                                                         EqualTo('password', message='Passwörter sind nicht gleich.')])
         submit = SubmitField('Register')
         surname = StringField(label="Vorname",render_kw={"placeholder": "Vorname"}, default="", validators=[Optional(),
-                                                                                                            Length(min=0, max=30, message="Dein Vorname darf maximal 20 Zeichen lang sein.")])
+                                                                                                            Length(min=0, max=20, message="Dein Vorname darf maximal 20 Zeichen lang sein.")])
         lastname = StringField(label="Nachname",render_kw={"placeholder": "Nachname"}, default="",validators=[Optional(),
-                                                                                                              Length(min=0, max=30, message="Dein Nachname darf maximal 20 Zeichen lang sein.")])
+                                                                                                              Length(min=0, max=20, message="Dein Nachname darf maximal 20 Zeichen lang sein.")])
         email = EmailField(render_kw={"placeholder": "Hochschul-Email"}, validators=[
                                                                                     InputRequired(),
                                                                                     Length(min=0, max=30, message="Die Email darf maximal 30 Zeichen lang sein."),
@@ -28,7 +28,7 @@ class Forms:
         street = StringField(render_kw={"placeholder": "Straße"},default="", validators=[Optional(),
                                                                                         Length(min=0, max=25, message="Der Straßenname darf maximal 25 Zeichen lang sein.")])
         street_no = StringField(render_kw={"placeholder": "Nr"},default="",validators=[Optional(),
-                                                                                       Length(min=0, max=25, message="Die Straßennummer darf maximal 25 Zeichen lang sein.")])
+                                                                                       Length(min=0, max=10, message="Die Straßennummer darf maximal 25 Zeichen lang sein.")])
         city = StringField( render_kw={"placeholder": "Stadt"},default="", validators=[Optional(),
                                                                                         Length(min=0, max=25, message="Der Stadtname darf maximal 25 Zeichen lang sein.")])
         postalcode = StringField(render_kw={"placeholder": "PLZ"},default="",validators=[Optional(),
@@ -61,9 +61,9 @@ class Forms:
                                                                                                         EqualTo('password', message='Passwörter sind nicht gleich.')])
         submit = SubmitField('Ändern')
         surname = StringField(label="Vorname",render_kw={"placeholder": "Vorname"}, default="", validators=[Optional(),
-                                                                                                            Length(min=0, max=30, message="Dein Vorname darf maximal 20 Zeichen lang sein.")])
+                                                                                                            Length(min=0, max=20, message="Dein Vorname darf maximal 20 Zeichen lang sein.")])
         lastname = StringField(label="Nachname",render_kw={"placeholder": "Nachname"}, default="",validators=[Optional(),
-                                                                                                              Length(min=0, max=30, message="Dein Nachname darf maximal 20 Zeichen lang sein.")])
+                                                                                                              Length(min=0, max=20, message="Dein Nachname darf maximal 20 Zeichen lang sein.")])
         email = EmailField(render_kw={"placeholder": "Hochschul-Email"}, validators=[
                                                                                     InputRequired(),
                                                                                     Length(min=0, max=30, message="Die Email darf maximal 30 Zeichen lang sein."),
@@ -72,7 +72,7 @@ class Forms:
         street = StringField(render_kw={"placeholder": "Straße"},default="", validators=[Optional(),
                                                                                             Length(min=0, max=25, message="Der Straßenname darf maximal 25 Zeichen lang sein.")])
         street_no = StringField(render_kw={"placeholder": "Nr"},default="",validators=[Optional(),
-                                                                                       Length(min=0, max=25, message="Die Straßennummer darf maximal 25 Zeichen lang sein.")])
+                                                                                       Length(min=0, max=10, message="Die Straßennummer darf maximal 25 Zeichen lang sein.")])
         city = StringField( render_kw={"placeholder": "Stadt"},default="", validators=[Optional(),
                                                                                         Length(min=0, max=25, message="Der Stadtname darf maximal 25 Zeichen lang sein.")])
         postalcode = StringField(render_kw={"placeholder": "PLZ"},default="",validators=[
@@ -92,9 +92,9 @@ class Forms:
                                                                                                         Length(min=8, max=30, message="Das Passwort muss 8 bis 20 Zeichen lang sein.")])
         submit = SubmitField('Ändern')
         surname = StringField(label="Vorname",render_kw={"placeholder": "Vorname"}, default="", validators=[Optional(),
-                                                                                                            Length(min=0, max=30, message="Dein Vorname darf maximal 20 Zeichen lang sein.")])
+                                                                                                            Length(min=0, max=20, message="Dein Vorname darf maximal 20 Zeichen lang sein.")])
         lastname = StringField(label="Nachname",render_kw={"placeholder": "Nachname"}, default="",validators=[Optional(),
-                                                                                                              Length(min=0, max=30, message="Dein Nachname darf maximal 20 Zeichen lang sein.")])
+                                                                                                              Length(min=0, max=20, message="Dein Nachname darf maximal 20 Zeichen lang sein.")])
         email = EmailField(render_kw={"placeholder": "Hochschul-Email"}, validators=[
                                                                                     InputRequired(),
                                                                                     Length(min=0, max=30, message="Die Email darf maximal 30 Zeichen lang sein."),
@@ -103,7 +103,7 @@ class Forms:
         street = StringField(render_kw={"placeholder": "Straße"},default="", validators=[Optional(),
                                                                                             Length(min=0, max=25, message="Der Straßenname darf maximal 25 Zeichen lang sein.")])
         street_no = StringField(render_kw={"placeholder": "Nr"},default="",validators=[Optional(),
-                                                                                       Length(min=0, max=25, message="Die Straßennummer darf maximal 25 Zeichen lang sein.")])
+                                                                                       Length(min=0, max=10, message="Die Straßennummer darf maximal 25 Zeichen lang sein.")])
         city = StringField( render_kw={"placeholder": "Stadt"},default="", validators=[Optional(),
                                                                                         Length(min=0, max=25, message="Der Stadtname darf maximal 25 Zeichen lang sein.")])
         postalcode = StringField(render_kw={"placeholder": "PLZ"},default="",validators=[

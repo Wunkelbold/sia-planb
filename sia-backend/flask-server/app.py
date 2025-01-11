@@ -289,14 +289,19 @@ def update_user(uid):
             user.role = form.role.data
         user.last_updated = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         db.session.commit()
-        flash('Daten geändert', 'info')
+        return jsonify({'success': True})  # JSON-Antwort bei Erfolg
     else:
         for field_name, field_errors in form.errors.items():
             print(f"Feld '{field_name}' hat folgende Fehler:")
             for error in field_errors:
                 print(f"  - {error}")
 
-    return redirect(url_for("admin"))
+    errors = []
+    for field, error_list in form.errors.items():
+        for error in error_list:
+            errors.append(f"{field}: {error}")
+
+    return jsonify({'success': False, 'errors': errors})  # JSON-Antwort mit Fehlern
 
 
 @app.route("/datenschutz",methods=['GET'])

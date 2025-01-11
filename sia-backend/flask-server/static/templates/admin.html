@@ -230,6 +230,7 @@
                         {% endif %}
                       {% endwith %}
                     </div>
+                    <div id="flash-messages"></div>
                   </form>
                 </div>
               </div>
@@ -289,8 +290,51 @@
                     })
                     .catch(error => console.error('An error occurred:', error));
                 });
-            });
 
+                const form = document.getElementById('user_edit_modal_form');
+                const modal = new bootstrap.Modal(document.getElementById('editModal'));  // Bootstrap Modal Instanz
+
+                form.addEventListener('submit', (event) => {
+                    event.preventDefault(); 
+                    const formData = new FormData(form);  
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token() }}'  
+                        }
+                    })
+                    .then(response => response.json())  
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload()
+                        } else {
+                            displayFlashMessages(data.errors || []);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Fehler:', error);
+                        displayFlashMessages(['Ein Fehler ist aufgetreten.']);
+                    });
+                });
+
+            });
+            function displayFlashMessages(messages) {
+                const flashContainer = document.getElementById('flash-messages');
+                flashContainer.innerHTML = '';  // Leere den Container vor dem Hinzufügen neuer Nachrichten
+
+                if (messages.length > 0) {
+                    const ul = document.createElement('ul');
+                    ul.classList.add('error-message-list');
+                    messages.forEach(message => {
+                        const li = document.createElement('li');
+                        li.classList.add('error-message');
+                        li.textContent = message;
+                        ul.appendChild(li);
+                    });
+                    flashContainer.appendChild(ul);
+                }
+            }
         </script>
     </div>
     

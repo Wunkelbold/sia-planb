@@ -7,16 +7,19 @@ from psycopg2 import OperationalError, DatabaseError, InterfaceError
 from flask_login import UserMixin
 import logging
 from globals import app, db
+import uuid
+from sqlalchemy.dialects.postgresql import UUID
 
 class Tables:
     class User(db.Model, UserMixin):
         __tablename__ = 'user'
         id = db.Column(db.Integer, primary_key=True)
+        uid = db.Column(UUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False)  # Add UUID
         username = db.Column(db.String(20), nullable=False, unique=True)
         surname = db.Column(db.String(20))
         lastname = db.Column(db.String(20))
         street = db.Column(db.String(25))
-        street_no = db.Column(db.String(25))
+        street_no = db.Column(db.String(10))
         password = db.Column(db.String(200))
         email = db.Column(db.String(30))
         city = db.Column(db.String(25))
@@ -36,6 +39,7 @@ class Tables:
     class Event(db.Model):
         __tablename__ = 'events'
         id = db.Column(db.Integer, primary_key=True)
+        uid = db.Column(UUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False)  # Add UUID
         author = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
         name = db.Column(db.String(50), nullable=False)
         visibility = db.Column(db.String(10))
@@ -80,6 +84,7 @@ class Tables:
     class Contact(db.Model):
         __tablename__ = 'contact'
         id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+        uid = db.Column(UUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False)  # Add UUID
         category = db.Column(db.String(20))
         surname = db.Column(db.String(20))
         lastname = db.Column(db.String(20))
@@ -183,7 +188,7 @@ class DAO:
         return None
     
 def init_database():
-    if os.getenv("DROP_AND_CREATE_DATABASE")=="true":
+    if os.getenv("DROP_AND_CREATE_DATABASE")=="true": #TODO für dev einmalig mit if os.getenv("DROP_AND_CREATE_DATABASE","true")=="true": ausführen
         db.drop_all()
         db.create_all()
         print("--- DROP_AND_CREATE_DATABASE \t true ---")

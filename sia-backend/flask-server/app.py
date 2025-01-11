@@ -1,8 +1,7 @@
 from globals import *
-from flask import Response, flash, render_template, request, send_from_directory, url_for, redirect
+from flask import Response, flash, render_template, request, send_from_directory, url_for, redirect, jsonify, get_flashed_messages
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf.csrf import CSRFProtect
-from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Table, Column, MetaData, Integer, Computed, func
 from http import HTTPStatus
@@ -17,8 +16,9 @@ from permissions import *
 #-----Load Sections-----
 
 import Sections.EventHandler as _
+import Sections.UserManager as _
+import Sections.ContactManager as _
 
-bcrypt = Bcrypt(app)
 csrf = CSRFProtect(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
@@ -99,9 +99,6 @@ def login():
         if form.validate_on_submit():
             user = Tables.User.query.filter_by(username=username).first()
             if user:
-                print(f"Username: {user.username}")
-                print(f"Role: {user.role}")
-
                 if bcrypt.check_password_hash(user.password, form.password.data):
                     login_user(user)
                     current_user.last_login = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -110,7 +107,7 @@ def login():
                 else:
                     flash('Passwort falsch', 'error')
             else:
-                flash(f'Benutzer existiert nicht, <a href="{url_for("register")}">registriere dich zuerst!</a>', 'error')
+                flash(f'Benutzer existiert nicht!', 'error')
         else:
                 print(form.errors)  # Debugging: Show validation errors
                 flash('Form submission failed. Check your input.', 'error')
@@ -129,8 +126,6 @@ def logout():
 @app.route("/admin", methods=['GET', 'POST'])
 @require_permissions("adminpanel.show")
 def admin():
-
-
     submitted=False
     form = Forms.EventForm()
 
@@ -155,9 +150,12 @@ def admin():
         db.session.add(newEvent)
         db.session.commit()
 
-    users= Tables.User.query.all()
-    contacts = Tables.Contact.query.all()
-    return render_template('admin.html', title='Sia-PlanB.de', users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm())
+    users = Tables.User.query.order_by(Tables.User.last_login.desc()).all()
+    contacts = Tables.Contact.query.order_by(Tables.Contact.created.desc()).all() 
+    roles = Tables.Role.query.all()
+    form_edit_user=Forms.AdminChangeData()
+    form_edit_user.role.choices = [(role.name, role.name) for role in roles] 
+    return render_template('admin.html', title='Sia-PlanB.de', users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(), form_edit_user=form_edit_user)
 
 @app.route("/slider/<name>")
 def slider(name):
@@ -175,8 +173,7 @@ def index():
 @app.route("/contact", methods=['GET', 'POST'])
 def contact():
     form = Forms.ContactForm()
-    if form.is_submitted():
-        print("---New Contact Form Submit!---")
+    if form.validate_on_submit():
         newContact = Tables.Contact(
             category = form.category.data,
             surname = form.surname.data,
@@ -193,7 +190,7 @@ def contact():
         if current_user.surname: form.surname.data=current_user.surname 
         if current_user.lastname: form.lastname.data=current_user.lastname
     return render_template('contact.html', title='Sia-PlanB.de', form=form)
-
+        
 @app.route("/datenschutz",methods=['GET'])
 def datenschutz():
     return render_template('datenschutz.html', title='Sia-PlanB.de')

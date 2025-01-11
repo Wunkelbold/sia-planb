@@ -11,7 +11,7 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link"  href="#">Eventmanager</a>
+            <a class="nav-link" href="#">Eventmanager</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#">Benutzer</a>
@@ -87,78 +87,353 @@
 <section id="admin">
     <div>
         <h3>Benutzerverwaltung</h3>
-        <table class="table table-dark table-striped">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Benutzername</th>
-                    <th>Vorname</th>
-                    <th>Nachname</th>
-                    <th>Straße</th>
-                    <th>Nr.</th>
-                    <th>email</th>
-                    <th>Stadt</th>
-                    <th>PLZ</th>
-                    <th>Rolle</th>
-                    <th>Admin</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if users %}
-                    {% for user in users %}
-                        <tr>
-                            <td>{{user.id}}</td>
-                            <td>{{user.username}}</td>
-                            <td>{{user.surname}}</td>
-                            <td>{{user.lastname}}</td>
-                            <td>{{user.street}}</td>
-                            <td>{{user.street_no}}</td>
-                            <td>{{user.email}}</td>
-                            <td>{{user.city}}</td>
-                            <td>{{user.postalcode}}</td>
-                            <td>{{user.role}}</td>
-                            <td>
-                                <div class="card-body">
-                                    <a href="#" class="card-link">Edit</a>
-                                    <a href="#" class="card-link">Delete</a>
-                                    <a href="#" class="card-link">reset PW</a>
-                                </div>
-                            </td>          
-                    {% endfor %}
-                {% endif %}
-                </tr>
-            </tbody>
-        </table>
+        <div class="table-container">
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Benutzername</th>
+                        <th>Rolle</th>
+                        <th>email</th>
+                        <th>Vorname</th>
+                        <th>Nachname</th>
+                        <th>Straße</th>
+                        <th>Nr.</th>
+                        <th>Stadt</th>
+                        <th>PLZ</th>
+                        <th>Verwaltung</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if users %}
+                        {% for user in users %}
+                            <tr>
+                                <td>{{user.id}}</td>
+                                <td>{{user.username}}</td>
+                                <td>{{user.role}}</td>
+                                <td>{{user.email}}</td>
+                                <td>{{user.surname}}</td>
+                                <td>{{user.lastname}}</td>
+                                <td>{{user.street}}</td>
+                                <td>{{user.street_no}}</td>
+                                <td>{{user.city}}</td>
+                                <td>{{user.postalcode}}</td>
+                                <td>
+                                    <div class="card-body">
+                                        <div class="card-body">
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal" data-uid="{{ user.uid }}">
+                                                Edit
+                                            </button>
+                                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-uid="{{ user.uid }}">
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>          
+                        {% endfor %}
+                    {% endif %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- DELETE USER MODAL --->
+        <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog" >
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteModalLabel">Benutzer Löschen</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  Es gibt kein zurück! Benutzer wirklich löschen?
+                </div>
+                <div class="modal-footer">
+                  <form id="delete-form" method="POST" action="/delete_user">
+                    {{ form.hidden_tag() }}
+                    <input type="hidden" name="uid" id="uid-user-input" value="">
+                    <button type="submit" class="btn btn-danger">Löschen</button>
+                  </form>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                </div>
+              </div>
+            </div>
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+            const deleteModal = document.getElementById('deleteUserModal');
+            const uidInput = document.getElementById('uid-user-input');
+            deleteModal.addEventListener('show.bs.modal', (event) => {
+                const button = event.relatedTarget;
+                const uid = button.getAttribute('data-uid');
+                uidInput.value = uid;
+            });
+            });
+        </script>
+
+        <!-- EDIT USER MODAL --->
+        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="editModalLabel">Benutzerdaten ändern</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <table>
+                    <tr>
+                      <td>registered</td>
+                      <td>last_login</td>
+                      <td>last_updated</td>
+                      <td>uid</td>
+                    </tr>
+                    <tr>
+                      <td><p name="registered" id="registered" value=""></p></td>
+                      <td><p name="last_login" id="last_login" value=""></p></td>
+                      <td><p name="last_updated" id="last_updated" value=""></p></td>
+                      <td><p name="display_uid" id="display_uid" value=""></p></td>
+                    </tr>
+                  </table>
+                  <form id="user_edit_modal_form" class="row g-2" method="POST" action="/api/user/update/">
+                    {{ form_edit_user.hidden_tag() }}
+                    <input type="hidden" id="uid" name="uid" value="">
+                    <div class="col-md-4">
+                      {{ form_edit_user.username }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_edit_user.role }}
+                    </div>
+                    <div class="col-md-4">
+                      {{ form_edit_user.email }}
+                    </div>
+                    <div class="col-md-5">
+                      {{ form_edit_user.password }}
+                    </div>
+                    <div class="col-md-5">
+                      {{ form_edit_user.password_confirm }}
+                    </div>
+                    <div class="col-md-5">
+                      {{ form_edit_user.surname }}
+                    </div>
+                    <div class="col-md-5">
+                      {{ form_edit_user.lastname }}
+                    </div>
+                    <div class="col-md-3">
+                      {{ form_edit_user.street }}
+                    </div>
+                    <div class="col-md-1">
+                      {{ form_edit_user.street_no }}
+                    </div>
+                    <div class="col-md-2">
+                      {{ form_edit_user.city }}
+                    </div>
+                    <div class="col-md-1">
+                      {{ form_edit_user.postalcode }}
+                    </div>
+                    <div class="col-12">
+                      {{ form_edit_user.submit }}
+                    </div>
+                    <div>
+                      {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                          <ul class="error-message-list">
+                            {% for message in messages %}
+                              <p class="error-message">{{ message }}</p>
+                            {% endfor %}
+                          </ul>
+                        {% endif %}
+                      {% endwith %}
+                    </div>
+                    <div id="flash-messages"></div>
+                  </form>
+                </div>
+              </div>
+            </div>
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const editModal = document.getElementById('editModal');
+                const uidInput = document.getElementById('uid');
+                const formFields = {
+                    username: document.querySelector('input[name="username"]'),
+                    email: document.querySelector('input[name="email"]'),
+                    surname: document.querySelector('input[name="surname"]'),
+                    lastname: document.querySelector('input[name="lastname"]'),
+                    street: document.querySelector('input[name="street"]'),
+                    street_no: document.querySelector('input[name="street_no"]'),
+                    city: document.querySelector('input[name="city"]'),
+                    postalcode: document.querySelector('input[name="postalcode"]'),
+                    registered: document.getElementById('registered'),
+                    last_login: document.getElementById('last_login'),
+                    last_updated: document.getElementById('last_updated'),
+                    display_uid: document.getElementById('display_uid'),
+                };
+
+                editModal.addEventListener('show.bs.modal', (event) => {
+                    const button = event.relatedTarget;
+                    const uid = button.getAttribute('data-uid');
+                    uidInput.value = uid;
+                    document.getElementById('user_edit_modal_form').setAttribute('action', `/api/user/update/${uid}`);
+                    fetch(`/api/user/get/${uid}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token() }}',
+                    },
+                    body: "",
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                        console.error(data.error);
+                        } else {
+                            formFields.username.value = data.username || '';
+                            formFields.email.value = data.email || '';
+                            formFields.surname.value = data.surname || '';
+                            formFields.lastname.value = data.lastname || '';
+                            formFields.street.value = data.street || '';
+                            formFields.street_no.value = data.street_no || '';
+                            formFields.city.value = data.city || '';
+                            formFields.postalcode.value = data.postalcode || '';
+                            formFields.registered.textContent = data.registered || '';
+                            formFields.last_login.textContent = data.last_login || '';
+                            formFields.last_updated.textContent = data.last_updated || '';
+                            formFields.display_uid.textContent = data.uid || '';
+                            const roleSelect = document.getElementById('inputRole');
+                            if (roleSelect) {
+                                for (let option of roleSelect.options) {
+                                    if (option.value === data.role) {
+                                        option.selected = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    })
+                    .catch(error => console.error('An error occurred:', error));
+                });
+
+                const form = document.getElementById('user_edit_modal_form');
+                const modal = new bootstrap.Modal(document.getElementById('editModal'));  // Bootstrap Modal Instanz
+
+                form.addEventListener('submit', (event) => {
+                    event.preventDefault(); 
+                    const formData = new FormData(form);  
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token() }}'  
+                        }
+                    })
+                    .then(response => response.json())  
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload()
+                        } else {
+                            displayFlashMessages(data.errors || []);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Fehler:', error);
+                        displayFlashMessages(['Ein Fehler ist aufgetreten.']);
+                    });
+                });
+
+            });
+            function displayFlashMessages(messages) {
+                const flashContainer = document.getElementById('flash-messages');
+                flashContainer.innerHTML = '';  // Leere den Container vor dem Hinzufügen neuer Nachrichten
+
+                if (messages.length > 0) {
+                    const ul = document.createElement('ul');
+                    ul.classList.add('error-message-list');
+                    messages.forEach(message => {
+                        const li = document.createElement('li');
+                        li.classList.add('error-message');
+                        li.textContent = message;
+                        ul.appendChild(li);
+                    });
+                    flashContainer.appendChild(ul);
+                }
+            }
+        </script>
     </div>
     
     <div>
         <h1>Kontaktanfragen</h1>
-        <table class="table table-dark table-striped">
-            <thead>
-                <tr>
-                    <th>Kategorie</th>
-                    <th>Vorname</th>
-                    <th>Nachname</th>
-                    <th>Email</th>
-                    <th>Nachricht</th>
-                    <th>Erstellt</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if contacts %}
-                    {% for contact in contacts %}
-                        <tr>
-                            <td>{{ contact.category }}</td>
-                            <td>{{ contact.surname }}</td>
-                            <td>{{ contact.lastname }}</td>
-                            <td>{{ contact.email }}</td>
-                            <td>{{ contact.message }}</td>     
-                            <td>{{ contact.created }}</td>       
-                    {% endfor %}
-                {% endif %}
-                </tr>
-            </tbody>
-        </table>
+        <div class="table-container">
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>Kategorie</th>
+                        <th>Vorname</th>
+                        <th>Nachname</th>
+                        <th>Email</th>
+                        <th>Nachricht</th>
+                        <th>Erstellt</th>
+                        <th>Verwaltung</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if contacts %}
+                        {% for contact in contacts %}
+                            <tr data-uid="{{ contact.uid }}">
+                                <td>{{ contact.category }}</td>
+                                <td>{{ contact.surname }}</td>
+                                <td>{{ contact.lastname }}</td>
+                                <td>{{ contact.email }}</td>
+                                <td>{{ contact.message }}</td>     
+                                <td>{{ contact.created }}</td>  
+                                <td>
+                                    <div class="card-body">
+                                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-uid="{{ contact.uid }}">
+                                                Delete
+                                            </button>
+                                    </div>
+                                </td>      
+                        {% endfor %}
+                    {% endif %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteModalLabel">Anfrage löschen</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  Sicher dass du die Kontaktanfrage löschen möchtest?
+                </div>
+                <div class="modal-footer">
+                  <form id="delete-form" method="POST" action="/delete_contact">
+                    {{ form.hidden_tag() }}
+                    <input type="hidden" name="uid" id="uid-contact-input" value="">
+                    <button type="submit" class="btn btn-danger">Löschen</button>
+                  </form>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                </div>
+              </div>
+            </div>
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+            const deleteModal = document.getElementById('deleteModal');
+            const uidInput = document.getElementById('uid-contact-input');
+
+            deleteModal.addEventListener('show.bs.modal', (event) => {
+                const button = event.relatedTarget;
+                const uid = button.getAttribute('data-uid');
+                uidInput.value = uid;
+            });
+            });
+        </script>
+    </div>
+
 
     {% if submitted %}
         <div>

@@ -245,7 +245,7 @@ def init_default_role():
         admin = Tables.User(username="admin", password=hashed_password, role="Admin", permissions=[])
         db.session.add(admin)
     db.session.commit()
-    print(f"--- Admin generated: admin:{admin_pwd} ---")
+    print(f"--- Admin generated: admin: {admin_pwd} ---")
 
 
 

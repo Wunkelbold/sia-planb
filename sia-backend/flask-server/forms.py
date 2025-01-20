@@ -138,5 +138,8 @@ class Forms:
     class contactDelete(FlaskForm):
         uid = HiddenField('UID', validators=[InputRequired()])
 
+    class eventDelete(FlaskForm):
+        uid = HiddenField('UID', validators=[InputRequired()])
+
 
 

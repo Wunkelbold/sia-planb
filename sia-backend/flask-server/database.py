@@ -6,8 +6,9 @@ import psycopg2
 from psycopg2 import OperationalError, DatabaseError, InterfaceError
 from flask_login import UserMixin
 import logging
-from globals import app, db
+from globals import *
 import uuid
+import secrets
 from sqlalchemy.dialects.postgresql import UUID
 
 class Tables:
@@ -219,8 +220,16 @@ def init_roles():
                         permissions = perm if perm else [] 
                         new_role = Tables.Role(name=name, permissions=permissions, selectable_on_register="no")
                         db.session.add(new_role)
-            
+
             db.session.commit()
+            
+            admin_pwd=secrets.token_hex(12)
+            hashed_password = bcrypt.generate_password_hash(admin_pwd).decode('utf-8')
+            admin = Tables.User(username="admin", password=hashed_password, role="Admin", permissions=[])
+            db.session.add(admin)
+            db.session.commit()
+            print(f"--- Admin generated: admin, {admin_pwd} ---")
+
             print("--- INIT_ROLES \t\t success ---")
     
         except Exception as e:

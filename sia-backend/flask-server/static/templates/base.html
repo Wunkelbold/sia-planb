@@ -42,11 +42,11 @@
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('contact') }}">Anfrage</a>
             </li>
-            {% if current_user.is_authenticated and hasPermissions("eventmanager.show") %}
+            <!-- {% if current_user.is_authenticated and hasPermissions("eventmanager.show") %}
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('eventmanager') }}">Eventmanager</a>
             </li>
-            {% endif %}
+            {% endif %}-->
             {% if current_user.is_authenticated and hasPermissions("adminpanel.show") %}
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('admin') }}">Admintool</a>

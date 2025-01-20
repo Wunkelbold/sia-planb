@@ -18,6 +18,7 @@ from permissions import *
 import Sections.EventHandler as _
 import Sections.UserManager as _
 import Sections.ContactManager as _
+import Sections.EventManager as _
 
 csrf = CSRFProtect(app)
 login_manager = LoginManager(app)

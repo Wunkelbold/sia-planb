@@ -112,12 +112,21 @@
                                 <td>{{user.username}}</td>
                                 <td>{{user.role}}</td>
                                 <td>{{user.email}}</td>
+                                {% if current_user.is_authenticated and hasPermissions("adminpanel.user.get") %}
                                 <td>{{user.surname}}</td>
                                 <td>{{user.lastname}}</td>
                                 <td>{{user.street}}</td>
                                 <td>{{user.street_no}}</td>
                                 <td>{{user.city}}</td>
                                 <td>{{user.postalcode}}</td>
+                                {% else %}
+                                <td>****</td>
+                                <td>****</td>
+                                <td>****</td>
+                                <td>****</td>
+                                <td>****</td>
+                                <td>****</td>
+                                {% endif %}
                                 <td>
                                     <div class="card-body">
                                         <div class="card-body">

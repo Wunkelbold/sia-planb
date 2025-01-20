@@ -152,10 +152,11 @@ def admin():
 
     users = Tables.User.query.order_by(Tables.User.last_login.desc()).all()
     contacts = Tables.Contact.query.order_by(Tables.Contact.created.desc()).all() 
+    events = Tables.Event.query.order_by(Tables.Event.created.desc()).all() 
     roles = Tables.Role.query.all()
     form_edit_user=Forms.AdminChangeData()
     form_edit_user.role.choices = [(role.name, role.name) for role in roles] 
-    return render_template('admin.html', title='Sia-PlanB.de', users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(), form_edit_user=form_edit_user)
+    return render_template('admin.html', title='Sia-PlanB.de', events=events, users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(), form_edit_user=form_edit_user)
 
 @app.route("/slider/<name>")
 def slider(name):

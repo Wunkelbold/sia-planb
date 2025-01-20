@@ -27,7 +27,6 @@ def require_permissions(*permissions_required: str):
         @login_required
         @wraps(function)
         def wrapper(*args, **kwargs):
-            from app import app
             return function(*args, **kwargs) if hasPermissions(*permissions_required) else app.login_manager.unauthorized()
         return wrapper
     return decorator

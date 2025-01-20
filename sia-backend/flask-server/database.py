@@ -223,12 +223,8 @@ def init_roles():
 
             db.session.commit()
             
-            admin_pwd=secrets.token_hex(12)
-            hashed_password = bcrypt.generate_password_hash(admin_pwd).decode('utf-8')
-            admin = Tables.User(username="admin", password=hashed_password, role="Admin", permissions=[])
-            db.session.add(admin)
-            db.session.commit()
-            print(f"--- Admin generated: admin, {admin_pwd} ---")
+
+
 
             print("--- INIT_ROLES \t\t success ---")
     
@@ -239,7 +235,22 @@ def init_roles():
     else:
         print("--- INIT_ROLES \t false ---")
 
+def init_default_role():
+    admin_pwd = secrets.token_hex(12)
+    hashed_password = bcrypt.generate_password_hash(admin_pwd).decode('utf-8')
+    admin_existing = Tables.User.query.filter_by(username="admin").first()
+    if admin_existing:
+        admin_existing.password=hashed_password
+    else:
+        admin = Tables.User(username="admin", password=hashed_password, role="Admin", permissions=[])
+        db.session.add(admin)
+    db.session.commit()
+    print(f"--- Admin generated: admin:{admin_pwd} ---")
+
+
+
 
 with app.app_context():
     init_database()
     init_roles()
+    init_default_role()

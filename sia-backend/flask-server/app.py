@@ -153,7 +153,9 @@ def admin():
 
     users = Tables.User.query.order_by(Tables.User.last_login.desc()).all()
     contacts = Tables.Contact.query.order_by(Tables.Contact.created.desc()).all() 
-    events = Tables.Event.query.order_by(Tables.Event.created.desc()).all() 
+    events = Tables.Event.query.join(Tables.User, Tables.Event.author == Tables.User.id) \
+        .with_entities(Tables.Event.id, Tables.Event.uid, Tables.Event.name, Tables.Event.visibility, Tables.Event.place, Tables.Event.created, Tables.Event.date, Tables.User.username) \
+        .order_by(Tables.Event.created.desc()).all()
     roles = Tables.Role.query.all()
     form_edit_user=Forms.AdminChangeData()
     form_edit_user.role.choices = [(role.name, role.name) for role in roles] 

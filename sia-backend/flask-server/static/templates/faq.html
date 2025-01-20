@@ -6,5 +6,47 @@
 
 {% block content %}
     <p>Hirn einschalten</p>
+
+    <div class="accordion accordion-flush" id="accordionFlushExample">
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+              Welche Rolle soll ich wählen?
+            </button>
+          </h2>
+          <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+            <div class="accordion-body">
+                "Gast" dient dazu als aussenstehender immer über Events auf dem laufenden gehalten zu werden, wenn du möchtest. Ein wechsel auf andere Rollen ist immer möglich.<br>
+                "Student" mit dieser Rolle wirst du auch über nichtöffentliche Events informiert, die nur für Studenten zugänglich sind.
+                "Sia-Alumnis" werden ausschließlich über Alumnievents informiert. Optional können aber Benachritigungen über andere Events ausgewählt werden werden.
+                Alle weiteren Rollen sind nicht bei der Registrierung Auswählbar und werden dir erklärt, falls du dich dafür klassifizierst.
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+              Kann ich das "Plan B" mieten? Was kostet das?
+            </button>
+          </h2>
+          <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+            <div class="accordion-body">
+                Ja, mann kann das Plan B mieten! Dabei kannst du die öffentlichen Räumlichkeite nutzen wie du möchtest. 
+                Die Mietkosten bestehen zuerstmal aus einer Grundgebühr. Die kann in Ausnahmen vergünstigt werden. Dazu gibt es eine Kaution, welche du aber wieder zurückbekommst.
+                Der dritte Kostenpunkt hängt davon ab, ob du Bewirtung möchtest oder deine Privatsphäre. Da wir an einer Bewirtung für unsere Vereinskasse Geld verdienen, entfällt dann die zusätzliche Getränkepauschale.
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
+              Ich habe mein Passwort vergessen!
+            </button>
+          </h2>
+          <div id="flush-collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+            <div class="accordion-body">Melde dich dafür am besten persönlich bei einem Ausschussmitglied.</div>
+          </div>
+        </div>
+      </div>
 {% endblock %}
 

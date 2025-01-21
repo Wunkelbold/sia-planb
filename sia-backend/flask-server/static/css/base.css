@@ -5,19 +5,18 @@
 
 
 .table-container {
-    max-height: 600px; /* Maximale Höhe der Tabelle */ 
-    overflow: auto;    /* Scrollbars hinzufügen, wenn nötig */
-  }
+  max-height: 600px; 
+  overflow: auto;    
   
-  table {
-    width: 100%; /* Tabelle nimmt die volle Breite des Containers ein */
-  }
-  
-  th, td {
-    text-align: left;
-  }
-  
-  thead {
-    position: sticky; /* Optional: Header bleibt sichtbar */
-    top: 0;
-  }
+table {
+  width: 100%; 
+}
+
+th, td {
+  text-align: left;
+}
+
+thead {
+  position: sticky;
+  top: 0;
+}

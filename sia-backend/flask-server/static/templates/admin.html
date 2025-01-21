@@ -70,7 +70,7 @@
         margin-bottom: 20px;
     }
     table, th, td {
-        border: 1px solid #000;
+        border: 2px solid #000000;
     }
     th, td {
         padding: 10px;
@@ -144,7 +144,7 @@
         </div>
 
 <!-- DELETE USER MODAL --->
-        <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-theme="dark" style="color:white;">
             <div class="modal-dialog" >
               <div class="modal-content">
                 <div class="modal-header">
@@ -178,7 +178,7 @@
         </script>
 
 <!-- EDIT USER MODAL --->
-        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true" data-bs-theme="dark" style="color:white;">
             <div class="modal-dialog modal-lg">
               <div class="modal-content">
                 <div class="modal-header">
@@ -405,7 +405,7 @@
             </table>
         </div>
 <!-- DELETE CONTACT MODAL --->
-        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-theme="dark" style="color:white;">
             <div class="modal-dialog">
               <div class="modal-content">
                 <div class="modal-header">
@@ -485,7 +485,7 @@
         </table>
     </div>
 <!-- DELETE EVENT MODAL --->
-    <div class="modal fade" id="deleteEventModal" tabindex="-1" aria-labelledby="deleteEventLabel" aria-hidden="true">
+    <div class="modal fade" id="deleteEventModal" tabindex="-1" aria-labelledby="deleteEventLabel" aria-hidden="true" data-bs-theme="dark" style="color:white;">
       <div class="modal-dialog" >
         <div class="modal-content">
           <div class="modal-header">
@@ -519,7 +519,7 @@
     </script>
 
 <!-- EDIT EVENT MODAL --->
-        <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true" data-bs-theme="dark">
+        <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true" data-bs-theme="dark" style="color:white;">
             <div class="modal-dialog modal-lg" data-bs-theme="dark">
               <div class="modal-content" data-bs-theme="dark">
                 <div class="modal-header">
@@ -557,7 +557,7 @@
                     <div class="col-md-12">
                       {{ form_edit_event.description }}
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-12" style="color:white">
                       {{ form_edit_event.file }}
                     </div>
                     <div class="col-md-12">
@@ -622,6 +622,15 @@
                             formEventFields.created.textContent  = data.created || '';
                             formEventFields.id.textContent  = data.id || '';
                             formEventFields.event_author.textContent  = data.username || '';
+                            const visibility = document.getElementById('visibility');
+                            if (visibility) {
+                                for (let option of visibility.options) {
+                                    if (option.value === data.visibility) {
+                                        option.selected = true;
+                                        break;
+                                    }
+                                }
+                            }
                         }
                     })
                     .catch(error => console.error('An error occurred:', error));
@@ -677,8 +686,8 @@
 
 
 <!-- CREATE EVENT FORM -->
-  <div style="display: flex; justify-content: center; align-items: center;" data-bs-theme="dark">
-    <div class="card" style="width: 90%; margin: 30px; padding: 15px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" data-bs-theme="dark">
+  <div style="display: flex; justify-content: center; align-items: center;" data-bs-theme="dark" style="color:white;">
+    <div class="card" style="width: 100%; margin: 30px; padding: 15px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" data-bs-theme="dark">
       <div class="card" id="teleport_event">
           <h3 id="hotlink_event_create">Event erstellen</h3>
           <form class="row g-2" method="POST" enctype="multipart/form-data">

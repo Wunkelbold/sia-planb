@@ -37,7 +37,7 @@ class Forms:
                                                                                         Length(min=5, max=5, message="Deine Postleitzahl scheint nicht ins Format zu passen XXXXX."),
                                                                                         Regexp(r"[0-9]{5}", message="Deine Postleitzahl muss aus Zahlen bestehen.")])
         
-        role = SelectField(label="Rolle",choices=[] ,coerce=str, render_kw={"class": "form-select", "id": "inputRole"})
+        role = SelectField(label="Rolle",choices=[] ,coerce=str, render_kw={"id": "inputRole"})
         
         #confirm_privacy_policy = SelectField(label="Rolle", choices=[(0, "Gast"), (1, "Student"), (2, "Sia-Mitglied"), (3, "Sia-Alumni")])
         #, EqualTo('password', message='Passwörter nicht gleich')
@@ -113,7 +113,7 @@ class Forms:
                                                                                         Optional(),
                                                                                         Length(min=5, max=5, message="Deine Postleitzahl scheint nicht ins Format zu passen XXXXX."),
                                                                                         Regexp(r"[0-9]{5}", message="Deine Postleitzahl muss aus Zahlen bestehen.")])
-        role = SelectField(label="Rolle",choices=[] ,coerce=str, render_kw={"class": "form-select", "id": "inputRole"})
+        role = SelectField(label="Rolle",choices=[] ,coerce=str, render_kw={ "id": "inputRole"})
 
     class ContactForm(FlaskForm):
         category = SelectField(render_kw={"placeholder": "Art der Anfrage"},choices=[('kontakt', 'Kontakt'), ('mieten', 'Location Mieten'), ('feedback', 'Kritik/Lob'), ('events', 'Wünsche für ein Event')], validators=[Length(min=1, max=20)])
@@ -130,12 +130,12 @@ class Forms:
         submit = SubmitField('Senden')
         
     class EventForm(FlaskForm):
-        name = StringField(render_kw={"placeholder": "Eventname"}, validators=[InputRequired(), Length(max=50)])
-        visibility = SelectField(label="Sichtbarkeit",choices=[("private","private"),("public","public")] , coerce=str, render_kw={"class": "form-select", "id": "visibility"})
-        place = StringField(render_kw={"placeholder": "Ort"}, validators=[Length(min=0, max=50)])
+        name = StringField(render_kw={"placeholder": "Eventname"}, validators=[InputRequired(), Length(max=50,message="Beschreibung darf maximal 50 Zeichen lang sein.")])
+        visibility = SelectField(label="Sichtbarkeit",choices=[("private","private"),("public","public")] , coerce=str, render_kw={ "id": "visibility"})
+        place = StringField(render_kw={"placeholder": "Ort"}, validators=[Length(min=0, max=50,message="Beschreibung darf maximal 50 Zeichen lang sein.")])
         date = DateTimeLocalField(render_kw={"placeholder": "Datum"}, validators=[Optional()])
-        description = TextAreaField(render_kw={"placeholder": "Beschreibung"}, validators=[Length(min=0, max=200)])
-        file = FileField(render_kw={"placeholder": "Datei"}, validators = [Optional(), FileSize(5 * 1024 * 1024)])
+        description = TextAreaField(render_kw={"placeholder": "Beschreibung"}, validators=[Length(min=0, max=200,message="Beschreibung darf maximal 200 Zeichen lang sein.")])
+        file = FileField(render_kw={"placeholder": "Datei"}, validators = [Optional(), FileSize(5 * 1024 * 1024,message="Uploadlimit 5mb und bitte Seitenverhältnis 1:1")])
         submit = SubmitField("Submit")
 
     class contactDelete(FlaskForm):
@@ -145,12 +145,12 @@ class Forms:
         uid = HiddenField('UID', validators=[InputRequired()])
 
     class ChangeEventForm(FlaskForm):
-        name = StringField(render_kw={"placeholder": "Eventname"}, validators=[InputRequired(), Length(max=50)])
-        visibility = SelectField(label="Sichtbarkeit",choices=[("private","private"),("public","public")] , coerce=str, render_kw={"class": "form-select", "id": "visibility"})
-        place = StringField(render_kw={"placeholder": "Ort"}, validators=[Length(min=0, max=50)])
+        name = StringField(render_kw={"placeholder": "Eventname"}, validators=[InputRequired(), Length(max=50,message="Beschreibung darf maximal 50 Zeichen lang sein.")])
+        visibility = SelectField(label="Sichtbarkeit",choices=[("private","private"),("public","public")] , coerce=str, render_kw={ "id": "visibility"})
+        place = StringField(render_kw={"placeholder": "Ort"}, validators=[Length(min=0, max=50,message="Beschreibung darf maximal 50 Zeichen lang sein.")])
         date = DateTimeLocalField(render_kw={"placeholder": "Datum"}, validators=[Optional()])
-        description = TextAreaField(render_kw={"placeholder": "Beschreibung"}, validators=[Length(min=0, max=200)])
-        file = FileField(render_kw={"placeholder": "Datei"}, validators = [Optional(), FileSize(5 * 1024 * 1024)])
+        description = TextAreaField(render_kw={"placeholder": "Beschreibung"}, validators=[Length(min=0, max=200,message="Beschreibung darf maximal 200 Zeichen lang sein.")])
+        file = FileField(render_kw={"placeholder": "Datei"}, validators = [Optional(), FileSize(5 * 1024 * 1024,message="Uploadlimit 5mb und bitte Seitenverhältnis 1:1")])
         submit = SubmitField("Submit")
 
 

@@ -4,6 +4,7 @@ from flask import Response, json, render_template, jsonify, request
 from permissions import require_permissions, hasPermissions
 from database import *
 from forms import *
+from flask import current_app
 
 def getAllEvents() -> list[Tables.Event]:
     return Tables.Event.query.all()
@@ -68,9 +69,9 @@ def apiDeleteEventShift(shiftid: int):
 # Get event information
 @app.route("/api/events/event/update/<int:eventid>", methods=['POST'])
 def apiUpdateEvent(eventid: int):
-   form = Forms.ChangeEventForm()
-   event = db.session.query(Tables.Event).filter_by(id=id).first() #TODO auf GUID umbauen
-   if form.validate_on_submit() and event:
+    form = Forms.ChangeEventForm()
+    event = db.session.query(Tables.Event).filter_by(id=eventid).first() #TODO auf GUID umbauen
+    if form.validate_on_submit() and event:
         if form.name.data:
            event.name = form.name.data
         if form.visibility.data:
@@ -79,16 +80,25 @@ def apiUpdateEvent(eventid: int):
             event.place = form.place.data
         if form.description.data:
             event.description = form.description.data
-        if form.file.data:
-            form.file.data.save(os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "images", "eventposter", str(event.id)))
+        with app.app_context():
+            if form.file.data:
+                form.file.data.save(os.path.join(os.path.dirname(os.path.abspath(__file__)), current_app.root_path,"static", "images", "eventposter", str(event.id)))
         if form.date.data:
             event.date = form.date.data
+        db.session.commit()
+        return jsonify({'success': True})
+    else:
+        for field_name, field_errors in form.errors.items():
+            print(f"Feld '{field_name}' hat folgende Fehler:")
+            for error in field_errors:
+                print(f"  - {error}")
+    errors = []
+    for field, error_list in form.errors.items():
+        for error in error_list:
+            errors.append(f"{error}")
 
-           
-       
+    return jsonify({'success': False, 'errors': errors})  # JSON-Antwort mit Fehlern
 
-
-   return Response(status=200)
 
 
 

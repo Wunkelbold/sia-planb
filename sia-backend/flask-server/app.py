@@ -1,5 +1,5 @@
 from globals import *
-from flask import Response, flash, render_template, request, send_from_directory, url_for, redirect, jsonify, get_flashed_messages
+from flask import make_response, Response, flash, render_template, request, send_from_directory, url_for, redirect, jsonify, get_flashed_messages
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf.csrf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
@@ -135,7 +135,7 @@ def admin():
             return Response(status=403)
         
         if not form.validate():
-            return Response(form.errors.items(), status=400)
+            return make_response(form.errors, 400)
         
         submitted=True
         newEvent = Tables.Event(

@@ -151,6 +151,10 @@ def admin():
         db.session.add(newEvent)
         db.session.commit()
 
+        # TODO add check if file is actually an image 
+        if form.file.data:
+            form.file.data.save(os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "images", "eventposter", str(newEvent.id)))
+
     users = Tables.User.query.order_by(Tables.User.last_login.desc()).all()
     contacts = Tables.Contact.query.order_by(Tables.Contact.created.desc()).all() 
     events = Tables.Event.query.join(Tables.User, Tables.Event.author == Tables.User.id) \
@@ -273,5 +277,3 @@ def verein():
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
-
-

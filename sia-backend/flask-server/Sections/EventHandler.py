@@ -54,6 +54,15 @@ def apiAddEventShift(eventid: int):
         return Response(status=200)
     else:
         return Response(status=403)
+# Add shift to an event
+@app.route("/api/events/event/<int:eventid>/delshift", methods=['POST'])
+def apiAddEventShift(shiftid: int):
+    if hasPermissions(f"/api/events/event/delshift/{shiftid}"):
+        Tables.Event.query.filter_by(id=shiftid).delete()
+        db.session.commit()
+        return Response(status=200)
+    else:
+        return Response(status=403)
 
 # Get event information
 @app.route("/api/events/event/<int:eventid>", methods=['GET'])

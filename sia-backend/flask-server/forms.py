@@ -1,7 +1,7 @@
 from wtforms import StringField, PasswordField, SubmitField, EmailField, IntegerField, SelectField, TextAreaField, DateField, HiddenField, DateTimeLocalField
 from wtforms.validators import InputRequired, Length, ValidationError, EqualTo, Email, Optional, Regexp
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileRequired, FileSize
+from flask_wtf.file import FileField, FileAllowed, FileSize
 # from flask_uploads import UploadSet, IMAGES
 
 class Forms:
@@ -135,7 +135,7 @@ class Forms:
         place = StringField(render_kw={"placeholder": "Ort"}, validators=[Length(min=0, max=50,message="Beschreibung darf maximal 50 Zeichen lang sein.")])
         date = DateTimeLocalField(render_kw={"placeholder": "Datum"}, validators=[Optional()])
         description = TextAreaField(render_kw={"placeholder": "Beschreibung"}, validators=[Length(min=0, max=200,message="Beschreibung darf maximal 200 Zeichen lang sein.")])
-        file = FileField(render_kw={"placeholder": "Datei"}, validators = [Optional(), FileSize(5 * 1024 * 1024,message="Uploadlimit 5mb und bitte Seitenverhältnis 1:1")])
+        file = FileField(render_kw={"placeholder": "Datei"}, validators = [Optional(), FileAllowed(["png", "jpg", "jpeg"]), FileSize(5 * 1024 * 1024,message="Uploadlimit 5mb und bitte Seitenverhältnis 1:1")])
         submit = SubmitField("Submit")
 
     class contactDelete(FlaskForm):

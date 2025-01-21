@@ -144,5 +144,14 @@ class Forms:
     class eventDelete(FlaskForm):
         uid = HiddenField('UID', validators=[InputRequired()])
 
+    class ChangeEventForm(FlaskForm):
+        name = StringField("Event Name", validators=[InputRequired(), Length(max=50)])
+        visibility = StringField("Benötigte Berechtigung", validators=[Length(min=0, max=10)])
+        place = StringField("Ort", validators=[Length(min=0, max=50)])
+        date = DateField("Event Date", validators=[Optional()])
+        description = StringField("Beschreibung", validators=[Length(min=0, max=200)])
+        file = FileField("Banner", validators = [Optional(), FileSize(5 * 1024 * 1024)])
+        submit = SubmitField("Submit")
+
 
 

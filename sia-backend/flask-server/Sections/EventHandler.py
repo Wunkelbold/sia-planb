@@ -3,6 +3,7 @@ from globals import app
 from flask import Response, json, render_template, jsonify, request
 from permissions import require_permissions, hasPermissions
 from database import *
+from forms import *
 
 def getAllEvents() -> list[Tables.Event]:
     return Tables.Event.query.all()
@@ -63,12 +64,74 @@ def apiDeleteEventShift(shiftid: int):
         return Response(status=200)
     else:
         return Response(status=403)
-
+    
 # Get event information
+@app.route("/api/events/event/update/<int:eventid>", methods=['POST'])
+def apiUpdateEvent(eventid: int):
+   form = Forms.ChangeEventForm()
+   event = db.session.query(Tables.Event).filter_by(id=id).first() #TODO auf GUID umbauen
+   if form.validate_on_submit() and event:
+        if form.name.data:
+           event.name = form.name.data
+        if form.visibility.data:
+            event.visibility = form.visibility.data
+        if form.place.data:
+            event.place = form.place.data
+        if form.description.data:
+            event.description = form.description.data
+        if form.file.data:
+            form.file.data.save(os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "images", "eventposter", str(event.id)))
+        if form.date.data:
+            event.date = form.date.data
+
+           
+       
+
+
+   return Response(status=200)
+
+
+
+
+
 @app.route("/api/events/event/<int:eventid>", methods=['GET'])
 def apiGetEvent(eventid: int):
     if hasPermissions(f"/api/events/event/{eventid}"):
-        event = Tables.Event.query.filter_by(id=eventid).first_or_404()
-        return Response(event.Json(), mimetype='application/json')
+        event = Tables.Event.query.join(
+            Tables.User, Tables.Event.author == Tables.User.id
+        ).with_entities(
+            Tables.Event.id,
+            Tables.Event.uid,
+            Tables.Event.name,
+            Tables.Event.visibility,
+            Tables.Event.description,
+            Tables.Event.place,
+            Tables.Event.created,
+            Tables.Event.date,
+            Tables.User.username,
+        ).filter(Tables.Event.id == eventid).first()
+
+        if not event:
+            return Response(status=404)
+
+        def format_datetime(dt):
+            return dt.strftime('%Y-%m-%dT%H:%M') if dt else None
+
+        # Serialize manually
+        event_data = {
+            "id": event.id,
+            "uid": str(event.uid),
+            "name": event.name,
+            "visibility": event.visibility,
+            "description": event.description,
+            "place": event.place,
+            "created": format_datetime(event.created),
+            "date": format_datetime(event.date),
+            "username": event.username,
+        }
+
+        return Response(json.dumps(event_data), mimetype='application/json')
     else:
         return Response(status=403)
+
+

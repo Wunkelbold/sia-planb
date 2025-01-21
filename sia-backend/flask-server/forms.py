@@ -1,4 +1,4 @@
-from wtforms import StringField, PasswordField, SubmitField, EmailField, IntegerField, SelectField, TextAreaField, DateField, HiddenField
+from wtforms import StringField, PasswordField, SubmitField, EmailField, IntegerField, SelectField, TextAreaField, DateField, HiddenField, DateTimeLocalField
 from wtforms.validators import InputRequired, Length, ValidationError, EqualTo, Email, Optional, Regexp
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileSize
@@ -130,12 +130,12 @@ class Forms:
         submit = SubmitField('Senden')
         
     class EventForm(FlaskForm):
-        name = StringField("Event Name", validators=[InputRequired(), Length(max=50)])
-        visibility = StringField("Benötigte Berechtigung", validators=[Length(min=0, max=10)])
-        place = StringField("Ort", validators=[Length(min=0, max=50)])
-        date = DateField("Event Date", validators=[Optional()])
-        description = StringField("Beschreibung", validators=[Length(min=0, max=200)])
-        file = FileField("Banner", validators = [Optional(), FileSize(5 * 1024 * 1024)])
+        name = StringField(render_kw={"placeholder": "Eventname"}, validators=[InputRequired(), Length(max=50)])
+        visibility = SelectField(label="Sichtbarkeit",choices=[("private","private"),("public","public")] , coerce=str, render_kw={"class": "form-select", "id": "visibility"})
+        place = StringField(render_kw={"placeholder": "Ort"}, validators=[Length(min=0, max=50)])
+        date = DateTimeLocalField(render_kw={"placeholder": "Datum"}, validators=[Optional()])
+        description = TextAreaField(render_kw={"placeholder": "Beschreibung"}, validators=[Length(min=0, max=200)])
+        file = FileField(render_kw={"placeholder": "Datei"}, validators = [Optional(), FileSize(5 * 1024 * 1024)])
         submit = SubmitField("Submit")
 
     class contactDelete(FlaskForm):
@@ -145,12 +145,12 @@ class Forms:
         uid = HiddenField('UID', validators=[InputRequired()])
 
     class ChangeEventForm(FlaskForm):
-        name = StringField("Event Name", validators=[InputRequired(), Length(max=50)])
-        visibility = StringField("Benötigte Berechtigung", validators=[Length(min=0, max=10)])
-        place = StringField("Ort", validators=[Length(min=0, max=50)])
-        date = DateField("Event Date", validators=[Optional()])
-        description = StringField("Beschreibung", validators=[Length(min=0, max=200)])
-        file = FileField("Banner", validators = [Optional(), FileSize(5 * 1024 * 1024)])
+        name = StringField(render_kw={"placeholder": "Eventname"}, validators=[InputRequired(), Length(max=50)])
+        visibility = SelectField(label="Sichtbarkeit",choices=[("private","private"),("public","public")] , coerce=str, render_kw={"class": "form-select", "id": "visibility"})
+        place = StringField(render_kw={"placeholder": "Ort"}, validators=[Length(min=0, max=50)])
+        date = DateTimeLocalField(render_kw={"placeholder": "Datum"}, validators=[Optional()])
+        description = TextAreaField(render_kw={"placeholder": "Beschreibung"}, validators=[Length(min=0, max=200)])
+        file = FileField(render_kw={"placeholder": "Datei"}, validators = [Optional(), FileSize(5 * 1024 * 1024)])
         submit = SubmitField("Submit")
 
 

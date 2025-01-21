@@ -470,10 +470,10 @@
                             <td>{{ event.visibility }}</td> 
                             <td>
                                 <div class="card-body">
-                                  <!--<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal" data-uid="{{ event.uid }}">
+                                  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editEventModal" data-uid="{{ event.id }}"> <!-- HIER ID Aufgrund bestehender Infastruktur von MOPSKATER-->
                                       Edit
-                                  </button>--><!-- TODO BUTTON machen-->
-                                  <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEventModal" data-uid="{{ event.uid }}">
+                                  </button>
+                                  <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEventModal" data-uid="{{ event.uid }}"> <!-- HIER UID Aufgrund bestehender Infastruktur von MOPSKATER-->
                                       Delete
                                   </button>
                                 </div>
@@ -519,66 +519,49 @@
     </script>
 
 <!-- EDIT EVENT MODAL --->
-        <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-              <div class="modal-content">
+        <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true" data-bs-theme="dark">
+            <div class="modal-dialog modal-lg" data-bs-theme="dark">
+              <div class="modal-content" data-bs-theme="dark">
                 <div class="modal-header">
                   <h5 class="modal-title" id="editEvenModalLabel">Eventdaten ändern</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                  <table>
+                  <table style="color: white;">
                     <tr>
-                      <td>registered</td>
-                      <td>last_login</td>
-                      <td>last_updated</td>
-                      <td>uid</td>
+                      <td>Event-ID</td>
+                      <td>erstellt</td>
+                      <td>Autor</td>
                     </tr>
                     <tr>
-                      <td><p name="registered" id="registered" value=""></p></td>
-                      <td><p name="last_login" id="last_login" value=""></p></td>
-                      <td><p name="last_updated" id="last_updated" value=""></p></td>
-                      <td><p name="display_uid" id="display_uid" value=""></p></td>
+                      <td><p name="event_id" id="event_id"></p></td>
+                      <td><p name="created" id="event_created"></p></td>
+                      <td><p name="author" id="event_author"></p></td>
                     </tr>
                   </table>
-                  <form id="event_edit_modal_form" class="row g-2" method="POST" action="/api/event/update/">
+                  <form id="event_edit_modal_form" class="row g-2" method="POST" action="/api/events/event/update/">
                     {{ form_edit_user.hidden_tag() }}
                     <input type="hidden" id="uid" name="uid" value="">
                     <div class="col-md-4">
-                      {{ form_edit_user.username }}
+                      {{ form_edit_event.name }}
                     </div>
                     <div class="col-md-4">
-                        {{ form_edit_user.role }}
+                      {{ form_edit_event.date }}
                     </div>
                     <div class="col-md-4">
-                      {{ form_edit_user.email }}
+                      {{ form_edit_event.place }}
                     </div>
-                    <div class="col-md-5">
-                      {{ form_edit_user.password }}
+                    <div class="col-md-4">
+                      {{ form_edit_event.visibility }}
                     </div>
-                    <div class="col-md-5">
-                      {{ form_edit_user.password_confirm }}
+                    <div class="col-md-12">
+                      {{ form_edit_event.description }}
                     </div>
-                    <div class="col-md-5">
-                      {{ form_edit_user.surname }}
+                    <div class="col-md-4">
+                      {{ form_edit_event.file }}
                     </div>
-                    <div class="col-md-5">
-                      {{ form_edit_user.lastname }}
-                    </div>
-                    <div class="col-md-3">
-                      {{ form_edit_user.street }}
-                    </div>
-                    <div class="col-md-1">
-                      {{ form_edit_user.street_no }}
-                    </div>
-                    <div class="col-md-2">
-                      {{ form_edit_user.city }}
-                    </div>
-                    <div class="col-md-1">
-                      {{ form_edit_user.postalcode }}
-                    </div>
-                    <div class="col-12">
-                      {{ form_edit_user.submit }}
+                    <div class="col-md-12">
+                      {{ form_edit_event.submit }}
                     </div>
                     <div>
                       {% with messages = get_flashed_messages() %}
@@ -600,61 +583,45 @@
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const editEventModal = document.getElementById('editEventModal');
-                const uidInput = document.getElementById('uid');
-                const formFields = {
-                    username: document.querySelector('input[name="username"]'),
-                    email: document.querySelector('input[name="email"]'),
-                    surname: document.querySelector('input[name="surname"]'),
-                    lastname: document.querySelector('input[name="lastname"]'),
-                    street: document.querySelector('input[name="street"]'),
-                    street_no: document.querySelector('input[name="street_no"]'),
-                    city: document.querySelector('input[name="city"]'),
-                    postalcode: document.querySelector('input[name="postalcode"]'),
-                    registered: document.getElementById('registered'),
-                    last_login: document.getElementById('last_login'),
-                    last_updated: document.getElementById('last_updated'),
-                    display_uid: document.getElementById('display_uid'),
+                const uidEventInput = document.getElementById('uid');
+                const formEventFields = {
+                    name: document.querySelector('input[name="name"]'),
+                    visibility: document.querySelector('input[name="visibility"]'),
+                    place: document.querySelector('input[name="place"]'),
+                    date: document.querySelector('input[name="date"]'),
+                    description: document.querySelector('textarea[name="description"]'),
+                    author: document.getElementById('event_author'),
+                    created: document.getElementById('event_created'),
+                    id: document.getElementById('event_id'),
+                    event_author: document.getElementById('event_author'),
                 };
 
                 editEventModal.addEventListener('show.bs.modal', (event) => {
                     const button = event.relatedTarget;
                     const uid = button.getAttribute('data-uid');
-                    uidInput.value = uid;
-                    document.getElementById('event_edit_modal_form').setAttribute('action', `/api/user/update/${uid}`);
-                    fetch(`/api/user/get/${uid}`, {
-                    method: 'POST',
+                    uidEventInput.value = uid;
+                    document.getElementById('event_edit_modal_form').setAttribute('action', `/api/events/event/update/${uid}`);
+                    fetch(`/api/events/event/${uid}`, {
+                    method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRFToken': '{{ csrf_token() }}',
                     },
-                    body: "",
                     })
                     .then(response => response.json())
                     .then(data => {
                         if (data.error) {
                         console.error(data.error);
                         } else {
-                            formFields.username.value = data.username || '';
-                            formFields.email.value = data.email || '';
-                            formFields.surname.value = data.surname || '';
-                            formFields.lastname.value = data.lastname || '';
-                            formFields.street.value = data.street || '';
-                            formFields.street_no.value = data.street_no || '';
-                            formFields.city.value = data.city || '';
-                            formFields.postalcode.value = data.postalcode || '';
-                            formFields.registered.textContent = data.registered || '';
-                            formFields.last_login.textContent = data.last_login || '';
-                            formFields.last_updated.textContent = data.last_updated || '';
-                            formFields.display_uid.textContent = data.uid || '';
-                            const roleSelect = document.getElementById('inputRole');
-                            if (roleSelect) {
-                                for (let option of roleSelect.options) {
-                                    if (option.value === data.role) {
-                                        option.selected = true;
-                                        break;
-                                    }
-                                }
-                            }
+                            formEventFields.name.value = data.name || '';
+                            //formEventFields.visibility.value = data.visibility || '';
+                            formEventFields.place.value = data.place || '';
+                            formEventFields.date.value = data.date || '';
+                            formEventFields.description.textContent = data.description || '';
+                            formEventFields.author.textContent  = data.author || '';
+                            formEventFields.created.textContent  = data.created || '';
+                            formEventFields.id.textContent  = data.id || '';
+                            formEventFields.event_author.textContent  = data.username || '';
                         }
                     })
                     .catch(error => console.error('An error occurred:', error));
@@ -709,24 +676,43 @@
 
 
 
-    {% if submitted %}
-        <div>
-            Event wurde erstellt
-        </div>
-    {% endif %}
-
-    <div class="card" id="teleport_event">
-        <h3 id="hotlink_event_create">Event erstellen</h3>
-        <form method="POST" enctype="multipart/form-data">
-            {{ form.hidden_tag() }}
-            {{ form.name() }}
-            {{ form.date() }}
-            {{ form.place() }}
-            {{ form.description() }}
-            {{ form.file() }}
-            {{ form.submit() }}
-        </form>
+<!-- CREATE EVENT FORM -->
+  <div style="display: flex; justify-content: center; align-items: center;" data-bs-theme="dark">
+    <div class="card" style="width: 90%; margin: 30px; padding: 15px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" data-bs-theme="dark">
+      <div class="card" id="teleport_event">
+          <h3 id="hotlink_event_create">Event erstellen</h3>
+          <form class="row g-2" method="POST" enctype="multipart/form-data">
+              {{ form.hidden_tag() }}
+              <div class="col-md-5">
+                {{ form.name() }}
+              </div>
+              <div class="col-md-3">
+                {{ form.date() }}
+              </div>
+              <div class="col-md-3">
+                {{ form.place() }}
+              </div>
+              <div class="col-md-3">
+                {{ form.visibility() }}
+              </div>
+              <div class="col-md-12">
+                {{ form.description() }}
+              </div>
+              <div class="col-md-3">
+                {{ form.file() }}
+              </div>
+              <div class="col-md-12">
+                {{ form.submit() }}
+              </div>
+              {% if submitted %}
+                <div>
+                    Event wurde erstellt
+                </div>
+              {% endif %}
+          </form>
+      </div>
     </div>
+  </div>
 </section>
 {% endblock %}
 

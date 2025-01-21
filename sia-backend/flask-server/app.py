@@ -145,8 +145,8 @@ def admin():
             author = current_user.id,
             created = datetime.now(),
             date = form.date.data,
-            description = form.description.data,
-            postername = current_user.username
+            description = form.description.data #,
+            #postername = current_user.username
         )
         db.session.add(newEvent)
         db.session.commit()
@@ -158,12 +158,13 @@ def admin():
     users = Tables.User.query.order_by(Tables.User.last_login.desc()).all()
     contacts = Tables.Contact.query.order_by(Tables.Contact.created.desc()).all() 
     events = Tables.Event.query.join(Tables.User, Tables.Event.author == Tables.User.id) \
-        .with_entities(Tables.Event.id, Tables.Event.uid, Tables.Event.name, Tables.Event.visibility, Tables.Event.place, Tables.Event.created, Tables.Event.date, Tables.User.username) \
+        .with_entities(Tables.Event.id, Tables.Event.uid, Tables.Event.name, Tables.Event.visibility, Tables.Event.description, Tables.Event.place, Tables.Event.created, Tables.Event.date, Tables.User.username) \
         .order_by(Tables.Event.created.desc()).all()
     roles = Tables.Role.query.all()
     form_edit_user=Forms.AdminChangeData()
+    form_edit_event=Forms.ChangeEventForm()
     form_edit_user.role.choices = [(role.name, role.name) for role in roles] 
-    return render_template('admin.html', title='Sia-PlanB.de', events=events, users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(), form_edit_user=form_edit_user)
+    return render_template('admin.html', title='Sia-PlanB.de', events=events, users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(), form_edit_user=form_edit_user,form_edit_event=form_edit_event)
 
 @app.route("/slider/<name>")
 def slider(name):
@@ -175,7 +176,7 @@ def slider(name):
 
 @app.route("/",methods=['GET'])
 def index():
-    #events=Database.get_all_events() LEGACY NICHT MEHR VERWENDEN
+    #events=Database.get_all_events() NICHT MEHR VERWENDEN
     return render_template('index.html', title='Sia-PlanB.de')
 
 @app.route("/contact", methods=['GET', 'POST'])

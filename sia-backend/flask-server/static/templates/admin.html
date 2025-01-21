@@ -70,7 +70,7 @@
         margin-bottom: 20px;
     }
     table, th, td {
-        border: 1px solid #000;
+        border: 2px solid #000000;
     }
     th, td {
         padding: 10px;
@@ -144,7 +144,7 @@
         </div>
 
 <!-- DELETE USER MODAL --->
-        <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-theme="dark" style="color:white;">
             <div class="modal-dialog" >
               <div class="modal-content">
                 <div class="modal-header">
@@ -178,7 +178,7 @@
         </script>
 
 <!-- EDIT USER MODAL --->
-        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true" data-bs-theme="dark" style="color:white;">
             <div class="modal-dialog modal-lg">
               <div class="modal-content">
                 <div class="modal-header">
@@ -212,28 +212,28 @@
                     <div class="col-md-4">
                       {{ form_edit_user.email }}
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-6">
                       {{ form_edit_user.password }}
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-6">
                       {{ form_edit_user.password_confirm }}
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-6">
                       {{ form_edit_user.surname }}
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-6">
                       {{ form_edit_user.lastname }}
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                       {{ form_edit_user.street }}
                     </div>
-                    <div class="col-md-1">
+                    <div class="col-md-2">
                       {{ form_edit_user.street_no }}
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-4">
                       {{ form_edit_user.city }}
                     </div>
-                    <div class="col-md-1">
+                    <div class="col-md-2">
                       {{ form_edit_user.postalcode }}
                     </div>
                     <div class="col-12">
@@ -405,7 +405,7 @@
             </table>
         </div>
 <!-- DELETE CONTACT MODAL --->
-        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-theme="dark" style="color:white;">
             <div class="modal-dialog">
               <div class="modal-content">
                 <div class="modal-header">
@@ -470,10 +470,10 @@
                             <td>{{ event.visibility }}</td> 
                             <td>
                                 <div class="card-body">
-                                  <!--<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal" data-uid="{{ event.uid }}">
+                                  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editEventModal" data-uid="{{ event.id }}"> <!-- HIER ID Aufgrund bestehender Infastruktur von MOPSKATER-->
                                       Edit
-                                  </button>--><!-- TODO BUTTON machen-->
-                                  <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEventModal" data-uid="{{ event.uid }}">
+                                  </button>
+                                  <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEventModal" data-uid="{{ event.uid }}"> <!-- HIER UID Aufgrund bestehender Infastruktur von MOPSKATER-->
                                       Delete
                                   </button>
                                 </div>
@@ -485,7 +485,7 @@
         </table>
     </div>
 <!-- DELETE EVENT MODAL --->
-    <div class="modal fade" id="deleteEventModal" tabindex="-1" aria-labelledby="deleteEventLabel" aria-hidden="true">
+    <div class="modal fade" id="deleteEventModal" tabindex="-1" aria-labelledby="deleteEventLabel" aria-hidden="true" data-bs-theme="dark" style="color:white;">
       <div class="modal-dialog" >
         <div class="modal-content">
           <div class="modal-header">
@@ -518,26 +518,210 @@
         });
     </script>
 
-
-
-    {% if submitted %}
-        <div>
-            Event wurde erstellt
+<!-- EDIT EVENT MODAL --->
+        <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true" data-bs-theme="dark" style="color:white;">
+            <div class="modal-dialog modal-lg" data-bs-theme="dark">
+              <div class="modal-content" data-bs-theme="dark">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="editEvenModalLabel">Eventdaten ändern</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <table style="color: white;">
+                    <tr>
+                      <td>Event-ID</td>
+                      <td>erstellt</td>
+                      <td>Autor</td>
+                    </tr>
+                    <tr>
+                      <td><p name="event_id" id="event_id"></p></td>
+                      <td><p name="created" id="event_created"></p></td>
+                      <td><p name="author" id="event_author"></p></td>
+                    </tr>
+                  </table>
+                  <form id="event_edit_modal_form" class="row g-2" method="POST" action="/api/events/event/update/">
+                    {{ form_edit_user.hidden_tag() }}
+                    <input type="hidden" id="uid" name="uid" value="">
+                    <div class="col-md-4">
+                      {{ form_edit_event.name }}
+                    </div>
+                    <div class="col-md-4">
+                      {{ form_edit_event.date }}
+                    </div>
+                    <div class="col-md-4">
+                      {{ form_edit_event.place }}
+                    </div>
+                    <div class="col-md-4">
+                      {{ form_edit_event.visibility }}
+                    </div>
+                    <div class="col-md-12">
+                      {{ form_edit_event.description }}
+                    </div>
+                    <div class="col-md-12" style="color:white">
+                      {{ form_edit_event.file }}
+                    </div>
+                    <div class="col-md-12">
+                      {{ form_edit_event.submit }}
+                    </div>
+                    <div>
+                      {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                          <ul class="error-message-list">
+                            {% for message in messages %}
+                              <p class="error-message">{{ message }}</p>
+                            {% endfor %}
+                          </ul>
+                        {% endif %}
+                      {% endwith %}
+                    </div>
+                    <div id="flash-messages"></div>
+                  </form>
+                </div>
+              </div>
+            </div>
         </div>
-    {% endif %}
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const editEventModal = document.getElementById('editEventModal');
+                const uidEventInput = document.getElementById('uid');
+                const formEventFields = {
+                    name: document.querySelector('input[name="name"]'),
+                    visibility: document.querySelector('input[name="visibility"]'),
+                    place: document.querySelector('input[name="place"]'),
+                    date: document.querySelector('input[name="date"]'),
+                    description: document.querySelector('textarea[name="description"]'),
+                    author: document.getElementById('event_author'),
+                    created: document.getElementById('event_created'),
+                    id: document.getElementById('event_id'),
+                    event_author: document.getElementById('event_author'),
+                };
 
-    <div class="card" id="teleport_event">
-        <h3 id="hotlink_event_create">Event erstellen</h3>
-        <form method="POST" enctype="multipart/form-data">
-            {{ form.hidden_tag() }}
-            {{ form.name() }}
-            {{ form.date() }}
-            {{ form.place() }}
-            {{ form.description() }}
-            {{ form.file() }}
-            {{ form.submit() }}
-        </form>
+                editEventModal.addEventListener('show.bs.modal', (event) => {
+                    const button = event.relatedTarget;
+                    const uid = button.getAttribute('data-uid');
+                    uidEventInput.value = uid;
+                    document.getElementById('event_edit_modal_form').setAttribute('action', `/api/events/event/update/${uid}`);
+                    fetch(`/api/events/event/${uid}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token() }}',
+                    },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                        console.error(data.error);
+                        } else {
+                            formEventFields.name.value = data.name || '';
+                            //formEventFields.visibility.value = data.visibility || '';
+                            formEventFields.place.value = data.place || '';
+                            formEventFields.date.value = data.date || '';
+                            formEventFields.description.textContent = data.description || '';
+                            formEventFields.author.textContent  = data.author || '';
+                            formEventFields.created.textContent  = data.created || '';
+                            formEventFields.id.textContent  = data.id || '';
+                            formEventFields.event_author.textContent  = data.username || '';
+                            const visibility = document.getElementById('visibility');
+                            if (visibility) {
+                                for (let option of visibility.options) {
+                                    if (option.value === data.visibility) {
+                                        option.selected = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    })
+                    .catch(error => console.error('An error occurred:', error));
+                });
+
+                const form = document.getElementById('event_edit_modal_form');
+                const modal = new bootstrap.Modal(document.getElementById('editEventModal'));  // Bootstrap Modal Instanz
+
+                form.addEventListener('submit', (event) => {
+                    event.preventDefault(); 
+                    const formData = new FormData(form);  
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token() }}'  
+                        }
+                    })
+                    .then(response => response.json())  
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload()
+                        } else {
+                            displayFlashMessages(data.errors || []);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Fehler:', error);
+                        displayFlashMessages(['Ein Fehler ist aufgetreten. Womöglich fehlt dir die Berechtigung!']);
+                    });
+                });
+
+            });
+            function displayFlashMessages(messages) {
+                const flashContainer = document.getElementById('flash-messages');
+                flashContainer.innerHTML = '';  // Leere den Container vor dem Hinzufügen neuer Nachrichten
+
+                if (messages.length > 0) {
+                    const ul = document.createElement('ul');
+                    ul.classList.add('error-message-list');
+                    messages.forEach(message => {
+                        const li = document.createElement('li');
+                        li.classList.add('error-message');
+                        li.textContent = message;
+                        ul.appendChild(li);
+                    });
+                    flashContainer.appendChild(ul);
+                }
+            }
+        </script>
     </div>
+
+
+
+<!-- CREATE EVENT FORM -->
+  <div style="display: flex; justify-content: center; align-items: center;" data-bs-theme="dark" style="color:white;">
+    <div class="card" style="width: 100%; margin: 30px; padding: 15px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" data-bs-theme="dark">
+      <div class="card" id="teleport_event">
+          <h3 id="hotlink_event_create">Event erstellen</h3>
+          <form class="row g-2" method="POST" enctype="multipart/form-data">
+              {{ form.hidden_tag() }}
+              <div class="col-md-5">
+                {{ form.name() }}
+              </div>
+              <div class="col-md-3">
+                {{ form.date() }}
+              </div>
+              <div class="col-md-3">
+                {{ form.place() }}
+              </div>
+              <div class="col-md-3">
+                {{ form.visibility() }}
+              </div>
+              <div class="col-md-12">
+                {{ form.description() }}
+              </div>
+              <div class="col-md-3">
+                {{ form.file() }}
+              </div>
+              <div class="col-md-12">
+                {{ form.submit() }}
+              </div>
+              {% if submitted %}
+                <div>
+                    Event wurde erstellt
+                </div>
+              {% endif %}
+          </form>
+      </div>
+    </div>
+  </div>
 </section>
 {% endblock %}
 

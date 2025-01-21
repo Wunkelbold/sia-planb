@@ -10,6 +10,7 @@ from globals import *
 import uuid
 import secrets
 from sqlalchemy.dialects.postgresql import UUID
+from datetime import datetime
 
 class Tables:
     class User(db.Model, UserMixin):
@@ -51,14 +52,17 @@ class Tables:
         postername = db.Column(db.String(50))
 
         def toJSON(self):
+            def format_datetime(dt):
+                return dt.strftime('%Y-%m-%dT%H:%M') if dt else None
             return json.dumps({
                 "id": self.id,
                 "author": self.author,
+                "uid": self.uid,
                 "name": self.name,
                 "visibility": self.visibility,
                 "place": self.place,
-                "created": self.created,
-                "date": self.date,
+                "created": format_datetime(self.created),
+                "date": format_datetime(self.date),
                 "description": self.description,
                 "postername": self.postername
             })

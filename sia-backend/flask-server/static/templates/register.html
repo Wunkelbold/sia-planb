@@ -14,31 +14,67 @@
 
 
 <style>
-  input {
-    padding: 5px;
-    margin: 10px
-  }
+
+section {
+        padding: 20px;
+    }
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    h2 {
+        border-bottom: 1px solid #000;
+        padding-bottom: 10px;
+    }
+    .card {
+        border: 1px solid #000;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    input, select, textarea {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #000;
+    }
+    button {
+        padding: 10px 20px;
+        background-color: #000;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #444;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    table, th, td {
+        border: 1px solid #000;
+    }
+    th, td {
+        padding: 10px;
+        text-align: left;
+    }
 </style>
 
 
-<div style="display: flex; justify-content: center; align-items: center;"data-bs-theme="dark">
-  <div class="card" style="width: 50rem; margin: 30px; padding: 15px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" data-bs-theme="dark">
+<div style="display: flex; justify-content: center; align-items: center;" data-bs-theme="dark">
+  <div class="card" style="width: 40rem; margin: 30px; padding: 15px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" data-bs-theme="dark">
     <h5 class="card-header">Erstelle ein Benutzerkonto</h5>
     <form class="row g-2" method="POST" action="/register">
       {{ form.hidden_tag() }}
-      <div class="col-md-3">
+      <div class="col-md-12">
         {{ form.username }}
       </div>
-      <div class="col-md-3">
-        {{ form.surname }}
-      </div>
-      <div class="col-md-3">
-        {{ form.lastname }}
-      </div>
-      <div class="col-md-12">
+      <div class="col-md-6">
         {{ form.password }}
       </div>
-      <div class="col-md-12">
+      <div class="col-md-6">
         {{ form.password_confirm }}
       </div>
       <div class="col-md-5">
@@ -48,16 +84,22 @@
         <label class="visually-hidden" for="inputRole">Rolle</label>
         {{ form.role }}
       </div>
-      <div class="col-md-3">
+      <div class="col-md-6">
+        {{ form.surname }}
+      </div>
+      <div class="col-md-6">
+        {{ form.lastname }}
+      </div>
+      <div class="col-md-4">
         {{ form.street }}
       </div>
-      <div class="col-md-1">
+      <div class="col-md-2">
         {{ form.street_no }}
       </div>
-      <div class="col-md-2">
+      <div class="col-md-4">
         {{ form.city }}
       </div>
-      <div class="col-md-1">
+      <div class="col-md-2">
         {{ form.postalcode }}
       </div>
       <div class="col-12">

@@ -1,6 +1,8 @@
 from wtforms import StringField, PasswordField, SubmitField, EmailField, IntegerField, SelectField, TextAreaField, DateField, HiddenField
 from wtforms.validators import InputRequired, Length, ValidationError, EqualTo, Email, Optional, Regexp
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileRequired, FileSize
+# from flask_uploads import UploadSet, IMAGES
 
 class Forms:
     class RegisterForm(FlaskForm):
@@ -133,6 +135,7 @@ class Forms:
         place = StringField("Ort", validators=[Length(min=0, max=50)])
         date = DateField("Event Date", validators=[Optional()])
         description = StringField("Beschreibung", validators=[Length(min=0, max=200)])
+        file = FileField("Banner", validators = [Optional(), FileSize(5 * 1024 * 1024)])
         submit = SubmitField("Submit")
 
     class contactDelete(FlaskForm):

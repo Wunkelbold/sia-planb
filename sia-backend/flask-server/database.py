@@ -244,7 +244,7 @@ def init_default_role():
     hashed_password = bcrypt.generate_password_hash(admin_pwd).decode('utf-8')
     admin_existing = Tables.User.query.filter_by(username="admin").first()
     if admin_existing:
-        pass
+        print("--- Admin existiert, letzes bekanntes PAsswort nutzen ---")
     else:
         admin = Tables.User(username="admin", password=hashed_password, role="Admin", permissions=[])
         db.session.add(admin)

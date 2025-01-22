@@ -82,7 +82,10 @@ def apiUpdateEvent(eventid: int):
             event.description = form.description.data
         with app.app_context():
             if form.file.data:
-                form.file.data.save(os.path.join(os.path.dirname(os.path.abspath(__file__)), current_app.root_path,"static", "images", "eventposter", str(event.id)))
+                folder_path = os.path.join(current_app.root_path, "static", "images", "eventposter", str(event.id))
+                os.makedirs(folder_path, exist_ok=True)
+                file_path = os.path.join(folder_path, form.file.data.filename)
+                form.file.data.save(file_path)
         if form.date.data:
             event.date = form.date.data
         db.session.commit()

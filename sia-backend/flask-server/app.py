@@ -154,7 +154,11 @@ def admin():
 
         # TODO add check if file is actually an image 
         if form.file.data:
-            form.file.data.save(os.path.join(os.path.dirname(os.path.abspath(__file__)), current_app.root_path,"static", "images", "eventposter", str(newEvent.id)))
+            folder_path = os.path.join(current_app.root_path, "static", "images", "eventposter", str(newEvent.id))
+            os.makedirs(folder_path, exist_ok=True)
+            file_path = os.path.join(folder_path, form.file.data.filename)
+            form.file.data.save(file_path)
+            
     users = Tables.User.query.order_by(Tables.User.last_login.desc()).all()
     contacts = Tables.Contact.query.order_by(Tables.Contact.created.desc()).all() 
     events = Tables.Event.query.join(Tables.User, Tables.Event.author == Tables.User.id) \

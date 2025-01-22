@@ -12,6 +12,7 @@ from functools import wraps
 from database import Tables, DAO
 from forms import Forms
 from permissions import *
+from flask import current_app
 
 #-----Load Sections-----
 
@@ -154,7 +155,7 @@ def admin():
         # TODO add check if file is actually an image 
         if form.file.data:
             form.file.data.save(os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "images", "eventposter", str(newEvent.id)))
-
+            form.file.data.save(os.path.join(os.path.dirname(os.path.abspath(__file__)), current_app.root_path,"static", "images", "eventposter", str(event.id)))
     users = Tables.User.query.order_by(Tables.User.last_login.desc()).all()
     contacts = Tables.Contact.query.order_by(Tables.Contact.created.desc()).all() 
     events = Tables.Event.query.join(Tables.User, Tables.Event.author == Tables.User.id) \

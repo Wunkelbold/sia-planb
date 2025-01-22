@@ -177,7 +177,8 @@ def slider(name):
 @app.route("/",methods=['GET'])
 def index():
     #events=Database.get_all_events() NICHT MEHR VERWENDEN
-    return render_template('index.html', title='Sia-PlanB.de')
+    events = Tables.Event.query.with_entities(Tables.Event.name, Tables.Event.id, Tables.Event.description, Tables.Event.place, Tables.Event.date).order_by(Tables.Event.created.desc()).all()
+    return render_template('index.html', title='Sia-PlanB.de', events=events)
 
 @app.route("/contact", methods=['GET', 'POST'])
 def contact():

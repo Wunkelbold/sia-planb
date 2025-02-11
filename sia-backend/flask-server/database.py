@@ -195,10 +195,11 @@ class DAO:
 def init_database():
     if os.getenv("DROP_AND_CREATE_DATABASE")=="true": #TODO für dev einmalig mit if os.getenv("DROP_AND_CREATE_DATABASE","true")=="true": ausführen
         db.drop_all()
-        db.create_all()
         print("--- DROP_AND_CREATE_DATABASE \t true ---")
     else:
-        print("--- DROP_AND _CREATE_DATABASE \t false ---") 
+        print("--- DROP_AND_CREATE_DATABASE \t false ---") 
+        print("--- Any missing tables got created ---") 
+    db.create_all()
 
 def init_roles():
     print("--- Initializing roles \t\t ---")

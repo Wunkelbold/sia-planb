@@ -3,7 +3,6 @@ from flask import make_response, Response, flash, render_template, request, send
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf.csrf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Table, Column, MetaData, Integer, Computed, func
 from http import HTTPStatus
 import os
 from datetime import datetime

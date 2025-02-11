@@ -201,56 +201,52 @@ def init_database():
         print("--- DROP_AND _CREATE_DATABASE \t false ---") 
 
 def init_roles():
-    if os.getenv("INIT_ROLES")=="true":
-        print("--- INIT_ROLES \t\t true ---")
-        try:
-            script_dir = os.path.dirname(os.path.abspath(__file__))
-            roles_path = os.path.join(script_dir, "roles.json")
-            with open(roles_path, "r") as f:
-                roles = json.load(f)
-
-                for name, perm in roles.get("public").items():
-                    if Tables.Role.query.filter_by(name=name).first():
-                        print(f"--- role '{name}' already exists and was skipped ---")
-                    else:
-                        permissions = perm if perm else []
-                        new_role = Tables.Role(name=name, permissions=permissions, selectable_on_register="yes")
-                        db.session.add(new_role)
-                
-                for name, perm in roles.get("private").items():
-                    if Tables.Role.query.filter_by(name=name).first():
-                        print(f"--- role '{name}' already exists and was skipped ---")
-                    else:
-                        permissions = perm if perm else [] 
-                        new_role = Tables.Role(name=name, permissions=permissions, selectable_on_register="no")
-                        db.session.add(new_role)
-
-            db.session.commit()
+    print("--- Initializing roles \t\t ---")
+    try:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        roles_path = os.path.join(script_dir, "roles.json")
+        with open(roles_path, "r") as f:
+            roles = json.load(f)
+            for name, perm in roles.get("public").items():
+                if Tables.Role.query.filter_by(name=name).first():
+                    print(f"--- role '{name}' already exists and was skipped ---")
+                else:
+                    permissions = perm if perm else []
+                    new_role = Tables.Role(name=name, permissions=permissions, selectable_on_register="yes")
+                    db.session.add(new_role)
+                    print(f"--- role '{name}' initialized ---")
             
-
-
-
-            print("--- INIT_ROLES \t\t success ---")
-    
-        except Exception as e:
-            print("--- init_roles() ERROR:", file=sys.stderr)
-            traceback.print_exc(file=sys.stderr)
-
-    else:
-        print("--- INIT_ROLES \t false ---")
+            for name, perm in roles.get("private").items():
+                if Tables.Role.query.filter_by(name=name).first():
+                    print(f"--- role '{name}' already exists and was skipped ---")
+                else:
+                    permissions = perm if perm else [] 
+                    new_role = Tables.Role(name=name, permissions=permissions, selectable_on_register="no")
+                    db.session.add(new_role)
+                    print(f"--- role '{name}' initialized ---")
+        db.session.commit()
+    except Exception as e:
+        print("--- init_roles() ERROR:", file=sys.stderr)
+        traceback.print_exc(file=sys.stderr)
 
 def init_default_role():
-    admin_pwd = secrets.token_hex(12)
-    hashed_password = bcrypt.generate_password_hash(admin_pwd).decode('utf-8')
-    admin_existing = Tables.User.query.filter_by(username="admin").first()
-    if admin_existing:
-        print("--- Admin existiert, letzes bekanntes PAsswort nutzen ---")
+    if os.getenv("CREATE_ADMIN")=="true":
+        print("--- CREATE_ADMIN \t\t true ---")
+        admin_pwd = secrets.token_hex(12)
+        hashed_password = bcrypt.generate_password_hash(admin_pwd).decode('utf-8')
+        admin_existing = Tables.User.query.filter_by(username="admin").first()
+        if admin_existing:
+            admin_existing.password = hashed_password
+            print(f"--- Admin exists, new password: {admin_pwd} ---")
+        else:
+            admin = Tables.User(username="admin", password=hashed_password, role="Admin", permissions=[])
+            db.session.add(admin)
+            print(f"--- Admin generated: admin: {admin_pwd} ---")
+        db.session.commit()
     else:
-        admin = Tables.User(username="admin", password=hashed_password, role="Admin", permissions=[])
-        db.session.add(admin)
-    db.session.commit()
-    print(f"--- Admin generated: admin: {admin_pwd} ---")
+        print("--- CREATE_ADMIN \t\t false ---")
 
+        
 
 
 

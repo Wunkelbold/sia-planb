@@ -31,7 +31,7 @@ services:
       - DEFAULT_USER=${DEFAULT_USER}
       - DEFAULT_USER_PASSWORD=${DEFAULT_USER_PASSWORD}
       - DROP_AND_CREATE_DATABASE=true
-      - INIT_ROLES=true
+      - CREATE_ADMIN=true
       - Debug=false
 
     depends_on:

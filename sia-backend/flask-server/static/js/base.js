@@ -1,6 +1,6 @@
-import { Dropdown, initMDB } from "mdb-ui-kit";
+//import { Dropdown} from "mdb-ui-kit";
 
-initMDB({ Dropdown });
+//initMDB({ Dropdown });
 
 const sections = document.querySelectorAll('.section');
 let options = {
@@ -21,5 +21,13 @@ let observer = new IntersectionObserver((entries, observer) => {
 
 sections.forEach(section => {
     observer.observe(section);
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    if (typeof jQuery === "undefined") {
+        console.error("Error: jQuery is not loaded before Bootstrap!");
+    } else {
+        console.log("jQuery is loaded, Bootstrap will work.");
+    }
 });
 

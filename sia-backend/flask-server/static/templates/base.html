@@ -5,8 +5,30 @@
       <meta http-equiv="X-UA-Compatible" content="IE=edge" >
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <meta content="{{ csrf_token() }}">
+      <!--<link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}">-->
       <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/base.css') }}">
       <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+      <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAAAAAAAAAAAAAAAAA
+      AAAAAAABAAEAAAAAAAEAAQAAAAAA////SP/+/pT+/v/Z////+P////j///7Z///+lP///0gAAAEA
+      AAAAAAAAAAAAAAAAAAEAAAABAAD///4n///+kv////v+/v////////7//////v/////+///////+
+      //77//7/kv7//icAAAAAAAAAAAAAAQD//v8n/v/+r/7////+///////+/+Xl5f+9vbz/xMTE/9XU
+      1P/+/v///////////v////+v/v/+JwAAAAAAAAAA//7/kv///v/4+Pj/6Ojo//39/P/n5uf/XV1c
+      /1RUVf/T09L//v////Dw8f/7+/v//v/////+/pIAAAAA////SP7//vv4+fj/zc3N/4eHh/+sraz/
+      2NjY/46Ojv+Tk5P/xsbG/66urv+FhIX/2NjY//39/P////77/v//SP///5T6+vr/zczN/42Mjf96
+      enr/vr6///n4+f/9/Pz//P39//Hx8f+7u7v/fX18/4mJif/MzMz/+/r7/////5T////Z4uPj/4eG
+      h/94eXn/tre2//j4+P/+//7/////////////////+Pj4/7Kzs/97e3v/i4uK/+Xl5f/////Z////
+      +Ojo6P+vrq//iIiJ//Pz8v+0tLT/mZmZ/7m5uP+ysrL/mpqa/5uamv/i4+P/h4eH/6+urv/n5uf/
+      //7++P7///jNzcz/hIWF/6qrq//4+fn/qqqr/1taWv91dXX/e3t7/2hpaf9oaGn/5ufn/6ytrP9/
+      f3//ysvK//////j////Z19fX/4SEhP+ioqL/8PHw/3d2d/9wcHD/kpKS/5SUlP+VlZX/lpaX//j4
+      +f+jo6P/iYmJ/9nY2f////7Z////lNnY2f+fnp//fn9//9nY2f/Y2Nj/ysrL/9va2v/i4+L/6urq
+      /+vr6//l5OT/hYSE/52cnf/Y2dj//v7/lP///0j8/Pz7qamo/4+Oj/90dHT/4+Pj/////v////7/
+      /v/////////m5uf/eHh4/42Njf+npqb/+vv7+/7//0gAAAAA/f39kuHh4P+Xlpf/pqam/+vq6v/0
+      9PT/6ejo/+fn5//r6uv/6ejp/6Chof+Sk5L/3d3d//z9/ZIAAAAAAAAAAP///yf///6v3N3d/9fX
+      1v/i4uL/7Ozs/9va2//W19b/397e/+Dh4P/R0dD/2dnZ/////6////8nAQABAAAAAAAAAAEA//7/
+      J////5L//v77//7///7+//////7///7///7//////v///v7/+////5L+//8nAAABAAAAAAAAAAAA
+      AAAAAAAAAQAAAAAA////SP///5T///7Z////+P7///j+///Z///+lP/+/0gBAAAAAAAAAAEAAAAA
+      AAAA8A8AAMADAACAAQAAgAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAEAAIAB
+      AADAAwAA8A8AAA==" />
       <script src="{{ url_for('static', filename='js/jquery-3.6.4.min.js') }}"></script>
       <script type="text/javascript" src="{{ url_for('static', filename='js/mdb.umd.min.js') }}"></script>
       <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
@@ -14,23 +36,20 @@
       {% block additionalstyle %}{% endblock %}
       {% block additionaljavascript %}{% endblock %}
       <title>{{ title }}</title>
-
   </head>
 
   <header>
     <nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
       <div class="container-fluid">
         <a class="navbar-brand" href="{{ url_for('index') }}">
-            <img src="{{ url_for('static', filename='images/Sia_klein_Schwarz_Transp.svg') }}" alt="Sia" width="50" height="30">
+          <!--<img src="{{ url_for('static', filename='images/Sia_klein_Schwarz_Transp.svg') }}" alt="Sia" width="50" height="30">-->
+          <svg width="50" height="30" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 203 107" fill="#fff"><path d="M75.7 95.8H15.4V77.5h15.9c.3.5.7 1.4 1.2 2.4h27.2v-7.7L15.3 54.4v-36h60.3v18.1H60.7c-.5-.5-1.3-1.5-2-2.3H32.2l-.5 8 43.8 17.5.2 36.1zm51.6-15.3l3.4-.7 23.4-61.5h13.6l23.2 61.4 3.9.9v15h-67.4l-.1-15.1zm46.9-1.6l-13.5-33.8-13.2 33.8h26.7zM93.9 35.4l-2.6-2.1V18.4h23.3v14.9l-2.5 2.2v44.1l2.7 1.2v14.8H91.4V80.7l2.6-1.1-.1-44.2z"/></svg>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{{ url_for('index') }}">Home</a>
-            </li>
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('events') }}">Events</a>
             </li>
@@ -98,7 +117,6 @@
           </footer>
       </div>
   </div>
-
 </html>
 
 

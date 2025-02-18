@@ -24,6 +24,7 @@ class Tables:
         street_no = db.Column(db.String(10))
         password = db.Column(db.String(200))
         email = db.Column(db.String(30))
+        hs_email = db.Column(db.String(30))
         city = db.Column(db.String(25))
         postalcode = db.Column(db.String(25))
         register_date = db.Column(db.TEXT)

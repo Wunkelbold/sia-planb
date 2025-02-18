@@ -268,6 +268,7 @@
                 const formFields = {
                     username: document.querySelector('input[name="username"]'),
                     email: document.querySelector('input[name="email"]'),
+                    hs_email: document.querySelector('input[name="hs_email"]'),
                     surname: document.querySelector('input[name="surname"]'),
                     lastname: document.querySelector('input[name="lastname"]'),
                     street: document.querySelector('input[name="street"]'),
@@ -299,6 +300,7 @@
                         } else {
                             formFields.username.value = data.username || '';
                             formFields.email.value = data.email || '';
+                            formFields.hs_email.value = data.hs_email || '';
                             formFields.surname.value = data.surname || '';
                             formFields.lastname.value = data.lastname || '';
                             formFields.street.value = data.street || '';

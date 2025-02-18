@@ -245,23 +245,16 @@ def profile():
             else:
                 hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
                 user.password=hashed_password
-        if form.surname.data:
-            user.surname = form.surname.data
-        if form.lastname.data:
-            user.lastname = form.lastname.data
-        if form.email.data:
-            user.email = form.email.data
-        if form.hs_email.data:
-            user.hs_email = form.hs_email.data
-        if form.street.data:
-            user.street = form.street.data
-        if form.street_no.data:
-            user.street_no = form.street_no.data
-        if form.city.data:
-            user.city = form.city.data
-        if form.postalcode.data:
-            user.postalcode = form.postalcode.data
-        if form.role.data and form.role.data in [role.name for role in public_roles]:
+
+        user.surname = form.surname.data
+        user.lastname = form.lastname.data
+        user.email = form.email.data
+        user.hs_email = form.hs_email.data
+        user.street = form.street.data
+        user.street_no = form.street_no.data
+        user.city = form.city.data
+        user.postalcode = form.postalcode.data
+        if form.role.data in [role.name for role in public_roles]:
             user.role = form.role.data
         user.last_updated = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         db.session.commit()
@@ -274,7 +267,7 @@ def profile():
         if current_user.email: form.email.data=current_user.email  
         if current_user.lastname: form.lastname.data=current_user.lastname
         if current_user.email: form.email.data=current_user.email 
-        if current_user.hs_email: form.email.data=current_user.hs_email 
+        if current_user.hs_email: form.hs_email.data=current_user.hs_email 
         if current_user.street: form.street.data=current_user.street 
         if current_user.city: form.city.data=current_user.city 
         if current_user.street_no: form.street_no.data=current_user.street_no 

@@ -69,6 +69,9 @@
             <div class="col-md-3">{{ form.lastname }}</div>
             <div class="col-md-12">{{ form.email }}</div>
             <div class="col-md-12">{{ form.message }}</div>
+            <div class="col-md-12">
+                {{ captcha_html(captcha)|safe }}
+            </div>
             <div class="col-md-12">{{ form.submit }}</div>
             {% with messages = get_flashed_messages() %}
                 {% if messages %}

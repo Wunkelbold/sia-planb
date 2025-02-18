@@ -1,7 +1,7 @@
 services:
   database:
     ports:
-      - "127.0.0.1:5432:5432" #TODO REMOVE
+      - "127.0.0.1:5432:5432" #TODO REMOVE ON PRODUCTION
     build: ./database-server
     restart: always
     volumes:
@@ -31,7 +31,7 @@ services:
       - DEFAULT_USER=${DEFAULT_USER}
       - DEFAULT_USER_PASSWORD=${DEFAULT_USER_PASSWORD}
       - DROP_AND_CREATE_DATABASE=false
-      - CREATE_ADMIN=false
+      - CREATE_ADMIN=true
       - Debug=false
     volumes:
       - eventposter:/opt/flask-backend/static/images/eventposter
@@ -59,7 +59,41 @@ services:
         condition: service_healthy
     profiles:
       - test
-
+  mailserver:
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest
+    container_name: mailserver
+    # Provide the FQDN of your mail server here (Your DNS MX record should point to this value)
+    hostname: mail.localtest.me #TODO PRODUCTION=mail.sia-planb.de
+    env_file: ./mail-server/mailserver.env
+    # More information about the mail-server ports:
+    # https://docker-mailserver.github.io/docker-mailserver/latest/config/security/understanding-the-ports/
+    ports:
+      - "127.0.0.1:25:25"    # SMTP  (explicit TLS => STARTTLS, Authentication is DISABLED => use port 465/587 instead)
+      - "127.0.0.1:143:143"  # IMAP4 (explicit TLS => STARTTLS)
+      - "127.0.0.1:465:465"  # ESMTP (implicit TLS)
+      - "127.0.0.1:587:587"  # ESMTP (explicit TLS => STARTTLS)
+      - "127.0.0.1:993:993"  # IMAP4 (implicit TLS)
+    volumes:
+      - ./mail-server/docker-data/dms/mail-data/:/var/mail/
+      - ./mail-server/docker-data/dms/mail-state/:/var/mail-state/
+      - ./mail-server/docker-data/dms/mail-logs/:/var/log/mail/
+      - ./mail-server/docker-data/dms/config/:/tmp/docker-mailserver/
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/letsencrypt/:/etc/letsencrypt/ 
+      - /etc/ssl/mailserver/:/etc/ssl/mailserver/  # TODO REMOVE ON PRODUCTION
+    environment:
+      - SSL_TYPE=manual # TODO PRODUCTION=letsencrypt
+      - SSL_CERT_PATH=/etc/ssl/mailserver/mailserver.crt
+      - SSL_KEY_PATH=/etc/ssl/mailserver/mailserver.key
+    restart: always
+    stop_grace_period: 1m
+    # Uncomment if using `ENABLE_FAIL2BAN=1`:
+    # cap_add:
+    #   - NET_ADMIN
+    healthcheck:
+      test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
+      timeout: 3s
+      retries: 0
 volumes:
   pgdata:
   eventposter:

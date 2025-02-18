@@ -62,7 +62,6 @@ section {
     }
 </style>
 
-
 <div style="display: flex; justify-content: center; align-items: center;" data-bs-theme="dark">
   <div class="card" style="width: 40rem; margin: 30px; padding: 15px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" data-bs-theme="dark">
     <h5 class="card-header">Erstelle ein Benutzerkonto</h5>
@@ -104,6 +103,9 @@ section {
       </div>
       <div class="col-md-2">
         {{ form.postalcode }}
+      </div>
+      <div class="col-md-12">
+        {{ captcha_html(captcha)|safe }}
       </div>
       <div class="col-12">
         {{ form.submit }}

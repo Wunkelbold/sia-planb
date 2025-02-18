@@ -41,56 +41,62 @@ def register():
     form = Forms.RegisterForm()
     public_roles = Tables.Role.query.filter_by(selectable_on_register="yes").all()
     form.role.choices = [(role.name, role.name) for role in public_roles] #Nur manche Rollen sollen zur Auswahl stehen und choices hat dieses syntax
-
-    if form.username.data:
-        username = form.username.data.lower()
-        existing_user_username = Tables.User.query.filter_by(username=username).first()
-        if existing_user_username or not username.isalnum() or form.password.data != form.password_confirm.data:
-            if not username.isalnum():
-                flash('Nur Buchstaben und Zahlen im Benutzernamen', 'error')
-            if existing_user_username:
-                flash('Benutzername bereits vergeben', 'error')
-            #if username in manager.config.get_config("banned_usernames"): #TODO ADD BANNED CHARACTERS
-                #flash('- That username is not allowed. Please choose a different name.', 'error')
-            if form.password.data != form.password_confirm.data:
-                flash('Passwörter stimmen nicht überein', 'error')
-        else:
-            if form.validate_on_submit():
-                now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-                if form.role.data in [role.name for role in public_roles]: #ansonsten kann der user "admin" außerhalb der Form pushen und ich ´hab kein bock ein custom form validaotr zu schreiben
-                    role = form.role.data
-                    new_user = Tables.User(
-                        username = username,
-                        password = hashed_password,
-                        register_date = "", 
-                        last_login = "",
-                        surname = form.surname.data,
-                        lastname = form.lastname.data,
-                        email = form.email.data,
-                        hs_email = form.hs_email.data,
-                        street = form.street.data,
-                        street_no = form.street_no.data,
-                        city = form.city.data,
-                        postalcode = form.postalcode.data,
-                        role = role,
-                        permissions = [],
-                        last_updated = ""
-                        )
-                    new_user.register_date = now
-                    new_user.last_updated = now
-                    new_user.last_login = now #TODO ungewöhnlicher Fall aber register != login
-                    db.session.add(new_user)
-                    db.session.commit()
-                    login_user(new_user)
-                    return redirect(url_for('index'))
+    if request.method == 'POST':
+        c_hash = request.form.get('captcha-hash')
+        c_text = request.form.get('captcha-text')
+        if SIMPLE_CAPTCHA.verify(c_text, c_hash):
+            if form.username.data:
+                username = form.username.data.lower()
+                existing_user_username = Tables.User.query.filter_by(username=username).first()
+                if existing_user_username or not username.isalnum() or form.password.data != form.password_confirm.data:
+                    if not username.isalnum():
+                        flash('Nur Buchstaben und Zahlen im Benutzernamen', 'error')
+                    if existing_user_username:
+                        flash('Benutzername bereits vergeben', 'error')
+                    #if username in manager.config.get_config("banned_usernames"): #TODO ADD BANNED CHARACTERS
+                        #flash('- That username is not allowed. Please choose a different name.', 'error')
+                    if form.password.data != form.password_confirm.data:
+                        flash('Passwörter stimmen nicht überein', 'error')
                 else:
-                    flash('Nice Try!', 'error')
-            else:
-                print(form.errors)  # Debugging: Show validation errors
-                flash('Etwas hat nicht gestimmt:', 'error')
+                    if form.validate_on_submit():
+                        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+                        if form.role.data in [role.name for role in public_roles]: #ansonsten kann der user "admin" außerhalb der Form pushen und ich ´hab kein bock ein custom form validaotr zu schreiben
+                            role = form.role.data
+                            new_user = Tables.User(
+                                username = username,
+                                password = hashed_password,
+                                register_date = "", 
+                                last_login = "",
+                                surname = form.surname.data,
+                                lastname = form.lastname.data,
+                                email = form.email.data,
+                                hs_email = form.hs_email.data,
+                                street = form.street.data,
+                                street_no = form.street_no.data,
+                                city = form.city.data,
+                                postalcode = form.postalcode.data,
+                                role = role,
+                                permissions = [],
+                                last_updated = ""
+                                )
+                            new_user.register_date = now
+                            new_user.last_updated = now
+                            new_user.last_login = now #TODO ungewöhnlicher Fall aber register != login
+                            db.session.add(new_user)
+                            db.session.commit()
+                            login_user(new_user)
+                            return redirect(url_for('index'))
+                        else:
+                            flash('Nice Try!', 'error')
+                    else:
+                        print(form.errors)  # Debugging: Show validation errors
+                        flash('Etwas hat nicht gestimmt:', 'error')
+        else:
+            flash("Das Captcha ist falsch",'error')
+    new_captcha_dict = SIMPLE_CAPTCHA.create()
     messages=form.errors
-    return render_template('register.html', form=form, messages=messages)
+    return render_template('register.html', form=form, messages=messages, captcha=new_captcha_dict)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

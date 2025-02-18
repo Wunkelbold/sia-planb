@@ -16,3 +16,4 @@ Flask-User==1.0.2.2; # wirklich genau die Version
 Flask-Mail==0.10.0; # abhängigkeit zu Flask-User
 passlib>=1.7;
 flask-validators;
+flask-simple-captcha>=5.5.5;

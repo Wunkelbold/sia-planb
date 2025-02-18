@@ -190,22 +190,31 @@ def index():
 def contact():
     form = Forms.ContactForm()
     if form.validate_on_submit():
-        newContact = Tables.Contact(
-            category = form.category.data,
-            surname = form.surname.data,
-            lastname = form.lastname.data,
-            email = form.email.data,
-            message = form.message.data,
-            created = datetime.now()
-        )
-        db.session.add(newContact)
-        db.session.commit()
-        flash("Danke für deine Nachricht!")
+        c_hash = request.form.get('captcha-hash')
+        c_text = request.form.get('captcha-text')
+        if SIMPLE_CAPTCHA.verify(c_text, c_hash):
+            newContact = Tables.Contact(
+                category = form.category.data,
+                surname = form.surname.data,
+                lastname = form.lastname.data,
+                email = form.email.data,
+                message = form.message.data,
+                created = datetime.now()
+            )
+            db.session.add(newContact)
+            db.session.commit()
+            flash("Danke für deine Nachricht!")
+        else:
+            flash("Captcha Falsch!",'error')
+
     if current_user.is_authenticated:
-        if current_user.email: form.email.data=current_user.email 
+        if current_user.email: form.email.data=current_user.email
+        if current_user.hs_email: form.email.data=current_user.hs_email #Prefer HS_Mail
         if current_user.surname: form.surname.data=current_user.surname 
         if current_user.lastname: form.lastname.data=current_user.lastname
-    return render_template('contact.html', title='Sia-PlanB.de', form=form)
+        if current_user.hs_email: form.email.data=current_user.hs_email
+    new_captcha_dict = SIMPLE_CAPTCHA.create()
+    return render_template('contact.html', title='Sia-PlanB.de', form=form, captcha=new_captcha_dict)
         
 @app.route("/datenschutz",methods=['GET'])
 def datenschutz():

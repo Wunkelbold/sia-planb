@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block additionaljavascript %}
-<script src="{{ url_for('static', filename='js/register.js') }}" ></script>
+<!--<script src="{{ url_for('static', filename='js/register.js') }}" ></script>-->
 {% endblock %}
 
 {% block content %}
@@ -77,12 +77,15 @@ section {
       <div class="col-md-6">
         {{ form.password_confirm }}
       </div>
-      <div class="col-md-5">
-        {{ form.email }}
-      </div>
-      <div class="col-md-7">
+      <div class="col-md-12">
         <label class="visually-hidden" for="inputRole">Rolle</label>
         {{ form.role }}
+      </div>
+      <div class="col-md-6">
+        {{ form.email }}
+      </div>
+      <div class="col-md-6">
+        {{ form.hs_email }}
       </div>
       <div class="col-md-6">
         {{ form.surname }}
@@ -131,7 +134,6 @@ section {
             </ul>
           {% endif %}
       </div>
-
     </form>
   </div>
 </div>

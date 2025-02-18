@@ -91,7 +91,8 @@
                         <th>ID</th>
                         <th>Benutzername</th>
                         <th>Rolle</th>
-                        <th>email</th>
+                        <th>HS E-mail</th>
+                        <th>E-mail</th>
                         <th>Vorname</th>
                         <th>Nachname</th>
                         <th>Straße</th>
@@ -108,6 +109,7 @@
                                 <td>{{user.id}}</td>
                                 <td>{{user.username}}</td>
                                 <td>{{user.role}}</td>
+                                <td>{{user.hs_email}}</td>
                                 <td>{{user.email}}</td>
                                 {% if current_user.is_authenticated and hasPermissions("adminpanel.user.get") %}
                                 <td>{{user.surname}}</td>
@@ -203,14 +205,17 @@
                   <form id="user_edit_modal_form" class="row g-2" method="POST" action="/api/user/update/">
                     {{ form_edit_user.hidden_tag() }}
                     <input type="hidden" id="uid" name="uid" value="">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                       {{ form_edit_user.username }}
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         {{ form_edit_user.role }}
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                       {{ form_edit_user.email }}
+                    </div>
+                    <div class="col-md-6">
+                      {{ form_edit_user.hs_email }}
                     </div>
                     <div class="col-md-6">
                       {{ form_edit_user.password }}
@@ -263,6 +268,7 @@
                 const formFields = {
                     username: document.querySelector('input[name="username"]'),
                     email: document.querySelector('input[name="email"]'),
+                    hs_email: document.querySelector('input[name="hs_email"]'),
                     surname: document.querySelector('input[name="surname"]'),
                     lastname: document.querySelector('input[name="lastname"]'),
                     street: document.querySelector('input[name="street"]'),
@@ -274,7 +280,6 @@
                     last_updated: document.getElementById('last_updated'),
                     display_uid: document.getElementById('display_uid'),
                 };
-
                 editModal.addEventListener('show.bs.modal', (event) => {
                     const button = event.relatedTarget;
                     const uid = button.getAttribute('data-uid');
@@ -295,6 +300,7 @@
                         } else {
                             formFields.username.value = data.username || '';
                             formFields.email.value = data.email || '';
+                            formFields.hs_email.value = data.hs_email || '';
                             formFields.surname.value = data.surname || '';
                             formFields.lastname.value = data.lastname || '';
                             formFields.street.value = data.street || '';
@@ -318,10 +324,8 @@
                     })
                     .catch(error => console.error('An error occurred:', error));
                 });
-
                 const form = document.getElementById('user_edit_modal_form');
                 const modal = new bootstrap.Modal(document.getElementById('editModal'));  // Bootstrap Modal Instanz
-
                 form.addEventListener('submit', (event) => {
                     event.preventDefault(); 
                     const formData = new FormData(form);  
@@ -345,7 +349,6 @@
                         displayFlashMessages(['Ein Fehler ist aufgetreten. Womöglich fehlt dir die Berechtigung!']);
                     });
                 });
-
             });
             function displayFlashMessages(messages) {
                 const flashContainer = document.getElementById('flash-messages');

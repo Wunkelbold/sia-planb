@@ -40,7 +40,7 @@ def unauthorized():
 def register():
     form = Forms.RegisterForm()
     public_roles = Tables.Role.query.filter_by(selectable_on_register="yes").all()
-    form.role.choices = [(role.name, role.name) for role in public_roles] #Nur manche Rollen sollen zur Auswahl stehen
+    form.role.choices = [(role.name, role.name) for role in public_roles] #Nur manche Rollen sollen zur Auswahl stehen und choices hat dieses syntax
 
     if form.username.data:
         username = form.username.data.lower()
@@ -68,6 +68,7 @@ def register():
                         surname = form.surname.data,
                         lastname = form.lastname.data,
                         email = form.email.data,
+                        hs_email = form.hs_email.data,
                         street = form.street.data,
                         street_no = form.street_no.data,
                         city = form.city.data,
@@ -220,6 +221,10 @@ def newsletter():
 @login_required
 def profile():
     form = Forms.ChangeData()
+    public_roles = Tables.Role.query.filter_by(selectable_on_register="yes").all()
+    if current_user.role == "Admin":
+        public_roles = Tables.Role.query.all()
+    form.role.choices = [(role.name, role.name) for role in public_roles]
     user = db.session.query(Tables.User).filter_by(username=current_user.username).first()
     if request.method == "POST" and form.validate_on_submit():
         new_username = form.username.data.lower()
@@ -240,20 +245,17 @@ def profile():
             else:
                 hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
                 user.password=hashed_password
-        if form.surname.data:
-            user.surname = form.surname.data
-        if form.lastname.data:
-            user.lastname = form.lastname.data
-        if form.email.data:
-            user.email = form.email.data
-        if form.street.data:
-            user.street = form.street.data
-        if form.street_no.data:
-            user.street_no = form.street_no.data
-        if form.city.data:
-            user.city = form.city.data
-        if form.postalcode.data:
-            user.postalcode = form.postalcode.data
+
+        user.surname = form.surname.data
+        user.lastname = form.lastname.data
+        user.email = form.email.data
+        user.hs_email = form.hs_email.data
+        user.street = form.street.data
+        user.street_no = form.street_no.data
+        user.city = form.city.data
+        user.postalcode = form.postalcode.data
+        if form.role.data in [role.name for role in public_roles]:
+            user.role = form.role.data
         user.last_updated = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         db.session.commit()
         flash('Daten geändert', 'info')
@@ -265,12 +267,14 @@ def profile():
         if current_user.email: form.email.data=current_user.email  
         if current_user.lastname: form.lastname.data=current_user.lastname
         if current_user.email: form.email.data=current_user.email 
+        if current_user.hs_email: form.hs_email.data=current_user.hs_email 
         if current_user.street: form.street.data=current_user.street 
         if current_user.city: form.city.data=current_user.city 
         if current_user.street_no: form.street_no.data=current_user.street_no 
         if current_user.postalcode: form.postalcode.data=current_user.postalcode 
         role=current_user.role if current_user.role else ""
-    return render_template('profile.html', title='Sia-PlanB.de',form=form,role=role)
+    messages=form.errors
+    return render_template('profile.html', title='Sia-PlanB.de',form=form,role=role,messages=messages)
 
 @app.route("/verein",methods=['GET'])
 def verein():

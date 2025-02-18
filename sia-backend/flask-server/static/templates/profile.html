@@ -62,40 +62,43 @@
       
       <div style="display: flex; justify-content: center; align-items: center;" data-bs-theme="dark">
         <div class="card" style="width: 50rem; margin: 30px; padding: 15px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" data-bs-theme="dark">
-          <h5 class="card-header">Ändere Deine Daten</h5>
+          <h5 class="card-header">Persönliche Daten ändern oder löschen indem du die Felder leer absendest.</h5>
           <form class="row g-2" method="POST" action="/profile">
             {{ form.hidden_tag() }}
-            <div class="col-md-4">
+            <div class="col-md-6">
               {{ form.username }}
             </div>
-            <div class="col-md-4">
-                <input id="disabledTextInput" name="role" placeholder="{{role}}" type="text" value="{{role}}" disabled>
+            <div class="col-md-6">
+              {{ form.role }}
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 {{ form.email }}
             </div>
-            <div class="col-md-5">
+            <div class="col-md-6">
+              {{ form.hs_email }}
+          </div>
+            <div class="col-md-6">
               {{ form.surname }}
             </div>
-            <div class="col-md-5">
+            <div class="col-md-6">
               {{ form.lastname }}
             </div>
-            <div class="col-md-5">
+            <div class="col-md-6">
               {{ form.password }}
             </div>
-            <div class="col-md-5">
+            <div class="col-md-6">
               {{ form.password_confirm }}
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
               {{ form.street }}
             </div>
-            <div class="col-md-1">
+            <div class="col-md-2">
               {{ form.street_no }}
             </div>
-            <div class="col-md-2">
+            <div class="col-md-4">
               {{ form.city }}
             </div>
-            <div class="col-md-1">
+            <div class="col-md-2">
               {{ form.postalcode }}
             </div>
             <div class="col-12">
@@ -112,8 +115,35 @@
                 {% endif %}
               {% endwith %}
             </div>
-      
+            <div>
+              {% if messages %}
+                <ul class="error-message-list">
+                    {% for field, message in messages.items() %}
+                      <li><strong>{{ field }}</strong>:
+                        <ul>
+                            {% for msg in message %}
+                                <li>{{ msg }}</li>
+                            {% endfor %}
+                        </ul>
+                      </li>
+                    {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
           </form>
         </div>
       </div>
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          const roleSelect = document.getElementById('inputRole');
+          if (roleSelect) {
+            for (let option of roleSelect.options) {
+                if (option.value === "{{role}}") {
+                    option.selected = true;
+                    break;
+                }
+            }
+          }
+        })
+      </script>
     {% endblock %}

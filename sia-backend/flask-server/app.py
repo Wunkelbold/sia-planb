@@ -159,7 +159,7 @@ def admin():
 
         # TODO add check if file is actually an image 
         if form.file.data:
-            form.file.data.save(os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "images", "eventposter", str(newEvent.id)))
+            form.file.data.save(os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "images", "eventposter", str(newEvent.uid)))
 
     users = Tables.User.query.order_by(Tables.User.last_login.desc()).all()
     contacts = Tables.Contact.query.order_by(Tables.Contact.created.desc()).all() 
@@ -183,7 +183,7 @@ def slider(name):
 @app.route("/",methods=['GET'])
 def index():
     #events=Database.get_all_events() NICHT MEHR VERWENDEN
-    events = Tables.Event.query.with_entities(Tables.Event.name, Tables.Event.id, Tables.Event.description, Tables.Event.place, Tables.Event.date).order_by(Tables.Event.created.desc()).all()
+    events = Tables.Event.query.with_entities(Tables.Event.name, Tables.Event.uid, Tables.Event.description, Tables.Event.place, Tables.Event.date).order_by(Tables.Event.created.desc()).all()
     return render_template('index.html', title='Sia-PlanB.de', events=events)
 
 @app.route("/contact", methods=['GET', 'POST'])

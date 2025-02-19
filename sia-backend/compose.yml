@@ -28,13 +28,14 @@ services:
       - DATABASE_USER=${DATABASE_USER}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - DATABASE_URI=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}/${DATABASE_NAME}
-      - DEFAULT_USER=${DEFAULT_USER}
-      - DEFAULT_USER_PASSWORD=${DEFAULT_USER_PASSWORD}
       - DROP_AND_CREATE_DATABASE=false
       - CREATE_ADMIN=false
       - Debug=false
+      - HOSTNAME=${HOSTNAME}
+
     volumes:
       - eventposter:/opt/flask-backend/static/images/eventposter
+      - ./mail-server/docker-data/dms/config/postfix-accounts.cf:/app/postfix-accounts.cf
     depends_on:
       database:
         condition: service_healthy
@@ -63,7 +64,7 @@ services:
     image: ghcr.io/docker-mailserver/docker-mailserver:latest
     container_name: mailserver
     # Provide the FQDN of your mail server here (Your DNS MX record should point to this value)
-    hostname: mail.localtest.me #TODO PRODUCTION=mail.sia-planb.de
+    hostname: ${hostname} #TODO PRODUCTION=mail.sia-planb.de
     env_file: ./mail-server/mailserver.env
     # More information about the mail-server ports:
     # https://docker-mailserver.github.io/docker-mailserver/latest/config/security/understanding-the-ports/

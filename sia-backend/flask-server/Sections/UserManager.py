@@ -34,22 +34,19 @@ def update_user(uid):
             else:
                 hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
                 user.password=hashed_password
-        if form.surname.data:
-            user.surname = form.surname.data
-        if form.lastname.data:
-            user.lastname = form.lastname.data
-        if form.email.data:
-            user.email = form.email.data
-        if form.street.data:
-            user.street = form.street.data
-        if form.street_no.data:
-            user.street_no = form.street_no.data
-        if form.city.data:
-            user.city = form.city.data
-        if form.postalcode.data:
-            user.postalcode = form.postalcode.data
-        if form.role.data:
-            user.role = form.role.data
+        user.surname = form.surname.data
+        user.lastname = form.lastname.data
+        if user.email != form.email.data:
+            user.email_confirmed = False
+        user.email = form.email.data
+        if user.hs_email != form.hs_email.data:
+            user.hs_email_confirmed = False
+        user.hs_email = form.hs_email.data
+        user.street = form.street.data
+        user.street_no = form.street_no.data
+        user.city = form.city.data
+        user.postalcode = form.postalcode.data
+        user.role = form.role.data
         user.last_updated = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         db.session.commit()
         return jsonify({'success': True})  # JSON-Antwort bei Erfolg

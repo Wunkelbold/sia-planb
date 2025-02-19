@@ -4,3 +4,13 @@ update-containers.sh
 __pycache__
 .vscode
 sia-backend/flask-server/static/images/eventposter/*
+sia-backend/mail-server/docker-data/dms/mail-logs/mail.log
+sia-backend/mail-server/docker-data/dms/mail-state/lib-postfix/master.lock
+.gitignore
+sia-backend/mail-server/docker-data/dms/mail-state/spool-postfix/restart
+sia-backend/mail-server/docker-data/dms/mail-state/spool-postfix/pid/master.pid
+sia-backend/mail-server/docker-data/dms/mail-state/lib-amavis/db/__db.001
+sia-backend/mail-server/docker-data/dms/mail-state/lib-amavis/db/__db.002
+sia-backend/mail-server/docker-data/dms/mail-state/lib-amavis/db/__db.003
+sia-backend/mail-server/docker-data/dms/mail-state/lib-amavis/db/nanny.db
+sia-backend/mail-server/docker-data/dms/mail-state/lib-amavis/db/snmp.db

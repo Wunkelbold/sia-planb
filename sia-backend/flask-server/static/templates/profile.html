@@ -76,7 +76,7 @@
             </div>
             <div class="col-md-6">
               {{ form.hs_email }}
-          </div>
+            </div>
             <div class="col-md-6">
               {{ form.surname }}
             </div>
@@ -144,6 +144,16 @@
                 }
             }
           }
-        })
+          const email_color = document.getElementById("email");
+          const hs_email_color = document.getElementById("hs_email");
+          const emailConfirmed = {{ current_user.email_confirmed | tojson }};
+          const hsemailConfirmed = {{ current_user.hs_email_confirmed | tojson }};
+          if (emailConfirmed) {
+              email_color.style.borderColor = "green";
+          }
+          if (hsemailConfirmed) {
+              hs_email_color.style.borderColor = "green";
+          }
+          })
       </script>
     {% endblock %}

@@ -5,7 +5,7 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URI")
     DEBUG = os.getenv("DEBUG")
     SECRET_KEY = secrets.token_hex(25)
-    MAIL_SERVER = 'mail.localtest.me'
+    MAIL_SERVER = os.getenv("hostname")
     MAIL_PORT = 587
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False

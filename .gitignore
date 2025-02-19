@@ -14,3 +14,4 @@ sia-backend/mail-server/docker-data/dms/mail-state/lib-amavis/db/__db.002
 sia-backend/mail-server/docker-data/dms/mail-state/lib-amavis/db/__db.003
 sia-backend/mail-server/docker-data/dms/mail-state/lib-amavis/db/nanny.db
 sia-backend/mail-server/docker-data/dms/mail-state/lib-amavis/db/snmp.db
+sia-backend/mail-server/docker-data/dms/mail-state/lib-dovecot/instances

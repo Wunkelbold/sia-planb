@@ -21,10 +21,12 @@ def update_mail_user(email, password):
         updated_lines.append(f"{email}|{hashed_password}\n")
 
         # Write back to the file
+
         with open(app.config["MAIL_ACCOUNTS_FILE"], "w") as file:
             file.writelines(updated_lines)
 
-        print(f"Temporary mail user {email} added.")
+
+        print(f"--- Temporary mail user {email} added. ---")
     except subprocess.CalledProcessError as e:
         print(f"Error generating password hash: {e.stderr}")
 

@@ -37,7 +37,7 @@ def verify_email(current_user):
         db.session.commit()
         email_msg = Message(
             subject="Email-Verifikation",
-            sender=("NoReply","noreply@localtest.me"),
+            sender=("NoReply","noreply@"+os.getenv("hostname")),
             recipients=[f"{current_user.email}"],
             html = f'<p> Verifiziere deine E-Mail Adresse</p> <a href="{domain}/verify_mail/{current_user.uid}/{current_user.email_confirm_token}">Verfizieren</a>'
         )
@@ -47,7 +47,7 @@ def verify_email(current_user):
         db.session.commit()
         hs_email_msg = Message(
             subject="Email-Verifikation",
-            sender=("NoReply","noreply@localtest.me"),
+            sender=("NoReply","noreply@"+os.getenv("hostname")),
             recipients=[f"{current_user.hs_email}"],
             html = f'<p> Verifiziere deine E-Mail Adresse</p> <p> Die HS Email solltest du Verifizieren, weil dir sonst Studi-Exklusiven Inhalte nicht angezeigt werden.</p><a href="{domain}/verify_hs_mail/{current_user.uid}/{current_user.email_confirm_token}">Verfizieren</a>'
         )

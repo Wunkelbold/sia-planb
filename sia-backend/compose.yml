@@ -30,8 +30,8 @@ services:
       - DATABASE_URI=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}/${DATABASE_NAME}
       - DEFAULT_USER=${DEFAULT_USER}
       - DEFAULT_USER_PASSWORD=${DEFAULT_USER_PASSWORD}
-      - DROP_AND_CREATE_DATABASE=true
-      - CREATE_ADMIN=true
+      - DROP_AND_CREATE_DATABASE=false
+      - CREATE_ADMIN=false
       - Debug=false
     volumes:
       - eventposter:/opt/flask-backend/static/images/eventposter

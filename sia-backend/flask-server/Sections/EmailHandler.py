@@ -49,7 +49,7 @@ def verify_email(current_user):
             subject="Email-Verifikation",
             sender=("NoReply","noreply@"+os.getenv("hostname")),
             recipients=[f"{current_user.hs_email}"],
-            html = f'<p> Verifiziere deine E-Mail Adresse</p> <p> Die HS Email solltest du Verifizieren, weil dir sonst Studi-Exklusiven Inhalte nicht angezeigt werden.</p><a href="{domain}/verify_hs_mail/{current_user.uid}/{current_user.email_confirm_token}">Verfizieren</a>'
+            html = f'<p> Verifiziere deine E-Mail Adresse</p> <p> Die HS Email solltest du Verifizieren, weil dir sonst Studi-Exklusiven Inhalte nicht angezeigt werden.</p><a href="{domain}/verify_hs_mail/{current_user.uid}/{current_user.hs_email_confirm_token}">Verfizieren</a>'
         )
         mail.send(hs_email_msg)
 

@@ -4,6 +4,7 @@ from config import *
 from flask_bcrypt import Bcrypt
 from flask_simple_captcha import CAPTCHA
 from flask_mail import Mail, Message
+
 app = Flask(__name__, template_folder='static/templates', static_folder='static')
 app.config.from_object(Config)
 

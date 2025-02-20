@@ -267,13 +267,9 @@ def profile():
         user.lastname = form.lastname.data
         if user.email != form.email.data:
             user.email_confirmed = False
-            if form.email.data:
-                flash(f"Du hast deine E-mail geändert. Deshalb haben wir eine neue Verifizierungsmail versendet! {datetime.now().strftime('%H:%M:%S %d.%m.%Y')}")
         user.email = form.email.data
         if user.hs_email != form.hs_email.data:
             user.hs_email_confirmed = False
-            if form.hs_email.data:
-                flash(f"Du hast deine HS E-mail geändert. Deshalb haben wir eine neue Verifizierungsmail versendet! {datetime.now().strftime('%H:%M:%S %d.%m.%Y')}")
         user.hs_email = form.hs_email.data
         user.street = form.street.data
         user.street_no = form.street_no.data
@@ -283,8 +279,11 @@ def profile():
             user.role = form.role.data
         user.last_updated = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         db.session.commit()
-        flash(f"Daten abgesendet! {datetime.now().strftime('%H:%M:%S %d.%m.%Y')}", 'info')
-        verify_email(current_user)
+        flash(f"Deine Daten wurden erfolgreich abgespeichert! {datetime.now().strftime('%H:%M')}", 'info')
+        try:
+            verify_email(current_user)
+        except:
+            flash("404 Mailserver")
     if current_user.is_authenticated: #eigentlich unnötig da Profile nicht sichtbar ist für Anonyme User
         if current_user.username: form.username.data=current_user.username 
         form.password.data=""
@@ -305,43 +304,6 @@ def profile():
 @app.route("/verein",methods=['GET'])
 def verein():
     return render_template('verein.html', title='Verein')
-
-
-@app.route("/verify_mail/<uid>/<token>",methods=['GET'])
-def verify_mail(uid,token):
-    user = Tables.User.query.filter_by(uid=uid).first()
-    if user and not user.hs_email_confirmed:
-        if user.email_confirm_token == token:
-            user.email_confirmed = True
-            db.session.commit()
-        else:
-            return "Token Falsch!"
-    else:
-        return "Link abgelaufen!"
-    flash(f"{current_user.email} Erfolgreich Verifiziert!")
-    return redirect(url_for('profile'))
-
-@app.route("/verify_hs_mail/<uid>/<token>",methods=['GET'])
-def verify_hs_mail(uid,token):
-    user = Tables.User.query.filter_by(uid=uid).first()
-    if user and not user.hs_email_confirmed:
-        if user.hs_email_confirm_token == token:
-            user.hs_email_confirmed = True
-            db.session.commit()
-        else:
-            return "Token Falsch!"
-    else:
-        return "Link abgelaufen!"
-    flash(f"{current_user.hs_email} Erfolgreich Verifiziert!")
-    return redirect(url_for('profile'))
-
-
-@app.route("/send_verifikation_mail",methods=['GET'])
-@login_required
-def send_verifikation_mail():
-    verify_email(current_user)
-    flash(f"Eine neue Email zur Verifizierung wurde gesendet! {datetime.now().strftime('%H:%M:%S %d.%m.%Y')}")
-    return redirect(url_for('profile'))
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')

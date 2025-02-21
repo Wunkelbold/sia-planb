@@ -28,15 +28,15 @@ services:
       - DATABASE_USER=${DATABASE_USER}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - DATABASE_URI=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}/${DATABASE_NAME}
-      - DROP_AND_CREATE_DATABASE=true
-      - CREATE_ADMIN=true
+      - DROP_AND_CREATE_DATABASE=false
+      - CREATE_ADMIN=false
       - Debug=false
       - HOSTNAME=${HOSTNAME}
       - hostname=${hostname}
-
     volumes:
       - eventposter:/opt/flask-backend/static/images/eventposter
       - ./mail-server/docker-data/dms/config/postfix-accounts.cf:/app/postfix-accounts.cf
+      - ./flask-server/migrations/versions:/opt/flask-backend/migrations/versions
     depends_on:
       database:
         condition: service_healthy
@@ -45,6 +45,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
 
   test:
     build: ./test
@@ -61,6 +62,7 @@ services:
         condition: service_healthy
     profiles:
       - test
+
   mailserver:
     image: ghcr.io/docker-mailserver/docker-mailserver:latest
     container_name: mailserver

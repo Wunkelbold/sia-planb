@@ -4,6 +4,8 @@ FROM ghcr.io/wunkelbold/sia-planb/sia-flask:latest
 
 WORKDIR /opt/flask-backend
 COPY . /opt/flask-backend
+
+
 RUN pip install -r requirements.txt
 RUN apt-get update && apt-get install -y dovecot-core
 

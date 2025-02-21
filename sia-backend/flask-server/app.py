@@ -8,7 +8,7 @@ import os
 from datetime import datetime
 from functools import wraps
 #-----FILES-----
-from database import Tables, DAO, init_database, init_roles, init_default_role
+from database import Tables, init_database, init_roles, init_default_role
 from forms import Forms
 from permissions import *
 
@@ -27,10 +27,6 @@ login_manager.login_view = 'login'
 @login_manager.user_loader
 def load_user(user_id):
     return Tables.User.query.get(int(user_id))
-
-Database = DAO
-#with app.app_context():  LEGACY AND NOT IN USE ANYMORE
-    #DAO.init()
 
 @login_manager.unauthorized_handler
 def unauthorized():

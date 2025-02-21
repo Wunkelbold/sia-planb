@@ -110,10 +110,10 @@ class Tables:
     
 def init_database():
     if os.getenv("DROP_AND_CREATE_DATABASE")=="true": #TODO für dev einmalig mit if os.getenv("DROP_AND_CREATE_DATABASE","true")=="true": ausführen
-        #db.drop_all()
-        #db.create_all()
+        db.drop_all()
+        db.create_all()
         print("--- DROP_AND_CREATE_DATABASE \t true ---")
-        print("--- DROPPING ISNT ALLOWED ANYMORE ---")
+        print("--- DROPPING SHOULDNT BE USED ANYMOR ---")
     else:
         print("--- DROP_AND_CREATE_DATABASE \t false ---") 
 

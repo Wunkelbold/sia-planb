@@ -132,7 +132,7 @@
                                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal" data-uid="{{ user.uid }}">
                                                 Edit
                                             </button>
-                                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-uid="{{ user.uid }}">
+                                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-uid="{{ user.uid }}" data-username="{{ user.username }}">
                                                 Delete
                                             </button>
                                         </div>
@@ -153,8 +153,8 @@
                   <h5 class="modal-title" id="deleteModalLabel">Benutzer Löschen</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                  Es gibt kein zurück! Benutzer wirklich löschen?
+                <div class="modal-body" id="id-delete-user-modal-body">
+                  Es gibt kein zurück! Benutzer  wirklich löschen?
                 </div>
                 <div class="modal-footer">
                   <form id="delete-form" method="POST" action="/delete_user">
@@ -171,10 +171,13 @@
             document.addEventListener('DOMContentLoaded', () => {
             const deleteModal = document.getElementById('deleteUserModal');
             const uidInput = document.getElementById('uid-user-input');
+            const deleteModalUsername = document.getElementById('id-delete-user-modal-body');
             deleteModal.addEventListener('show.bs.modal', (event) => {
                 const button = event.relatedTarget;
                 const uid = button.getAttribute('data-uid');
+                const username = button.getAttribute('data-username');
                 uidInput.value = uid;
+                deleteModalUsername.innerHTML = username + " Wirklich löschen?"
             });
             });
         </script>

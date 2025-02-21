@@ -8,7 +8,7 @@ import os
 from datetime import datetime
 from functools import wraps
 #-----FILES-----
-from database import Tables, DAO
+from database import Tables, DAO, init_database, init_roles, init_default_role
 from forms import Forms
 from permissions import *
 
@@ -35,6 +35,18 @@ Database = DAO
 @login_manager.unauthorized_handler
 def unauthorized():
     return redirect(url_for('login'))
+
+def run_migrations():
+    with app.app_context():
+        print("--- Running migrations... ---")
+        migrate(message="Auto migration")  # Equivalent to `flask db migrate`
+        upgrade()  # Equivalent to `flask db upgrade`
+        print("--- Migrations complete.  ---")
+
+run_migrations()
+
+
+
 
 #-------LOGIN-ROUTES--------
 @app.route('/register', methods=['GET', 'POST'])

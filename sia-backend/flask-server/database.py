@@ -39,6 +39,9 @@ class Tables:
         permissions = db.Column(db.ARRAY(db.TEXT), nullable=False)
         last_updated = db.Column(db.TEXT)
 
+
+
+
     class Role(db.Model):
         __tablename__ = 'roles'
         name = db.Column(db.TEXT, primary_key=True)
@@ -104,109 +107,15 @@ class Tables:
         message = db.Column(db.String(500))
         created = db.Column(db.TEXT)
 
-
-##LEGACY KANN GELÖSCHT WERDEN
-class DAO:
-    def get_database_connection():
-        conn = None
-        cur = None
-        try:
-            conn = psycopg2.connect(
-                host=os.getenv("DATABASE_HOST", "localhost"),
-                port=os.getenv("DATABASE_PORT", "5432"),
-                database=os.getenv("DATABASE_NAME", "postgres"),
-                user=os.getenv("DATABASE_USER", "postgres"),
-                password=os.getenv('DATABASE_PASSWORD')
-            )
-            cur = conn.cursor()
-            return conn, cur
-
-        except OperationalError as e:
-            logging.error("OperationalError: Could not connect to the database. Check your connection parameters.")
-            logging.exception(e) 
-            raise  # Re-raise the exception if you want it to propagate up
-
-        except InterfaceError as e:
-            logging.error("InterfaceError: Database interface connection issue.")
-            logging.exception(e)
-            raise
-
-        except DatabaseError as e:
-            logging.error("DatabaseError: General database error.")
-            logging.exception(e)
-            raise
-
-        except Exception as e:
-            logging.error("Unexpected error occurred while connecting to the database.")
-            logging.exception(e)
-            raise
-
-        finally:
-            if conn and cur is None:
-                # Only close the connection if cursor wasn't created (partial connection issue)
-                conn.close()
-                logging.info("Closed the database connection due to an error.")
-    
-    def create_event(name,visibility,place,author,created,date):
-        conn, cur = DAO.get_database_connection()
-        cur.execute('INSERT INTO events (name,visibility,place,author,created,date) VALUES (?,?,?,?,?,?);',name,visibility,place,author,created,date)
-        conn.commit()
-        cur.close()
-        conn.close()
-
-    def get_all_events():
-        conn, cur = DAO.get_database_connection()
-        try:
-            cur.execute('SELECT * FROM events;')
-            result = cur.fetchall()
-            return result  
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            return ["Fetch failed"] 
-        finally:
-            cur.close()
-            conn.close()
-
-    def get_all_users():
-        conn, cur = DAO.get_database_connection()
-        try:
-            cur.execute('SELECT * FROM "user";')
-            result = cur.fetchall()
-            return result  
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            return ["Fetch failed"] 
-        finally:
-            cur.close()
-            conn.close()
-        
-    def get_all_events_for_diplay():
-        conn, cur = DAO.get_database_connection()
-        try:
-            cur.execute('SELECT name,date,place FROM events where visibility=\'public\';')
-            result = cur.fetchall()
-            return result
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            return [] 
-        finally:
-            cur.close()
-            conn.close()
-            
-    def get_all_private_events():
-        return None
-    
-    def get_all_admin_events():
-        return None
     
 def init_database():
     if os.getenv("DROP_AND_CREATE_DATABASE")=="true": #TODO für dev einmalig mit if os.getenv("DROP_AND_CREATE_DATABASE","true")=="true": ausführen
-        db.drop_all()
+        #db.drop_all()
+        #db.create_all()
         print("--- DROP_AND_CREATE_DATABASE \t true ---")
+        print("--- DROPPING ISNT ALLOWED ANYMORE ---")
     else:
         print("--- DROP_AND_CREATE_DATABASE \t false ---") 
-        print("--- Any missing tables got created ---") 
-    db.create_all()
 
 def init_roles():
     print("--- Initializing roles \t\t ---")
@@ -253,9 +162,6 @@ def init_default_role():
         db.session.commit()
     else:
         print("--- CREATE_ADMIN \t\t false ---")
-
-        
-
 
 
 with app.app_context():

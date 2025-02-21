@@ -85,7 +85,7 @@ def verify_email(current_user):
                 subject="Email-Verifikation",
                 sender=("NoReply@"+os.getenv("hostname"),"noreply@"+os.getenv("hostname")),
                 recipients=[f"{current_user.hs_email}"],
-                html = f'<p> Hallo {current_user.username}, <br><br> verifiziere jetzt deine E-Mail Adresse bei uns. <br> Erst danach kannst du: <ul><li>Dein Passwort zurücksetzen</li><li>Newsletter erhalten (wenn du möchtest)</li></ul></p> <a href="{domain}/verify_mail/{current_user.uid}/{current_user.hs_email_confirm_token}">Jetzt Verfizieren</a><br><br>Alle deine perösnlichen Daten kannst auf der Profilseite verwalten oder löschen wenn du möchtest.'
+                html = f'<p> Hallo {current_user.username}, <br><br> verifiziere jetzt deine E-Mail Adresse bei uns. <br> Erst danach kannst du: <ul><li>Dein Passwort zurücksetzen</li><li>Newsletter erhalten (wenn du möchtest)</li></ul></p> <a href="{domain}/verify_hs_mail/{current_user.uid}/{current_user.hs_email_confirm_token}">Jetzt Verfizieren</a><br><br>Alle deine perösnlichen Daten kannst auf der Profilseite verwalten oder löschen wenn du möchtest.'
             )
             send_mail(hs_email_msg)
             flash(f"Eine Email zur Verifizierung von {current_user.hs_email} wurde gesendet! {datetime.now().strftime('%H:%M')}")

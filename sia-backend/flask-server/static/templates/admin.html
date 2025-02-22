@@ -130,10 +130,10 @@
                                     <div class="card-body">
                                         <div class="card-body">
                                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal" data-uid="{{ user.uid }}">
-                                                Edit
+                                                Bearbeiten
                                             </button>
                                             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-uid="{{ user.uid }}" data-username="{{ user.username }}">
-                                                Delete
+                                                Löschen
                                             </button>
                                         </div>
                                     </div>
@@ -154,7 +154,7 @@
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="id-delete-user-modal-body">
-                  Es gibt kein zurück! Benutzer  wirklich löschen?
+                  Benutzer wirklich löschen?
                 </div>
                 <div class="modal-footer">
                   <form id="delete-form" method="POST" action="/delete_user">
@@ -177,7 +177,7 @@
                 const uid = button.getAttribute('data-uid');
                 const username = button.getAttribute('data-username');
                 uidInput.value = uid;
-                deleteModalUsername.innerHTML = username + " Wirklich löschen?"
+                deleteModalUsername.innerHTML = '"' + username + '"' + " Wirklich löschen?"
             });
             });
         </script>
@@ -342,7 +342,7 @@
                     .then(response => response.json())  
                     .then(data => {
                         if (data.success) {
-                            window.location.reload()
+                            window.location.href = 'admin';
                         } else {
                             displayFlashMessages(data.errors || []);
                         }
@@ -400,7 +400,7 @@
                                 <td>
                                     <div class="card-body">
                                             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-uid="{{ contact.uid }}">
-                                                Delete
+                                                Löschen
                                             </button>
                                     </div>
                                 </td>      
@@ -412,7 +412,7 @@
         </div>
 <!-- DELETE CONTACT MODAL --->
         <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-theme="dark" style="color:white;">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-dialog-centered">
               <div class="modal-content">
                 <div class="modal-header">
                   <h5 class="modal-title" id="deleteModalLabel">Anfrage löschen</h5>
@@ -436,7 +436,6 @@
             document.addEventListener('DOMContentLoaded', () => {
             const deleteModal = document.getElementById('deleteModal');
             const uidInput = document.getElementById('uid-contact-input');
-
             deleteModal.addEventListener('show.bs.modal', (event) => {
                 const button = event.relatedTarget;
                 const uid = button.getAttribute('data-uid');
@@ -477,10 +476,13 @@
                             <td>
                                 <div class="card-body">
                                   <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editEventModal" data-uid="{{ event.id }}"> <!-- HIER ID Aufgrund bestehender Infastruktur von MOPSKATER-->
-                                      Edit
+                                      Bearbeiten
                                   </button>
-                                  <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEventModal" data-uid="{{ event.uid }}"> <!-- HIER UID Aufgrund bestehender Infastruktur von MOPSKATER-->
-                                      Delete
+                                  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ShiftModal" data-id="{{ event.id }}"> 
+                                    Schichten
+                                  </button>
+                                  <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEventModal" data-uid="{{ event.uid }}" data-name="{{ event.name }}"> <!-- HIER UID Aufgrund bestehender Infastruktur von MOPSKATER-->
+                                    Löschen
                                   </button>
                                 </div>
                             </td>      
@@ -492,14 +494,14 @@
     </div>
 <!-- DELETE EVENT MODAL --->
     <div class="modal fade" id="deleteEventModal" tabindex="-1" aria-labelledby="deleteEventLabel" aria-hidden="true" data-bs-theme="dark" style="color:white;">
-      <div class="modal-dialog" >
+      <div class="modal-dialog modal-dialog-centered" >
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="deleteModalLabel">Event Löschen</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-            Es gibt kein zurück! Event wirklich löschen?
+          <div class="modal-body" id="id-delete-event-modal-body">
+             Event wirklich löschen?
           </div>
           <div class="modal-footer">
             <form id="delete-form" method="POST" action="/delete_event">
@@ -514,15 +516,140 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-        const deleteModal = document.getElementById('deleteEventModal');
-        const uidInput = document.getElementById('uid-event-input');
-        deleteModal.addEventListener('show.bs.modal', (event) => {
-            const button = event.relatedTarget;
-            const uid = button.getAttribute('data-uid');
-            uidInput.value = uid;
-        });
+          const deleteModal = document.getElementById('deleteEventModal');
+          const uidInput = document.getElementById('uid-event-input');
+          const deleteModalEventName = document.getElementById('id-delete-event-modal-body');
+          deleteModal.addEventListener('show.bs.modal', (event) => {
+              const button = event.relatedTarget;
+              const uid = button.getAttribute('data-uid');
+              const name = button.getAttribute('data-name');
+              uidInput.value = uid;
+              deleteModalEventName.innerHTML = '"' + name + '"' + " Wirklich löschen?"
+          });
         });
     </script>
+
+    
+<!-- SHIFT MODAL --->
+
+<div class="modal fade" id="ShiftModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-theme="dark" style="color:white;">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Schichten und Anmeldungen Verwalten</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <table >
+          <tbody id="id-shift-modal-table">
+            <tr>
+              <th>Typ</th>
+              <th>Start</th>
+              <th>Ende</th>
+              <th>Eingetragene Nutzer</th>
+            </tr>
+          </tbody>
+        </table>
+        <form class="row g-2" method="POST" action="/api/events/event/<int:eventid>/addshift" id="id-shift-modal-form">
+          {{ form.hidden_tag() }}
+          <input type="hidden" name="id" id="id-shift-modal-form-event-id" value="">
+          <div class="col-md-2">
+            {{ form_new_shift.type }}
+          </div>
+          <div class="col-md-2">
+            {{ form_new_shift.start }}
+          </div>
+          <div class="col-md-2">
+            {{ form_new_shift.end }}
+          </div>
+          <div class="col-md-2">
+            {{ form_new_shift.submit }}
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+  const ShiftModal= document.getElementById('ShiftModal');
+  const idInput = document.getElementById('id-shift-modal-form-event-id');
+  const form = document.getElementById('id-shift-modal-form');
+  ShiftModal.addEventListener('show.bs.modal', (event) => {
+      const button = event.relatedTarget;
+      const id = button.getAttribute('data-id');
+
+      function fetchShifts(){
+        fetch(`/api/events/event/${id}/getshifts`, 
+          {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+          console.error(data.error);
+          } else {
+
+            const tableBody = document.getElementById("id-shift-modal-table");
+            tableBody.innerHTML = `
+              <tr>
+                <th>Typ</th>
+                <th>Start</th>
+                <th>Ende</th>
+                <th>Eingetragene Nutzer</th>
+              </tr>
+            `
+            data.forEach(item => {
+              const row = document.createElement("tr");
+              row.innerHTML = `
+                  <td>${item.type}</td>
+                  <td>${item.start ?? '-'}</td>
+                  <td>${item.end ?? '-'}</td>
+                  <td>${item.username ?? '-'}</td>
+              `;
+              tableBody.appendChild(row);
+            });
+          }
+        })
+      }
+
+      idInput.value = id;
+      form.action = "/api/events/event/"+ id + "/addshift"
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault(); 
+        const formData = new FormData(form);  
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token() }}'  
+            }
+        })
+        .then(response => response.json())  
+        .then(data => {
+            if (data.success) {
+              fetchShifts()
+            } else {
+                displayFlashMessages(data.errors || []);
+            }
+        })
+        .catch(error => {
+            console.error('Fehler:', error);
+            displayFlashMessages(['Ein Fehler ist aufgetreten. Womöglich fehlt dir die Berechtigung!']);
+        });
+      });
+    });
+  });
+</script>
+
 
 <!-- EDIT EVENT MODAL --->
         <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true" data-bs-theme="dark" style="color:white;">
@@ -601,7 +728,6 @@
                     id: document.getElementById('event_id'),
                     event_author: document.getElementById('event_author'),
                 };
-
                 editEventModal.addEventListener('show.bs.modal', (event) => {
                     const button = event.relatedTarget;
                     const uid = button.getAttribute('data-uid');
@@ -658,7 +784,7 @@
                     .then(response => response.json())  
                     .then(data => {
                         if (data.success) {
-                            window.location.reload()
+                            window.location.href = 'admin';
                         } else {
                             displayFlashMessages(data.errors || []);
                         }

@@ -29,7 +29,7 @@ def apiGetEventShift(eventid: int):
     if hasPermissions(f"/api/events/event/getshifts/{eventid}"):
         shifts = Tables.Shift.query.filter_by(event=eventid).all()
         if shifts:
-            return Response([shift.toJson() for shift in shifts], mimetype='application/json')
+            return jsonify([shift.getDict() for shift in shifts])
         else:
             return Response(status=404)
     else:
@@ -39,23 +39,21 @@ def apiGetEventShift(eventid: int):
 @app.route("/api/events/event/<int:eventid>/addshift", methods=['POST'])
 def apiAddEventShift(eventid: int):
     if hasPermissions(f"/api/events/event/addshift/{eventid}"):
+        form = Forms.newShiftForm()
         event = Tables.Event.query.filter_by(id=eventid).first_or_404()
-
-        data = request.json
         # TODO add input validation
         new_shift = Tables.Shift(
-            user = current_user.id,
             event = event.id,
-            type = data["eventType"],
-            start = data["eventStart"],
-            end = data["eventEnd"]
+            type = form.type.data,
+            start = form.start.data ,
+            end = form.end.data
         )
-
         db.session.add(new_shift)
         db.session.commit()
-        return Response(status=200)
+        return jsonify({'success': True})
     else:
         return Response(status=403)
+    
 # Add shift to an event
 @app.route("/api/events/event/<int:eventid>/delshift", methods=['POST'])
 def apiDeleteEventShift(shiftid: int):

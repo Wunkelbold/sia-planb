@@ -511,5 +511,21 @@ class Forms:
                 FileSize(5 * 1024 * 1024,message="Uploadlimit 5mb und bitte Seitenverhältnis 1:1")])
         submit = SubmitField("Submit")
 
+    class newShiftForm(FlaskForm):
+        type = StringField(
+            render_kw={"placeholder": "Schichtbezeichnung"}, 
+            validators=[
+                InputRequired(), 
+                Length(
+                    max=20,
+                    message="Beschreibung darf maximal 20 Zeichen lang sein.")])
+        start = DateTimeLocalField(
+            render_kw={"placeholder": "Start"}, 
+            validators=[Optional()])
+        end = DateTimeLocalField(
+            render_kw={"placeholder": "Ende"}, 
+            validators=[Optional()])
+        submit = SubmitField("Submit")
+
 
 

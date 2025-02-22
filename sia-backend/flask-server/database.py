@@ -39,9 +39,6 @@ class Tables:
         permissions = db.Column(db.ARRAY(db.TEXT), nullable=False)
         last_updated = db.Column(db.TEXT)
 
-
-
-
     class Role(db.Model):
         __tablename__ = 'roles'
         name = db.Column(db.TEXT, primary_key=True)
@@ -80,21 +77,28 @@ class Tables:
     class Shift(db.Model):
         __tablename__ = 'shifts'
         id = db.Column(db.Integer, primary_key=True)
-        user = db.Column(db.Integer, db.ForeignKey("user.id"))
         event = db.Column(db.Integer, db.ForeignKey("events.id"), nullable=False)
-        type = db.Column(db.TEXT, nullable=False)
-        start = db.Column(db.DateTime, nullable=False)
-        end = db.Column(db.DateTime, nullable=False)
+        type = db.Column(db.String(30))
+        start = db.Column(db.DateTime)
+        end = db.Column(db.DateTime)
+        duties = db.relationship("Duty", backref="shift_obj", lazy="joined")
         
-        def toJSON(self):
-            return json.dumps({
+        def getDict(self):
+            return {
                 "id": self.id,
-                "user": self.user,
                 "event": self.event,
                 "type": self.type,
                 "start": self.start,
-                "end": self.end
-            })
+                "end": self.end,
+                "users": [duty.user_obj.username for duty in self.duties if duty.user_obj]
+            }
+        
+    class Duty(db.Model):
+        __tablename__ = 'duty'
+        id = db.Column(db.Integer, primary_key=True)
+        shift = db.Column(db.Integer, db.ForeignKey("shifts.id"))
+        user = db.Column(db.Integer, db.ForeignKey("user.id"))
+        user_obj = db.relationship("User", backref="duties", lazy="joined")
 
     class Contact(db.Model):
         __tablename__ = 'contact'

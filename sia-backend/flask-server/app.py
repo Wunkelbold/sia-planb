@@ -179,8 +179,9 @@ def admin():
     roles = Tables.Role.query.all()
     form_edit_user=Forms.AdminChangeData()
     form_edit_event=Forms.ChangeEventForm()
+    form_new_shift = Forms.newShiftForm()
     form_edit_user.role.choices = [(role.name, role.name) for role in roles] 
-    return render_template('admin.html', title='Sia-PlanB.de', events=events, users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(), form_edit_user=form_edit_user,form_edit_event=form_edit_event)
+    return render_template('admin.html', title='Sia-PlanB.de', events=events, users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(), form_edit_user=form_edit_user, form_edit_event=form_edit_event, form_new_shift=form_new_shift)
 
 @app.route("/slider/<name>")
 def slider(name):

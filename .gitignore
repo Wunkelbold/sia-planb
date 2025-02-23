@@ -8,4 +8,3 @@ sia-backend/mail-server/docker-data/dms/mail-logs/mail.log
 sia-backend/mail-server/docker-data/dms/mail-state/lib-postfix/master.lock
 .gitignore
 sia-backend/mail-server/*
-

@@ -96,7 +96,7 @@ def verify_email(current_user):
 def verify_mail(uid,token):
     user = Tables.User.query.filter_by(uid=uid).first()
     if user:
-        if not user.hs_email_confirmed:
+        if not user.email_confirmed:
             if user.email_confirm_token == token:
                 user.email_confirmed = True
                 db.session.commit()

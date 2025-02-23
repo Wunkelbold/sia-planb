@@ -39,7 +39,7 @@ def run_migrations():
         upgrade()  # Equivalent to `flask db upgrade`
         print("--- Migrations complete.  ---")
 
-#run_migrations()
+run_migrations()
 
 
 

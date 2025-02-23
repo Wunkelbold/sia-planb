@@ -553,7 +553,7 @@
         <form class="row g-2" method="POST" action="/api/events/event/<int:eventid>/addshift" id="id-shift-modal-form">
           {{ form.hidden_tag() }}
           <input type="hidden" name="id" id="id-shift-modal-form-event-id" value="">
-          <div class="col-md-2">
+          <div class="col-md-6">
             {{ form_new_shift.type }}
           </div>
           <div class="col-md-2">
@@ -575,79 +575,133 @@
   </div>
 </div>
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-  const ShiftModal= document.getElementById('ShiftModal');
-  const idInput = document.getElementById('id-shift-modal-form-event-id');
-  const form = document.getElementById('id-shift-modal-form');
-  ShiftModal.addEventListener('show.bs.modal', (event) => {
-      const button = event.relatedTarget;
-      const id = button.getAttribute('data-id');
+document.addEventListener("DOMContentLoaded", () => {
+    const CSRF = document.getElementById("CSRF").getAttribute("content");
+    const ShiftModal = document.getElementById("ShiftModal");
+    const idInput = document.getElementById("id-shift-modal-form-event-id");
+    const form = document.getElementById("id-shift-modal-form");
 
-      function fetchShifts(){
-        fetch(`/api/events/event/${id}/getshifts`, 
-          {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.error) {
-          console.error(data.error);
-          } else {
+    async function fetchShifts(eventId) {
+        const tableBody = document.getElementById("id-shift-modal-table");
 
-            const tableBody = document.getElementById("id-shift-modal-table");
-            tableBody.innerHTML = `
-              <tr>
-                <th>Typ</th>
-                <th>Start</th>
-                <th>Ende</th>
-                <th>Eingetragene Nutzer</th>
-              </tr>
-            `
-            data.forEach(item => {
-              const row = document.createElement("tr");
-              row.innerHTML = `
-                  <td>${item.type}</td>
-                  <td>${item.start ?? '-'}</td>
-                  <td>${item.end ?? '-'}</td>
-                  <td>${item.username ?? '-'}</td>
-              `;
-              tableBody.appendChild(row);
+        try {
+            const response = await fetch(`/api/events/event/${eventId}/getshifts`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
             });
-          }
-        })
-      }
 
-      idInput.value = id;
-      form.action = "/api/events/event/"+ id + "/addshift"
+            const data = await response.json();
+            tableBody.innerHTML = `
+                <tr>
+                    <th>Typ</th>
+                    <th>Start</th>
+                    <th>Ende</th>
+                    <th>Eingetragene Nutzer</th>
+                    <th></th>
+                </tr>
+            `;
 
-      form.addEventListener('submit', (event) => {
-        event.preventDefault(); 
-        const formData = new FormData(form);  
-        fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': '{{ csrf_token() }}'  
+            if (data.error) {
+                console.error(data.error);
+                return;
             }
-        })
-        .then(response => response.json())  
-        .then(data => {
-            if (data.success) {
-              fetchShifts()
+
+            if (data.length === 0) {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td colspan="5" class="text-center">Das Event besitzt keine Schichten bis jetzt</td>`;
+                tableBody.appendChild(row);
             } else {
-                displayFlashMessages(data.errors || []);
+                data.forEach((item) => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${item.type}</td>
+                        <td>${item.start ?? "-"}</td>
+                        <td>${item.end ?? "-"}</td>
+                        <td>${item.username ?? "-"}</td>
+                        <td>
+                            <button class="delete-btn btn btn-danger" data-id="${item.id}" data-event-id="${eventId}">X</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                document.querySelectorAll(".delete-btn").forEach((button) => {
+                    button.addEventListener("click", async function () {
+                        const shiftId = this.getAttribute("data-id");
+                        const eventId = this.getAttribute("data-event-id");
+                        await deleteShift(shiftId, this.closest("tr"), eventId);
+                    });
+                });
             }
-        })
-        .catch(error => {
-            console.error('Fehler:', error);
-            displayFlashMessages(['Ein Fehler ist aufgetreten. Womöglich fehlt dir die Berechtigung!']);
-        });
-      });
+        } catch (error) {
+            console.error("Fetch error:", error);
+        }
+    }
+
+    async function deleteShift(shiftId, rowElement, eventId) {
+        try {
+            const response = await fetch(`/api/events/event/delshift/${shiftId}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-Token": CSRF,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete shift");
+            }
+
+            const data = await response.json();
+            console.log("Shift deleted:", data);
+            rowElement.remove(); 
+
+            await fetchShifts(eventId); 
+        } catch (error) {
+            console.error("Delete error:", error);
+        }
+    }
+
+    
+
+    ShiftModal.addEventListener("show.bs.modal", (event) => {
+        const button = event.relatedTarget;
+        const eventId = button.getAttribute("data-id");
+
+        idInput.value = eventId;
+        form.action = `/api/events/event/${eventId}/addshift`;
+
+        fetchShifts(eventId);
+
+        form.onsubmit = async (event) => {
+            event.preventDefault();
+            const formData = new FormData(form);
+            try {
+                const response = await fetch(form.action, {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        "X-CSRFToken": CSRF,
+                    },
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    fetchShifts(eventId);
+                } else {
+                    displayFlashMessages(data.errors || []);
+                }
+            } catch (error) {
+                console.error("Fehler:", error);
+                displayFlashMessages([
+                    "Ein Fehler ist aufgetreten. Womöglich fehlt dir die Berechtigung!",
+                ]);
+            }
+        };
     });
-  });
+});
 </script>
 
 

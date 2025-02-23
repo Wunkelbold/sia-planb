@@ -23,7 +23,7 @@ class EmailRequiredIf(object):
 class Forms:
     class RegisterForm(FlaskForm):
         username = StringField(
-            render_kw={"placeholder": "Benutzername"},
+            render_kw={"placeholder": "Benutzername","autocomplete":"username"},
             validators=[
                 InputRequired(),
                 Length(
@@ -31,7 +31,7 @@ class Forms:
                     max=20, 
                     message="Benutzername muss 3 bis 20 Zeichen lang sein.")])
         password = PasswordField(
-            render_kw={"placeholder": "Passwort"}, 
+            render_kw={"placeholder": "Passwort","autocomplete":"new-password"}, 
             validators=[
                 InputRequired(),
                 Length(
@@ -40,7 +40,7 @@ class Forms:
                     message="Das Passwort muss 8 bis 20 Zeichen lang sein."), 
                 EqualTo('password_confirm', message='Passwörter sind nicht gleich.')])
         password_confirm = PasswordField(
-            render_kw={"placeholder": "Passwörter bestätigen"}, 
+            render_kw={"placeholder": "Passwörter bestätigen","autocomplete":"new-password"}, 
             validators=[
                 InputRequired(),
                 Length(
@@ -136,7 +136,7 @@ class Forms:
 
     class LoginForm(FlaskForm):
         username = StringField(
-            render_kw={"placeholder": "Benutzername"},
+            render_kw={"placeholder": "Benutzername","autocomplete":"username"},
             validators=[
                 InputRequired(),
                 Length(
@@ -144,7 +144,7 @@ class Forms:
                     max=20, 
                     message="Benutzername muss 3 bis 20 Zeichen lang sein.")])
         password = PasswordField(
-            render_kw={"placeholder": "Passwort"},
+            render_kw={"placeholder": "Passwort","autocomplete":"current-password"},
             validators=[
                 InputRequired(),
                 Length(

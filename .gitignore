@@ -10,3 +10,4 @@ sia-backend/mail-server/docker-data/dms/mail-state/lib-postfix/master.lock
 sia-backend/mail-server/*
 sia-backend/mail-server/docker-data/dms/config/postfix-accounts.cf
 sia-backend/mail-server/docker-data/dms/mail-state/lib-dovecot/instances
+.env

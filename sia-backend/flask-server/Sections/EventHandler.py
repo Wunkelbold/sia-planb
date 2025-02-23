@@ -138,6 +138,7 @@ def apiGetEvent(eventid: int):
     else:
         return Response(status=403)
 
+
 @app.route("/api/events/event/joinshift/<shiftid>",methods=['POST'])
 def apiJoinShift(shiftid: int):
     if hasPermissions(f"/api/events/event/joinshift/"):
@@ -160,5 +161,6 @@ def apiLeaveShift(shiftid: int):
             db.session.delete(duty)
         db.session.commit()
         return jsonify({'success': True})
+
 
 

@@ -568,8 +568,7 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fertig</button>
       </div>
     </div>
   </div>
@@ -615,11 +614,12 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 data.forEach((item) => {
                     const row = document.createElement("tr");
+                    const usernames = item.users.length ? item.users.join(", ") : "-";
                     row.innerHTML = `
                         <td>${item.type}</td>
                         <td>${item.start ?? "-"}</td>
                         <td>${item.end ?? "-"}</td>
-                        <td>${item.username ?? "-"}</td>
+                        <td>${usernames ?? "-"}</td>
                         <td>
                             <button class="delete-btn btn btn-danger" data-id="${item.id}" data-event-id="${eventId}">X</button>
                         </td>

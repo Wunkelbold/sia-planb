@@ -138,8 +138,29 @@ def apiGetEvent(eventid: int):
     else:
         return Response(status=403)
 
-@app.route("/api/event/events/joinshift/<shiftid>",methods=['POST'])
-def apiJoinShift(eventid: int):
-    return ""
+
+@app.route("/api/events/event/joinshift/<shiftid>",methods=['POST'])
+def apiJoinShift(shiftid: int):
+    if hasPermissions(f"/api/events/event/joinshift/"):
+        existing_duty = Tables.Duty.query.filter_by(shift=shiftid,user=current_user.id).first()
+        if not existing_duty:
+            duty = Tables.Duty()
+            duty.shift=shiftid
+            duty.user=current_user.id
+            duty. user_obj=current_user
+            db.session.add(duty)
+            db.session.commit()
+        return jsonify({'success': True})
+    return jsonify({'success': False})
+
+@app.route("/api/events/event/leaveshift/<shiftid>",methods=['POST'])
+def apiLeaveShift(shiftid: int):
+    if hasPermissions(f"/api/events/event/leaveshift/"):
+        duty = Tables.Duty.query.filter_by(shift=shiftid,user=current_user.id).first()
+        if duty:
+            db.session.delete(duty)
+        db.session.commit()
+        return jsonify({'success': True})
+
 
 

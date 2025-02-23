@@ -57,6 +57,7 @@ class Tables:
         date = db.Column(db.DateTime)
         description = db.Column(db.String(200))
         postername = db.Column(db.String(50))
+        shift_rel = db.relationship("Shift", cascade="all,delete", backref="Event", lazy="joined")
 
         def toJSON(self):
             def format_datetime(dt):
@@ -77,11 +78,11 @@ class Tables:
     class Shift(db.Model):
         __tablename__ = 'shifts'
         id = db.Column(db.Integer, primary_key=True)
-        event = db.Column(db.Integer, db.ForeignKey("events.id"), nullable=False)
+        event = db.Column(db.Integer, db.ForeignKey("events.id", ondelete="CASCADE"), nullable=False)
         type = db.Column(db.String(30))
         start = db.Column(db.DateTime)
         end = db.Column(db.DateTime)
-        duties = db.relationship("Duty", backref="shift_obj", lazy="joined")
+        duty_rel = db.relationship("Duty", cascade="all,delete", backref="Shift", lazy="joined")
         
         def getDict(self):
             return {
@@ -90,13 +91,13 @@ class Tables:
                 "type": self.type,
                 "start": self.start,
                 "end": self.end,
-                "users": [duty.user_obj.username for duty in self.duties if duty.user_obj]
+                "users": [duty.user_obj.username for duty in self.duty_rel if duty.user_obj]
             }
         
     class Duty(db.Model):
         __tablename__ = 'duty'
         id = db.Column(db.Integer, primary_key=True)
-        shift = db.Column(db.Integer, db.ForeignKey("shifts.id"))
+        shift = db.Column(db.Integer, db.ForeignKey("shifts.id", ondelete="CASCADE"), nullable=False)
         user = db.Column(db.Integer, db.ForeignKey("user.id"))
         user_obj = db.relationship("User", backref="duties", lazy="joined")
 

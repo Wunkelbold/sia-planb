@@ -98,10 +98,6 @@ def apiUpdateEvent(eventid: int):
     return jsonify({'success': False, 'errors': errors})  # JSON-Antwort mit Fehlern
 
 
-
-
-
-
 @app.route("/api/events/event/<int:eventid>", methods=['GET'])
 def apiGetEvent(eventid: int):
     if hasPermissions(f"/api/events/event/{eventid}"):
@@ -141,5 +137,9 @@ def apiGetEvent(eventid: int):
         return Response(json.dumps(event_data), mimetype='application/json')
     else:
         return Response(status=403)
+
+@app.route("/api/event/events/joinshift/<shiftid>",methods=['POST'])
+def apiJoinShift(eventid: int):
+    return ""
 
 

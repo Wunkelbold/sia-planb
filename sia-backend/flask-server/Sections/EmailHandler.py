@@ -137,4 +137,5 @@ def send_verifikation_mail():
     return redirect(url_for('profile'))
 
 
-update_mail_user(app.config["MAIL_USERNAME"], app.config["MAIL_PASSWORD"])
+if os.getenv('UPDATE_MAIL_USER')=="true":
+    update_mail_user(app.config["MAIL_USERNAME"], app.config["MAIL_PASSWORD"])

@@ -33,6 +33,8 @@ services:
       - Debug=false
       - HOSTNAME=${HOSTNAME}
       - hostname=${hostname}
+      - UPDATE_MAIL_USER=true
+      - RUN_MIGRATIONS=true
     volumes:
       - eventposter:/opt/flask-backend/static/images/eventposter
       - ./mail-server/docker-data/dms/config/postfix-accounts.cf:/app/postfix-accounts.cf

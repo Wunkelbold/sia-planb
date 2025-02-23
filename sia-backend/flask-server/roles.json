@@ -5,7 +5,7 @@
         "Sia-Alumni":[""]
     },
     "private":{
-        "Mitglied":[""],
+        "Mitglied": ["/api/events/event/getshifts/*","/api/events/event/joinshift/","/api/events/event/leaveshift/"],
         "Moderator":[""],
         "Admin":["*"]
     }

@@ -85,7 +85,7 @@
     <div id="hotlink_user">
         <h3>Benutzerverwaltung</h3>
         <div class="table-container">
-            <table class="table table-dark table-striped">
+            <table class="table table-dark table-striped sortable" id="user-table">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -375,7 +375,7 @@
     <div id="hotlink_contact">
         <h3>Kontaktanfragen</h3>
         <div class="table-container">
-            <table class="table table-dark table-striped">
+            <table class="table table-dark table-striped sortable" id="contact-table">
                 <thead>
                     <tr>
                         <th>Kategorie</th>
@@ -449,9 +449,9 @@
     <div id="hotlink_event_list">
       <h3>Events</h3>
       <div class="table-container">
-        <table class="table table-dark table-striped">
+        <table class="table table-dark table-striped sortable" id="event-table">
             <thead>
-                <tr>
+                <tr data-sort-method="none">
                     <th>id</th>
                     <th>Name</th>
                     <th>Ort</th>
@@ -492,6 +492,7 @@
             </tbody>
         </table>
     </div>
+
 <!-- DELETE EVENT MODAL --->
     <div class="modal fade" id="deleteEventModal" tabindex="-1" aria-labelledby="deleteEventLabel" aria-hidden="true" data-bs-theme="dark" style="color:white;">
       <div class="modal-dialog modal-dialog-centered" >
@@ -528,7 +529,6 @@
           });
         });
     </script>
-
     
 <!-- SHIFT MODAL --->
 
@@ -909,6 +909,19 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
   </div>
 </section>
+<script>
+
+function onPageReady() {
+  // Documentation: http://tristen.ca/tablesort/demo/
+  new Tablesort(document.getElementById('event-table'));
+  new Tablesort(document.getElementById('user-table'));
+  new Tablesort(document.getElementById('contact-table'));
+}
+
+// Run the above function when the page is loaded & ready
+document.addEventListener('DOMContentLoaded', onPageReady, false);
+
+</script>
 {% endblock %}
 
 

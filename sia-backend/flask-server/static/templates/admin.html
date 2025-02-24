@@ -459,6 +459,7 @@
                     <th>Beschreibung</th>
                     <th>Autor</th>
                     <th>Sichtbarkeit</th>
+                    <th>Helfer/Schicht</th>
                     <th>Verwaltung</th>
                 </tr>
             </thead>
@@ -473,6 +474,7 @@
                             <td>{{ event.description }}</td> 
                             <td>{{ event.username }}</td> <!-- Aus SQL JOIN-->
                             <td>{{ event.visibility }}</td> 
+                            <td>{{ event.duty_count }}/{{ event.shift_count }}</td>
                             <td>
                                 <div class="card-body">
                                   <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editEventModal" data-uid="{{ event.id }}"> <!-- HIER ID Aufgrund bestehender Infastruktur von MOPSKATER-->

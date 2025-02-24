@@ -261,7 +261,7 @@ def datenschutz():
 
 @app.route("/faq",methods=['GET'])
 def faq():
-    return render_template('faq.html', title='Sia-PlanB.de')
+    return render_template('under_construction.html', title='Sia-PlanB.de')
 
 @app.route("/impressum",methods=['GET'])
 def impressum():
@@ -269,7 +269,7 @@ def impressum():
 
 @app.route("/newsletter",methods=['GET'])
 def newsletter():
-    return render_template('newsletter.html', title='Sia-PlanB.de')
+    return render_template('under_construction.html', title='Sia-PlanB.de')
 
 @app.route("/profile",methods=['GET','POST'])
 @login_required

@@ -5,7 +5,38 @@
 {% endblock %}
 
 {% block additionalstyle %}
-
+<style>
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background-color: #282c34;
+        color: #282c34;
+        font-family: Arial, sans-serif;
+        text-align: center;
+    }
+    .message {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-top: 20px;
+        animation: blink 1s infinite alternate;
+    }
+    @keyframes blink {
+        0% { opacity: 1; }
+        100% { opacity: 0.5; }
+    }
+    .gear {
+        width: 60px;
+        height: 60px;
+        animation: spin 2s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
 {% endblock %}
 
 {% block additionaljavascript %}
@@ -13,44 +44,12 @@
 {% endblock %}
 
 {% block content %}
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: #282c34;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        .message {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-top: 20px;
-            animation: blink 1s infinite alternate;
-        }
-        @keyframes blink {
-            0% { opacity: 1; }
-            100% { opacity: 0.5; }
-        }
-        .gear {
-            width: 60px;
-            height: 60px;
-            animation: spin 2s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
 </head>
 <body>
 
     <div class="message">Under Construction<br></div>
     <p></p>
-    <svg class="gear" fill="#EEEEEE" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+    <svg class="gear" fill="#282c34" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
     width="800px" height="800px" viewBox="0 0 45.973 45.973"
     xml:space="preserve">
 <g>

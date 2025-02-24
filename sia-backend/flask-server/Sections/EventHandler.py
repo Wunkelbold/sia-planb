@@ -7,7 +7,26 @@ from forms import *
 from flask import current_app
 
 def getAllEvents() -> list[Tables.Event]:
-    return Tables.Event.query.all()
+    events = Tables.Event.query.all()  # Fetch all events
+
+    event_data = []
+    for event in events:
+        duty_count = db.session.query(Tables.Duty).join(Tables.Shift).filter(Tables.Shift.event == event.id).count()
+        shift_count = Tables.Shift.query.filter_by(event=event.id).count()
+        event_data.append({
+            "id": event.id,
+            "uid": event.uid,
+            "author":event.author,
+            "visibility":event.author,
+            "place":event.place,
+            "created":event.created,
+            "date":event.date,
+            "description":event.description,
+            "duty_count": duty_count,
+            "shift_count": shift_count
+        })
+    return event_data
+
 
 @app.route("/events", methods=['GET'])
 def events():

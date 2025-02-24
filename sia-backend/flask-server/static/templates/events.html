@@ -47,11 +47,14 @@
                     </div>
                 </div>
             {%endfor%} 
-        {% else %}
-            <p>Hä</p>
         {% endif %}
-        </div>
+    </div>
 </div>
+{% if events %}
+{% else %}
+    <h3>Gerade gibt es keine Events.</h3>
+    {% include 'beer.html' %}
+{% endif %}
 <div class="modal fade" id="JoinShiftModal" tabindex="-1" aria-labelledby="JoinShiftModal" aria-hidden="true" data-bs-theme="dark" style="color:white;">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+    {% block additionalstyle %}
+    {% endblock %}
+
+    {% block additionaljavascript %}
+    {% endblock %}
+
+    {% block content %}
+    <h1>Das Plan B. Der Dreh- und Angelpunk des Vereins</h1>
+    <div style="  display: flex; margin: 20px; justify-content: center; align-items: center;"><a href="{{url_for('contact')}}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="true">Location mieten</a></div>
+    {% endblock %}

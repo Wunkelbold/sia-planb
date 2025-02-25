@@ -361,6 +361,10 @@ def profile():
 def verein():
     return render_template('verein.html', title='Verein')
 
+@app.route("/location",methods=['GET'])
+def location():
+    return render_template('location.html', title='Plan B')
+
 
 @app.route('/static/images/eventposter/<filename>')
 def get_image(filename):

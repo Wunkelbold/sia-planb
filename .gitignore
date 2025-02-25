@@ -3,7 +3,6 @@ update-containers.sh
 .venv
 __pycache__
 .vscode
-sia-backend/flask-server/static/images/eventposter/*
 sia-backend/mail-server/docker-data/dms/mail-logs/mail.log
 sia-backend/mail-server/docker-data/dms/mail-state/lib-postfix/master.lock
 .gitignore

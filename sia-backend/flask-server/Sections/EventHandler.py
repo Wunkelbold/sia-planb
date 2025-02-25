@@ -6,25 +6,31 @@ from database import *
 from forms import *
 from flask import current_app
 
-def getAllEvents() -> list[Tables.Event]:
-    events = Tables.Event.query.all()  # Fetch all events
+def event_append(events,event,duty_count,shift_count):
+    events.append({
+        "id": event.id,
+        "name":event.name,
+        "uid": event.uid,
+        "place":event.place,
+        "date":event.date,
+        "description":event.description,
+        "duty_count": duty_count,
+        "shift_count": shift_count
+    })
+    return events
 
+def getAllEvents() -> list[Tables.Event]:
+    event_list = Tables.Event.query.all()  # Fetch all events
     event_data = []
-    for event in events:
+    for event in event_list:
         duty_count = db.session.query(Tables.Duty).join(Tables.Shift).filter(Tables.Shift.event == event.id).count()
         shift_count = Tables.Shift.query.filter_by(event=event.id).count()
-        event_data.append({
-            "id": event.id,
-            "uid": event.uid,
-            "author":event.author,
-            "visibility":event.author,
-            "place":event.place,
-            "created":event.created,
-            "date":event.date,
-            "description":event.description,
-            "duty_count": duty_count,
-            "shift_count": shift_count
-        })
+        if event.visibility=="public": 
+            event_append(event_data,event,duty_count,shift_count)
+        if event.visibility=="member" and hasPermissions("events.member"):
+            event_append(event_data,event,duty_count,shift_count)
+        if event.visibility=="private" and hasPermissions("events.private"):
+            event_append(event_data,event,duty_count,shift_count)
     return event_data
 
 
@@ -86,35 +92,36 @@ def apiDeleteEventShift(shiftid: int):
 # Get event information
 @app.route("/api/events/event/update/<int:eventid>", methods=['POST'])
 def apiUpdateEvent(eventid: int):
-    form = Forms.ChangeEventForm()
-    event = db.session.query(Tables.Event).filter_by(id=eventid).first() #TODO auf GUID umbauen
-    if form.validate_on_submit() and event:
-        if form.name.data:
-           event.name = form.name.data
-        if form.visibility.data:
-            event.visibility = form.visibility.data
-        if form.place.data:
-            event.place = form.place.data
-        if form.description.data:
-            event.description = form.description.data
-        with app.app_context():
-            if form.file.data:
-                form.file.data.save(os.path.join(os.path.dirname(os.path.abspath(__file__)), current_app.root_path,"static", "images", "eventposter", str(event.id)))
-        if form.date.data:
-            event.date = form.date.data
-        db.session.commit()
-        return jsonify({'success': True})
-    else:
-        for field_name, field_errors in form.errors.items():
-            print(f"Feld '{field_name}' hat folgende Fehler:")
-            for error in field_errors:
-                print(f"  - {error}")
     errors = []
-    for field, error_list in form.errors.items():
-        for error in error_list:
-            errors.append(f"{error}")
-
-    return jsonify({'success': False, 'errors': errors})  # JSON-Antwort mit Fehlern
+    if hasPermissions(f"/api/events/event/update/{eventid}"):
+        form = Forms.ChangeEventForm()
+        event = db.session.query(Tables.Event).filter_by(id=eventid).first() #TODO auf GUID umbauen
+        if form.validate_on_submit() and event:
+            if form.name.data:
+                event.name = form.name.data
+            if form.visibility.data:
+                event.visibility = form.visibility.data
+            if form.place.data:
+                event.place = form.place.data
+            if form.description.data:
+                event.description = form.description.data
+            with app.app_context():
+                if form.file.data:
+                    form.file.data.save(os.path.join(os.path.dirname(os.path.abspath(__file__)), current_app.root_path,"static", "images", "eventposter", str(event.id)))
+            if form.date.data:
+                event.date = form.date.data
+            db.session.commit()
+            return jsonify({'success': True})
+        else:
+            for field_name, field_errors in form.errors.items():
+                print(f"Feld '{field_name}' hat folgende Fehler:")
+                for error in field_errors:
+                    print(f"  - {error}")
+        for field, error_list in form.errors.items():
+            for error in error_list:
+                errors.append(f"{error}")
+    errors.append("Permission missing")
+    return jsonify({'success': False, 'errors': errors})
 
 
 @app.route("/api/events/event/<int:eventid>", methods=['GET'])
@@ -160,7 +167,7 @@ def apiGetEvent(eventid: int):
 
 @app.route("/api/events/event/joinshift/<shiftid>",methods=['POST'])
 def apiJoinShift(shiftid: int):
-    if hasPermissions(f"/api/events/event/joinshift/"):
+    if hasPermissions(f"events.help"):
         existing_duty = Tables.Duty.query.filter_by(shift=shiftid,user=current_user.id).first()
         if not existing_duty:
             duty = Tables.Duty()
@@ -174,7 +181,7 @@ def apiJoinShift(shiftid: int):
 
 @app.route("/api/events/event/leaveshift/<shiftid>",methods=['POST'])
 def apiLeaveShift(shiftid: int):
-    if hasPermissions(f"/api/events/event/leaveshift/"):
+    if hasPermissions(f"events.help"):
         duty = Tables.Duty.query.filter_by(shift=shiftid,user=current_user.id).first()
         if duty:
             db.session.delete(duty)

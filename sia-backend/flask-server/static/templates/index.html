@@ -114,16 +114,16 @@
             transition: opacity 1s ease-in-out;
         }
     </style>
-
-    <div id="cardCarousel" class="carousel slide section" data-bs-theme="dark" data-bs-touch="true" style="max-height: 845px;">
+{% if events %}
+    <div id="cardCarousel" class="carousel slide section" data-bs-theme="dark" data-bs-touch="true" style="padding:15px">
         <div class="carousel-inner">
             {% if events %}
-                {% for event_group in events|batch(3, ' ') %}
-                    <div class="carousel-item {% if loop.first %}active{% endif %}">
-                        <div class="row">
+                {% for event_group in events|batch(4, ' ') %}
+                    <div class="carousel-item card-group {% if loop.first %}active{% endif %}">
+                        <div class="row" style="justify-content: center;">
                             {% for event in event_group %}
                                 {% if event != ' ' %}
-                                    <div class="col-md-4">
+                                    <div class="col-md-2">
                                         <div class="card h-20" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
                                                 <img src="{{ url_for('static', filename='images/eventposter/' + event.uid|string ) }}" class="card-img-top" alt="...">
                                                 <div class="card-body">
@@ -155,4 +155,5 @@
             <span class="visually-hidden">Next</span>
         </button>
     </div>
+{% endif %}
 {% endblock %}

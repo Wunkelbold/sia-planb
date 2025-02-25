@@ -12,6 +12,9 @@ import secrets
 from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime
 
+def format_datetime(dt):
+    return dt.strftime('%d-%m-%Y %H:%M') if dt else None
+
 class Tables:
     class User(db.Model, UserMixin):
         __tablename__ = 'user'
@@ -90,8 +93,8 @@ class Tables:
                 "id": self.id,
                 "event": self.event,
                 "type": self.type,
-                "start": self.start,
-                "end": self.end,
+                "start": format_datetime(self.start),
+                "end": format_datetime(self.end),
                 "users": [duty.user_obj.username for duty in self.duty_rel if duty.user_obj]
             }
         

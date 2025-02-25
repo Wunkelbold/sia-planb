@@ -33,14 +33,9 @@
         </div>
         <div class="carousel-inner">
         <div class="carousel-item active">
-            <img src="{{ url_for('static', filename='images/slider/slider1.png') }}" class="d-block w-100" alt="...">
-            <div class="carousel-caption d-none d-md-block">
-            <h5>Das Plan B</h5>
-            <p>Poststraße 6, 72458 Albstadt hier befindet sich unsere Bar und Verein!</p>
-            </div>
-        </div>
-        <div class="carousel-item">
-            <img src="{{ url_for('static', filename='images/slider/slider2.png') }}" class="d-block w-100" alt="...">
+            <video class="img-fluid w-100" autoplay loop muted>
+                <source src="{{ url_for('static', filename='images/slider/kamerafahrt.mp4') }}" type="video/mp4" />
+            </video>
             <div class="carousel-caption d-none d-md-block">
             <h5>Gemeinschaft</h5>
             <p>Der soziale Ausgleich dem man im Leben braucht.</p>
@@ -60,6 +55,13 @@
             <p>Das Studium besteht nicht nur aus lernen, das Leben bietet mehr!</p>
             </div>
         </div>
+        <div class="carousel-item">
+            <img src="{{ url_for('static', filename='images/slider/slider1.png') }}" class="d-block w-100" alt="...">
+            <div class="carousel-caption d-none d-md-block">
+            <h5>Das Plan B</h5>
+            <p>Poststraße 6, 72458 Albstadt hier befindet sich unsere Bar und Verein!</p>
+            </div>
+        </div>
         </div>
         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -72,6 +74,12 @@
     </div>
 
     <style>
+
+        .carousel-item video {
+            width: 100%;
+            height: 70vh; /* Set video height to full viewport height */
+            object-fit: cover; /* Crop top & bottom while keeping full width */
+        }
 
         #cardCarousel .carousel-inner {
             display: block;

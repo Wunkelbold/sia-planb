@@ -364,12 +364,12 @@ def verein():
 
 @app.route('/static/images/eventposter/<filename>')
 def get_image(filename):
-    image_path = os.path.join(app.root_path, 'static', 'images', 'eventposter', filename)
+    image_path = os.path.join(current_app.root_path, 'static', 'images', 'eventposter', filename)
 
     if os.path.exists(image_path):
         return send_file(image_path)
     else:
-        default_path = os.path.join(app.root_path, 'static', 'images', 'eventposter', 'default.jpg')
+        default_path = os.path.join(current_app.root_path, 'static', 'images', 'eventposter', 'default.jpg')
         return send_file(default_path) 
     
 if __name__ == "__main__":

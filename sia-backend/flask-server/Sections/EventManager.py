@@ -16,9 +16,9 @@ def delete_event():
         uid = form.uid.data
         event = db.session.query(Tables.Event).filter_by(uid=uid).first()
         if event:
-            image_path = os.path.join(url_for('static', filename='images/eventposter/'), event.uid)
+            image_path = os.path.join(app.root_path, 'static', 'images', 'eventposter', 'default.jpg',event.uid)
             if os.path.exists(image_path):
-                os.remove(os.path.join(url_for('static', filename='images/eventposter/'), event.uid))
+                os.remove( os.path.join(app.root_path, 'static', 'images', 'eventposter', 'default.jpg',event.uid))
             db.session.delete(event)
             db.session.commit()
         return redirect(url_for('admin'))

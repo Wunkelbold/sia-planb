@@ -450,7 +450,11 @@ class Forms:
                     max=50,
                     message="Beschreibung darf maximal 50 Zeichen lang sein.")])
         date = DateTimeLocalField(
-            render_kw={"placeholder": "Datum"}, 
+            render_kw={"placeholder": "Start"}, 
+            validators=[
+                Optional()])
+        end = DateTimeLocalField(
+            render_kw={"placeholder": "Ende"}, 
             validators=[
                 Optional()])
         description = TextAreaField(
@@ -495,8 +499,12 @@ class Forms:
                     max=50,
                     message="Beschreibung darf maximal 50 Zeichen lang sein.")])
         date = DateTimeLocalField(
-            render_kw={"placeholder": "Datum"}, 
+            render_kw={"placeholder": "Start"}, 
             validators=[Optional()])
+        end = DateTimeLocalField(
+            render_kw={"placeholder": "Ende"}, 
+            validators=[
+                Optional()])
         description = TextAreaField(
             render_kw={"placeholder": "Beschreibung"}, 
             validators=[

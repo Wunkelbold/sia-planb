@@ -5,7 +5,7 @@ from flask_wtf.csrf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
 from http import HTTPStatus
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import wraps
 #-----FILES-----
 from database import Tables, init_database, init_roles, init_default_role
@@ -163,6 +163,7 @@ def admin():
             author = current_user.id,
             created = datetime.now(),
             date = form.date.data,
+            end = form.end.data,
             description = form.description.data #,
             #postername = current_user.username
         )
@@ -175,8 +176,19 @@ def admin():
 
     users = Tables.User.query.order_by(Tables.User.last_login.desc()).all()
     contacts = Tables.Contact.query.order_by(Tables.Contact.created.desc()).all() 
-    eventlist = Tables.Event.query.all()
+    timedelta12 = timedelta(days=10)
+    today = datetime.now(timezone.utc)
+    today -= timedelta12
+    all_flag = request.args.get('all', 'false')
+    if all_flag:
+        eventlist = Tables.Event.query.all()
+    else:
+        eventlist = Tables.Event.query.filter(Tables.Event.date >= today).order_by(Tables.Event.date.asc()).all()
+
     events = []
+
+    def format_datetime(dt):
+        return dt.strftime('%Y-%m-%d %H:%M') if dt else None
     
     for event in eventlist:
         authorname = (
@@ -188,7 +200,6 @@ def admin():
         )
         duty_count = db.session.query(Tables.Duty).join(Tables.Shift).filter(Tables.Shift.event == event.id).count()
         shift_count = Tables.Shift.query.filter_by(event=event.id).count()        
-
         events.append({
             "id": event.id,
             "name":event.name,
@@ -197,7 +208,8 @@ def admin():
             "visibility":event.visibility,
             "place":event.place,
             "created":event.created,
-            "date":event.date,
+            "date":format_datetime(event.date),
+            "end":format_datetime(event.end),
             "description":event.description,
             "duty_count": duty_count,
             "shift_count": shift_count
@@ -214,6 +226,10 @@ def admin():
     form_new_shift = Forms.newShiftForm()
     form_edit_user.role.choices = [(role.name, role.name) for role in roles] 
     return render_template('admin.html', title='Sia-PlanB.de', events=events, users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(), form_edit_user=form_edit_user, form_edit_event=form_edit_event, form_new_shift=form_new_shift)
+
+
+
+
 
 @app.route("/slider/<name>")
 def slider(name):

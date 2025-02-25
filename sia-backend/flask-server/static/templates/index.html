@@ -20,6 +20,8 @@
             height: auto;      /* Maintain aspect ratio */
             max-height: 600px; /* Limit image height */
         }
+
+   
     </style>
 
     <div id="carouselExampleCaptions" class="carousel slide section" data-bs-touch="true">
@@ -70,22 +72,36 @@
     </div>
 
     <style>
-        /* Make carousel items scroll vertically */
+
         #cardCarousel .carousel-inner {
-            max-height: 845px;
-            display: flex;
-            flex-direction: column;
-            height: auto; /* Adjust height as needed */
-            overflow-y: hidden;
+            display: block;
+            overflow: hidden;
         }
 
         #cardCarousel .carousel-item {
-            transition: transform 0.5s ease; /* Smooth scrolling */
-            max-height: auto;
-            max-width: auto;
+            display: flex; 
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.5s ease-in-out; 
         }
 
-        /* Control positioning for vertical alignment */
+        .carousel-item {
+            position: absolute;  
+            width: 100%;  
+            left: 0;
+            top: 0;
+            opacity: 0; 
+            transition: opacity 0.5s ease-in-out;
+
+        }
+
+        .carousel-item.active {
+            position: relative;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+
         .carousel-control-prev, .carousel-control-next {
             top: 50%;
             transform: translateY(-50%);
@@ -99,11 +115,11 @@
             height: 150px ;
             width: 150px;
         }
-        .col-md-4{
-            padding: 40px;
+        .col-md-2{
+            padding-bottom: 20px;
+            min-width: 250px;
         }
 
-        /* Smoother fade effect */
         .carousel-fade .carousel-item {
             opacity: 0;
             transition: opacity 1s ease-in-out;
@@ -113,17 +129,18 @@
             opacity: 1;
             transition: opacity 1s ease-in-out;
         }
+
     </style>
 {% if events %}
     <div id="cardCarousel" class="carousel slide section" data-bs-theme="dark" data-bs-touch="true" style="padding:15px">
         <div class="carousel-inner">
             {% if events %}
                 {% for event_group in events|batch(4, ' ') %}
-                    <div class="carousel-item card-group {% if loop.first %}active{% endif %}">
-                        <div class="row" style="justify-content: center;">
+                    <div class="carousel-item  {% if loop.first %}active{% endif %}">
+                        <div class="row " style="justify-content: center;">
                             {% for event in event_group %}
                                 {% if event != ' ' %}
-                                    <div class="col-md-2">
+                                    <div class="col-md-2 card-group">
                                         <div class="card h-20" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
                                                 <img src="{{ url_for('static', filename='images/eventposter/' + event.uid|string ) }}" class="card-img-top" alt="...">
                                                 <div class="card-body">

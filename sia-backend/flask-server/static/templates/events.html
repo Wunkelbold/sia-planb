@@ -33,7 +33,7 @@
                         </div>
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item">{{ event.place }}</li>
-                            <li class="list-group-item">{{ event.date }}</li>
+                            <li class="list-group-item">{{ event.date }}-{{ event.end }}</li>
                         </ul>
                         {% if current_user.is_authenticated and hasPermissions("events.help") %}
                         <div class="card-foot" style="margin: 5px;">

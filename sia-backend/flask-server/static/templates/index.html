@@ -131,7 +131,9 @@
         }
 
     </style>
+<div style="  display: flex; margin: 20px; justify-content: center; align-items: center;"><a href="{{url_for('events')}}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="true">Alle kommenden Events!</a></div>
 {% if events %}
+    
     <div id="cardCarousel" class="carousel slide section" data-bs-theme="dark" data-bs-touch="true" style="padding:15px">
         <div class="carousel-inner">
             {% if events %}

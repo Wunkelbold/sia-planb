@@ -55,6 +55,7 @@ class Tables:
         place = db.Column(db.String(50))
         created = db.Column(db.DateTime)
         date = db.Column(db.DateTime)
+        end = db.Column(db.DateTime)
         description = db.Column(db.String(200))
         postername = db.Column(db.String(50))
         shift_rel = db.relationship("Shift", cascade="all,delete", backref="Event", lazy="joined")

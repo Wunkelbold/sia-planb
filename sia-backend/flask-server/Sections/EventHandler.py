@@ -7,13 +7,24 @@ from forms import *
 from flask import current_app
 from datetime import timedelta, timezone
 
+
+def format_datetime(dt):
+    return dt.strftime('%Y-%m-%dT%H:%M') if dt else None
+
+def format_datetime_hr(dt):
+    return dt.strftime('%d.%m.%Y %H:%M') if dt else None
+
+def format_endtime(dt):
+    return dt.strftime('%H:%M') if dt else None
+
 def event_append(events,event,duty_count,shift_count):
     events.append({
         "id": event.id,
         "name":event.name,
         "uid": event.uid,
         "place":event.place,
-        "date":event.date,
+        "date":format_datetime_hr(event.date),
+        "end":format_endtime(event.end),
         "description":event.description,
         "duty_count": duty_count,
         "shift_count": shift_count
@@ -114,6 +125,10 @@ def apiUpdateEvent(eventid: int):
                     form.file.data.save(os.path.join(os.path.dirname(os.path.abspath(__file__)), current_app.root_path,"static", "images", "eventposter", str(event.id)))
             if form.date.data:
                 event.date = form.date.data
+            if form.end.data:
+                event.end = form.end.data
+            if form.end.data:
+                event.end = form.end.data
             db.session.commit()
             return jsonify({'success': True})
         else:
@@ -142,14 +157,14 @@ def apiGetEvent(eventid: int):
             Tables.Event.place,
             Tables.Event.created,
             Tables.Event.date,
+            Tables.Event.end,
             Tables.User.username,
         ).filter(Tables.Event.id == eventid).first()
 
         if not event:
             return Response(status=404)
 
-        def format_datetime(dt):
-            return dt.strftime('%Y-%m-%dT%H:%M') if dt else None
+
 
         # Serialize manually
         event_data = {
@@ -161,6 +176,7 @@ def apiGetEvent(eventid: int):
             "place": event.place,
             "created": format_datetime(event.created),
             "date": format_datetime(event.date),
+            "end": format_datetime(event.end),
             "username": event.username,
         }
 

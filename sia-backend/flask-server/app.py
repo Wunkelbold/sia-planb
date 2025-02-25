@@ -163,6 +163,7 @@ def admin():
             author = current_user.id,
             created = datetime.now(),
             date = form.date.data,
+            end = form.end.data,
             description = form.description.data #,
             #postername = current_user.username
         )
@@ -185,6 +186,9 @@ def admin():
         eventlist = Tables.Event.query.filter(Tables.Event.date >= today).order_by(Tables.Event.date.asc()).all()
 
     events = []
+
+    def format_datetime(dt):
+        return dt.strftime('%Y-%m-%d %H:%M') if dt else None
     
     for event in eventlist:
         authorname = (
@@ -204,7 +208,8 @@ def admin():
             "visibility":event.visibility,
             "place":event.place,
             "created":event.created,
-            "date":event.date,
+            "date":format_datetime(event.date),
+            "end":format_datetime(event.end),
             "description":event.description,
             "duty_count": duty_count,
             "shift_count": shift_count

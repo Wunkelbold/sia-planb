@@ -1,5 +1,5 @@
 from globals import *
-from flask import make_response, Response, flash, render_template, request, send_from_directory, url_for, redirect, jsonify, get_flashed_messages
+from flask import make_response, Response, flash, render_template, request, send_from_directory, url_for, redirect, jsonify, get_flashed_messages, send_file
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf.csrf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
@@ -15,6 +15,7 @@ from permissions import *
 #-----Load Sections-----
 
 import Sections.EventHandler as _
+from Sections.EventHandler import getAllEvents
 import Sections.UserManager as _
 import Sections.ContactManager as _
 import Sections.EventManager as _
@@ -176,6 +177,7 @@ def admin():
     contacts = Tables.Contact.query.order_by(Tables.Contact.created.desc()).all() 
     eventlist = Tables.Event.query.all()
     events = []
+    
     for event in eventlist:
         authorname = (
             Tables.Event.query
@@ -185,7 +187,8 @@ def admin():
             .scalar()
         )
         duty_count = db.session.query(Tables.Duty).join(Tables.Shift).filter(Tables.Shift.event == event.id).count()
-        shift_count = Tables.Shift.query.filter_by(event=event.id).count()
+        shift_count = Tables.Shift.query.filter_by(event=event.id).count()        
+
         events.append({
             "id": event.id,
             "name":event.name,
@@ -199,6 +202,7 @@ def admin():
             "duty_count": duty_count,
             "shift_count": shift_count
         })
+    
     '''
     events = Tables.Event.query.join(Tables.User, Tables.Event.author == Tables.User.id) \
         .with_entities(Tables.Event.id, Tables.Event.uid, Tables.Event.name, Tables.Event.visibility, Tables.Event.description, Tables.Event.place, Tables.Event.created, Tables.Event.date, Tables.User.username) \
@@ -221,8 +225,7 @@ def slider(name):
 
 @app.route("/",methods=['GET'])
 def index():
-    #events=Database.get_all_events() NICHT MEHR VERWENDEN
-    events = Tables.Event.query.with_entities(Tables.Event.name, Tables.Event.uid, Tables.Event.description, Tables.Event.place, Tables.Event.date).order_by(Tables.Event.created.desc()).all()
+    events=getAllEvents()
     return render_template('index.html', title='Sia-PlanB.de', events=events)
 
 @app.route("/contact", methods=['GET', 'POST'])
@@ -342,5 +345,16 @@ def profile():
 def verein():
     return render_template('verein.html', title='Verein')
 
+
+@app.route('/static/images/eventposter/<filename>')
+def get_image(filename):
+    image_path = os.path.join(app.root_path, 'static', 'images', 'eventposter', filename)
+
+    if os.path.exists(image_path):
+        return send_file(image_path)
+    else:
+        default_path = os.path.join(app.root_path, 'static', 'images', 'eventposter', 'default.jpg')
+        return send_file(default_path) 
+    
 if __name__ == "__main__":
     app.run(host='0.0.0.0')

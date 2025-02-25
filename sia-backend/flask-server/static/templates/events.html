@@ -20,11 +20,10 @@
         text-align: left;
     }
 </style>
-
+{% if events %}
 <div class="container" data-bs-theme="dark" style="margin: 100px auto 50px auto ;">
     <div class="row row-cols-1 row-cols-md-4 g-4">
-        {% if events %}
-            {% for event in events %} 
+            {% for event in events %}
                 <div class="col">
                     <div class="card h-100" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
                         <img src="{{ url_for('static', filename='images/eventposter/' + event.uid|string ) }}" class="card-img-top" alt="...">
@@ -36,7 +35,7 @@
                             <li class="list-group-item">{{ event.place }}</li>
                             <li class="list-group-item">{{ event.date }}</li>
                         </ul>
-                        {% if current_user.role == "Mitglied" or current_user.role == "Admin" or current_user.role == "Alumni" %}
+                        {% if current_user.is_authenticated and hasPermissions("events.help") %}
                         <div class="card-foot" style="margin: 5px;">
                             <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#JoinShiftModal" data-id="{{ event.id }}" data-id="event.name"> 
                                 Helfen
@@ -47,171 +46,173 @@
                     </div>
                 </div>
             {%endfor%} 
-        {% endif %}
+        
     </div>
 </div>
-{% if events %}
 {% else %}
     <h3>Gerade gibt es keine Events.</h3>
     {% include 'beer.html' %}
 {% endif %}
-<div class="modal fade" id="JoinShiftModal" tabindex="-1" aria-labelledby="JoinShiftModal" aria-hidden="true" data-bs-theme="dark" style="color:white;">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h1 class="modal-title fs-5" id="JoinShiftModalLabel">Bei Event helfen</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-        <input id="id-shift-modal-form-event-id" type="hidden" value="">
-            <table >
-            <tbody id="id-shift-modal-table">
-                <tr>
-                <th>Typ</th>
-                <th>Start</th>
-                <th>Ende</th>
-                <th>Eingetragene Nutzer</th>
-                </tr>
-            </tbody>
-            </table>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fertig</button>
-        </div>
-        </div>
-    </div>
-</div> 
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const CSRF = document.getElementById("CSRF").getAttribute("content");
-        const ShiftModal = document.getElementById("JoinShiftModal");
-        const idInput = document.getElementById("id-shift-modal-form-event-id");
-    
-        async function fetchShifts(eventId) {
-            const tableBody = document.getElementById("id-shift-modal-table");
-    
-            try {
-                const response = await fetch(`/api/events/event/${eventId}/getshifts`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                });
-    
-                const data = await response.json();
-                tableBody.innerHTML = `
+
+{% if current_user.is_authenticated and hasPermissions("events.help") %}
+    <div class="modal fade" id="JoinShiftModal" tabindex="-1" aria-labelledby="JoinShiftModal" aria-hidden="true" data-bs-theme="dark" style="color:white;">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="JoinShiftModalLabel">Bei Event helfen</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            <input id="id-shift-modal-form-event-id" type="hidden" value="">
+                <table >
+                <tbody id="id-shift-modal-table">
                     <tr>
-                        <th>Typ</th>
-                        <th>Start</th>
-                        <th>Ende</th>
-                        <th>Eingetragene Nutzer</th>
-                        <th></th>
+                    <th>Typ</th>
+                    <th>Start</th>
+                    <th>Ende</th>
+                    <th>Eingetragene Nutzer</th>
                     </tr>
-                `;
-    
-                if (data.error) {
-                    console.error(data.error);
-                    return;
-                }
-    
-                if (data.length === 0) {
-                    const row = document.createElement("tr");
-                    row.innerHTML = `<td colspan="5" class="text-center">Das Event besitzt keine Schichten bis jetzt</td>`;
-                    tableBody.appendChild(row);
-                } else {
-                    data.forEach((item) => {
-                        const row = document.createElement("tr");
-                        const usernames = item.users.length ? item.users.join(", ") : "-";
-                        row.innerHTML = `
-                            <td>${item.type}</td>
-                            <td>${item.start ?? "-"}</td>
-                            <td>${item.end ?? "-"}</td>
-                            <td>${usernames ?? "-"}</td>
-                            <td>
-                                <button class="join-btn btn btn-success" data-id="${item.id}" data-event-id="${eventId}">&#10003</button>
-                                <button class="leave-btn btn btn-danger" data-id="${item.id}" data-event-id="${eventId}">X</button>
-                            </td>
-                        `;
-                        tableBody.appendChild(row);
-                    });
-    
-                    document.querySelectorAll(".join-btn").forEach((button) => {
-                        button.addEventListener("click", async function () {
-                            const shiftId = this.getAttribute("data-id");
-                            const eventId = this.getAttribute("data-event-id");
-                            await joinShift(shiftId, this.closest("tr"), eventId);
-                        });
-                    });
-                    document.querySelectorAll(".leave-btn").forEach((button) => {
-                        button.addEventListener("click", async function () {
-                            const shiftId = this.getAttribute("data-id");
-                            const eventId = this.getAttribute("data-event-id");
-                            await leaveShift(shiftId, this.closest("tr"), eventId);
-                        });
-                    });
-                }
-            } catch (error) {
-                console.error("Fetch error:", error);
-            }
-        }
-    
-        async function joinShift(shiftId, rowElement, eventId) {
-            try {
-                const response = await fetch(`/api/events/event/joinshift/${shiftId}`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-Token": CSRF,
-                    },
-                });
-    
-                if (!response.ok) {
-                    throw new Error("Failed to join shift");
-                }
-    
-                const data = await response.json();
-                console.log("Shift Joined:", data);
-                rowElement.remove(); 
-    
-                await fetchShifts(eventId); 
-            } catch (error) {
-                console.error("Join error:", error);
-            }
-        }
-        async function leaveShift(shiftId, rowElement, eventId) {
-            try {
-                const response = await fetch(`/api/events/event/leaveshift/${shiftId}`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-Token": CSRF,
-                    },
-                });
-    
-                if (!response.ok) {
-                    throw new Error("Failed to leave shift");
-                }
-    
-                const data = await response.json();
-                console.log("Shift left:", data);
-                rowElement.remove(); 
-    
-                await fetchShifts(eventId); 
-            } catch (error) {
-                console.error("left error:", error);
-            }
-        }
-    
+                </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fertig</button>
+            </div>
+            </div>
+        </div>
+    </div> 
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const CSRF = document.getElementById("CSRF").getAttribute("content");
+            const ShiftModal = document.getElementById("JoinShiftModal");
+            const idInput = document.getElementById("id-shift-modal-form-event-id");
         
-    
-        ShiftModal.addEventListener("show.bs.modal", (event) => {
-            const button = event.relatedTarget;
-            const eventId = button.getAttribute("data-id");
-            idInput.value = eventId;
-    
-            fetchShifts(eventId);
+            async function fetchShifts(eventId) {
+                const tableBody = document.getElementById("id-shift-modal-table");
+        
+                try {
+                    const response = await fetch(`/api/events/event/${eventId}/getshifts`, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    });
+        
+                    const data = await response.json();
+                    tableBody.innerHTML = `
+                        <tr>
+                            <th>Typ</th>
+                            <th>Start</th>
+                            <th>Ende</th>
+                            <th>Eingetragene Nutzer</th>
+                            <th></th>
+                        </tr>
+                    `;
+        
+                    if (data.error) {
+                        console.error(data.error);
+                        return;
+                    }
+        
+                    if (data.length === 0) {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `<td colspan="5" class="text-center">Das Event besitzt keine Schichten bis jetzt</td>`;
+                        tableBody.appendChild(row);
+                    } else {
+                        data.forEach((item) => {
+                            const row = document.createElement("tr");
+                            const usernames = item.users.length ? item.users.join(", ") : "-";
+                            row.innerHTML = `
+                                <td>${item.type}</td>
+                                <td>${item.start ?? "-"}</td>
+                                <td>${item.end ?? "-"}</td>
+                                <td>${usernames ?? "-"}</td>
+                                <td>
+                                    <button class="join-btn btn btn-success" data-id="${item.id}" data-event-id="${eventId}">&#10003</button>
+                                    <button class="leave-btn btn btn-danger" data-id="${item.id}" data-event-id="${eventId}">X</button>
+                                </td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+        
+                        document.querySelectorAll(".join-btn").forEach((button) => {
+                            button.addEventListener("click", async function () {
+                                const shiftId = this.getAttribute("data-id");
+                                const eventId = this.getAttribute("data-event-id");
+                                await joinShift(shiftId, this.closest("tr"), eventId);
+                            });
+                        });
+                        document.querySelectorAll(".leave-btn").forEach((button) => {
+                            button.addEventListener("click", async function () {
+                                const shiftId = this.getAttribute("data-id");
+                                const eventId = this.getAttribute("data-event-id");
+                                await leaveShift(shiftId, this.closest("tr"), eventId);
+                            });
+                        });
+                    }
+                } catch (error) {
+                    console.error("Fetch error:", error);
+                }
+            }
+        
+            async function joinShift(shiftId, rowElement, eventId) {
+                try {
+                    const response = await fetch(`/api/events/event/joinshift/${shiftId}`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-Token": CSRF,
+                        },
+                    });
+        
+                    if (!response.ok) {
+                        throw new Error("Failed to join shift");
+                    }
+        
+                    const data = await response.json();
+                    console.log("Shift Joined:", data);
+                    rowElement.remove(); 
+        
+                    await fetchShifts(eventId); 
+                } catch (error) {
+                    console.error("Join error:", error);
+                }
+            }
+            async function leaveShift(shiftId, rowElement, eventId) {
+                try {
+                    const response = await fetch(`/api/events/event/leaveshift/${shiftId}`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-Token": CSRF,
+                        },
+                    });
+        
+                    if (!response.ok) {
+                        throw new Error("Failed to leave shift");
+                    }
+        
+                    const data = await response.json();
+                    console.log("Shift left:", data);
+                    rowElement.remove(); 
+        
+                    await fetchShifts(eventId); 
+                } catch (error) {
+                    console.error("left error:", error);
+                }
+            }
+        
+            
+        
+            ShiftModal.addEventListener("show.bs.modal", (event) => {
+                const button = event.relatedTarget;
+                const eventId = button.getAttribute("data-id");
+                idInput.value = eventId;
+        
+                fetchShifts(eventId);
+            });
         });
-    });
-</script> 
+    </script> 
+{% endif %}
 {% endblock %}
 

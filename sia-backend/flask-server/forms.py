@@ -439,7 +439,7 @@ class Forms:
                     message="Beschreibung darf maximal 50 Zeichen lang sein.")])
         visibility = SelectField(
             label="Sichtbarkeit",
-            choices=[("private","private"),("public","public")], 
+            choices=[("public","public"),("member","member"),("private","private")], 
             coerce=str, 
             render_kw={ "id": "visibility"})
         place = StringField(

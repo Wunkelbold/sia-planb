@@ -17,7 +17,10 @@
             <a class="nav-link" href="#hotlink_contact">Anfragen</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#hotlink_event_list">Eventliste</a>
+            <a class="nav-link" href="#hotlink_event_list">Events-aktuell</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin', all=True) }}">Events-alle</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#hotlink_event_create">Event erstellen</a>
@@ -447,7 +450,6 @@
 
     <!-- Eventliste -->
     <div id="hotlink_event_list">
-      <h3>Events</h3>
       <div class="table-container">
         <table class="table table-dark table-striped sortable" id="event-table">
             <thead>

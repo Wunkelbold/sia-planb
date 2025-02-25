@@ -5,6 +5,7 @@ from permissions import require_permissions, hasPermissions
 from database import *
 from forms import *
 from flask import current_app
+from datetime import timedelta, timezone
 
 def event_append(events,event,duty_count,shift_count):
     events.append({
@@ -20,7 +21,10 @@ def event_append(events,event,duty_count,shift_count):
     return events
 
 def getAllEvents() -> list[Tables.Event]:
-    event_list = Tables.Event.query.all()  # Fetch all events
+    td12 = timedelta(hours=12)
+    today = datetime.now(timezone.utc)
+    today -= td12
+    event_list = Tables.Event.query.filter(Tables.Event.date >= today).order_by(Tables.Event.date.asc()).all()
     event_data = []
     for event in event_list:
         duty_count = db.session.query(Tables.Duty).join(Tables.Shift).filter(Tables.Shift.event == event.id).count()

@@ -112,8 +112,8 @@
                                 <td>{{user.id}}</td>
                                 <td>{{user.username}}</td>
                                 <td>{{user.role}}</td>
-                                <td>{{user.hs_email}}</td>
-                                <td>{{user.email}}</td>
+                                <td {{ ('style="color:green;"' if user.hs_email_confirmed else '') | safe }}>{{user.hs_email}}</td>
+                                <td {{ ('style="color:green;"' if user.email_confirmed else '') | safe }}>{{user.email}}</td>
                                 {% if false %}
                                 <td>{{user.surname}}</td>
                                 <td>{{user.lastname}}</td>

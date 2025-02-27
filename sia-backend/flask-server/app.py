@@ -323,9 +323,11 @@ def profile():
         user.lastname = form.lastname.data
         if user.email != form.email.data:
             user.email_confirmed = False
+            user.email_cooldown = datetime.min
         user.email = form.email.data
         if user.hs_email != form.hs_email.data:
             user.hs_email_confirmed = False
+            user.hs_email_cooldown = datetime.min
         user.hs_email = form.hs_email.data
         user.street = form.street.data
         user.street_no = form.street_no.data

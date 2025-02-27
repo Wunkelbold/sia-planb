@@ -104,9 +104,9 @@ def verify_mail(uid,token):
                 return "Token Falsch. Schaue in den Spamordner, der neueste Token ist noch auf dem Weg oder verloren gegangen!"
         else:
             return "Diese E-Mail Adresse ist bereits bestätigt!"
+        flash(f"{user.email} Erfolgreich Verifiziert!")
     else:
         return "Link abgelaufen!"
-    flash(f"{current_user.email} Erfolgreich Verifiziert!")
     return redirect(url_for('profile'))
 
 @app.route("/verify_hs_mail/<uid>/<token>",methods=['GET'])
@@ -121,9 +121,9 @@ def verify_hs_mail(uid,token):
                 return "Token Falsch. Schaue in den Spamordner, der neueste Token ist noch auf dem Weg oder verloren gegangen!"
         else:
             return "Diese E-Mail Adresse ist bereits bestätigt!"
+        flash(f"{user.hs_email} Erfolgreich Verifiziert!")
     else:
         return "Link abgelaufen!"
-    flash(f"{current_user.hs_email} Erfolgreich Verifiziert!")
     return redirect(url_for('profile'))
 
 

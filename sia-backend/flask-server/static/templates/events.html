@@ -36,12 +36,33 @@
                             <li class="list-group-item">{{ event.date }}-{{ event.end }}</li>
                         </ul>
                         {% if current_user.is_authenticated and hasPermissions("events.help") %}
-                        <div class="card-foot" style="margin: 5px; justify-content: center;">
+                        <div class="card-foot" style="margin: 5px; align-items: center; display: flex;">
                             <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#JoinShiftModal" data-id="{{ event.id }}" data-id="event.name"> 
                                 Helfen
                             </button>
-                            &nbsp;{{ event.duty_count}}&nbsp;Helfer in&nbsp;{{ event.shift_count}} Schichten.
+                            &nbsp;{{ event.duty_count}}&nbsp;
+                            <!-- SVG Person -->
+                            <svg fill="#FFF" width="20px" height="20px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 15.503A5.041 5.041 0 1 0 16 5.42a5.041 5.041 0 0 0 0 10.083zm0 2.215c-6.703 0-11 3.699-11 5.5v3.363h22v-3.363c0-2.178-4.068-5.5-11-5.5z"/></svg>
+                             
+                             &nbsp;{{ event.shift_count}}&nbsp;
+                             <!--SVG Tasche-->
+                                <svg width="20px" height="20px" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                    <title>work-case-filled</title>
+                                    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                        <g id="work-case" fill="#FFF" transform="translate(42.666667, 64.000000)">
+                                            <path d="M1.20792265e-13,197.76 C54.5835501,218.995667 112.186031,231.452204 170.666667,234.666667 L170.666667,277.333333 L256,277.333333 L256,234.666667 C314.339546,231.013 371.833936,218.86731 426.666667,198.613333 L426.666667,362.666667 L1.20792265e-13,362.666667 L1.20792265e-13,197.76 Z M277.333333,-1.42108547e-14 L298.666667,21.3333333 L298.666667,64 L426.666667,64 L426.666667,175.146667 C361.254942,199.569074 292.110481,212.488551 222.293333,213.333333 L222.293333,213.333333 L206.933333,213.333333 C136.179047,212.568604 66.119345,199.278929 7.10542736e-15,174.08 L7.10542736e-15,174.08 L7.10542736e-15,64 L128,64 L128,21.3333333 L149.333333,-1.42108547e-14 L277.333333,-1.42108547e-14 Z M256,42.6666667 L170.666667,42.6666667 L170.666667,64 L256,64 L256,42.6666667 Z" id="Combined-Shape-Copy">
+                                
+                                </path>
+                                        </g>
+                                    </g>
+                                </svg>
+                            &nbsp;0/0&nbsp;   
+                            <!--SVG TASK-->
+                            <svg width="20px" height="20px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                                <path fill="#FFF" fill-rule="evenodd" d="M4,4 L9,4 C9.55228,4 10,3.55228 10,3 C10,2.44772 9.55228,2 9,2 L4,2 C2.89543,2 2,2.89543 2,4 L2,12 C2,13.1046 2.89543,14 4,14 L12,14 C13.1046,14 14,13.1046 14,12 L14,10 C14,9.44771 13.5523,9 13,9 C12.4477,9 12,9.44771 12,10 L12,12 L4,12 L4,4 Z M15.2071,2.29289 C14.8166,1.90237 14.1834,1.90237 13.7929,2.29289 L8.5,7.58579 L7.70711,6.79289 C7.31658,6.40237 6.68342,6.40237 6.29289,6.79289 C5.90237,7.18342 5.90237,7.81658 6.29289,8.20711 L7.79289,9.70711 C7.98043,9.89464 8.23478,10 8.5,10 C8.76522,10 9.01957,9.89464 9.20711,9.70711 L15.2071,3.70711 C15.5976,3.31658 15.5976,2.68342 15.2071,2.29289 Z"/>
+                              </svg>
                             {% if event.visibility == "private" %} 
+                                &nbsp;
                                 <svg
                                     width="25px"
                                     height="25px"
@@ -228,8 +249,8 @@
                                 <td>${item.end ?? "-"}</td>
                                 <td>${usernames ?? "-"}</td>
                                 <td>
-                                    <button class="join-btn btn btn-success" data-id="${item.id}" data-event-id="${eventId}">&#10003</button>
-                                    <button class="leave-btn btn btn-danger" data-id="${item.id}" data-event-id="${eventId}">X</button>
+                                    <button class="join-btn btn btn-success" data-id="${item.id}" data-event-id="${eventId}"><svg width="20px" height="20px" viewBox="0 0 24 24" id="_24x24_On_Light_Session-Join" data-name="24x24/On Light/Session-Join" xmlns="http://www.w3.org/2000/svg"><rect id="view-box" width="24" height="24" fill="none"/><path id="Shape" d="M5.75,17.5a.75.75,0,0,1,0-1.5h8.8A1.363,1.363,0,0,0,16,14.75v-12A1.363,1.363,0,0,0,14.55,1.5H5.75a.75.75,0,0,1,0-1.5h8.8A2.853,2.853,0,0,1,17.5,2.75v12A2.853,2.853,0,0,1,14.55,17.5ZM7.22,13.28a.75.75,0,0,1,0-1.061L9.939,9.5H.75A.75.75,0,0,1,.75,8H9.94L7.22,5.28A.75.75,0,0,1,8.28,4.22l4,4,.013.013.005.006.007.008.007.008,0,.005.008.009,0,0,.008.01,0,0,.008.011,0,0,.008.011,0,0,.008.011,0,0,.007.011,0,.005.006.01,0,.007,0,.008,0,.009,0,.006.006.011,0,0,.008.015h0a.751.751,0,0,1-.157.878L8.28,13.28a.75.75,0,0,1-1.06,0Z" transform="translate(3.25 3.25)" fill="#FFF"/></svg></button>
+                                    <button class="leave-btn btn btn-danger" data-id="${item.id}" data-event-id="${eventId}"><svg width="20px" height="20px" viewBox="0 0 24 24" id="_24x24_On_Light_Session-Leave" data-name="24x24/On Light/Session-Leave" xmlns="http://www.w3.org/2000/svg"><rect id="view-box" width="24" height="24" fill="none"/><path id="Shape" d="M2.95,17.5A2.853,2.853,0,0,1,0,14.75v-12A2.854,2.854,0,0,1,2.95,0h8.8a.75.75,0,0,1,0,1.5H2.95A1.362,1.362,0,0,0,1.5,2.75v12A1.363,1.363,0,0,0,2.95,16h8.8a.75.75,0,0,1,0,1.5Zm9.269-4.219a.751.751,0,0,1,0-1.061L14.939,9.5H5.75a.75.75,0,0,1,0-1.5h9.19L12.219,5.28A.75.75,0,1,1,13.28,4.22l4,4a.749.749,0,0,1,0,1.06l-4,4a.751.751,0,0,1-1.061,0Z" transform="translate(3.25 3.25)" fill="#FFF"/></svg></button>
                                 </td>
                             `;
                             tableBody.appendChild(row);

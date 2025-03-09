@@ -176,12 +176,12 @@ def admin():
 
     users = Tables.User.query.order_by(Tables.User.last_login.desc()).all()
     contacts = Tables.Contact.query.order_by(Tables.Contact.created.desc()).all() 
-    timedelta12 = timedelta(days=10)
+    timedelta12 = timedelta(days=1)
     today = datetime.now(timezone.utc)
     today -= timedelta12
-    all_flag = request.args.get('all', 'false')
+    all_flag = request.args.get('all')
     if all_flag:
-        eventlist = Tables.Event.query.all()
+        eventlist = Tables.Event.query.order_by(Tables.Event.date.asc()).all()
     else:
         eventlist = Tables.Event.query.filter(Tables.Event.date >= today).order_by(Tables.Event.date.asc()).all()
 

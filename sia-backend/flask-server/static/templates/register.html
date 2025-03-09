@@ -107,11 +107,8 @@ section {
       <div class="col-md-12">
         {{ captcha_html(captcha)|safe }}
       </div>
-      <div>
-        <p>
-          Falls du eine Email Adresse angibst, erklärst du dich damit einverstanden, dass wir dir eine einmalige E-mail zur Bestätigung senden!
-        </p>
-      </div>
+      <div class="col-md-1" style="margin:auto;">{{ form.privacy_policy }}</div>
+      <div class="col-md-11" style="margin:auto;">Ich akzeptiere die Verarbeitung meiner Daten nach der <a href="{{ url_for('datenschutz') }}">Datenschutzerklärung</a>.</div>
       <div class="col-12">
         {{ form.submit }}
       </div>

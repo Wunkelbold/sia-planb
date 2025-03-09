@@ -62,6 +62,7 @@
 <div style="display: flex; justify-content: center; align-items: center;" data-bs-theme="dark">
     <div class="card" style="width: 50rem; margin: 30px; padding: 15px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" data-bs-theme="dark">
     <h5 class="card-header">Kontaktanfrage</h5>
+        <div><br>Kritik/Lob kann auch anonym abgesendet werden!</div>
         <form class="row g-2" method="POST" action="/contact">
             {{ form.hidden_tag() }}
             <div class="col-md-2">{{ form.category }}</div>
@@ -69,19 +70,39 @@
             <div class="col-md-3">{{ form.lastname }}</div>
             <div class="col-md-12">{{ form.email }}</div>
             <div class="col-md-12">{{ form.message }}</div>
+            
             <div class="col-md-12">
                 {{ captcha_html(captcha)|safe }}
             </div>
+            <div class="col-md-1" style="margin:auto;">{{ form.privacy_policy }}</div>
+            <div class="col-md-11" style="margin:auto;">Ich akzeptiere die Verarbeitung meiner Daten nach der <a href="{{ url_for('datenschutz') }}">Datenschutzerklärung</a>.</div>
             <div class="col-md-12">{{ form.submit }}</div>
-            {% with messages = get_flashed_messages() %}
+            <div>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    <ul class="error-message-list">
+                        {% for message in messages %}
+                            <p class="error-message">{{ message|safe }}</p>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                {% endwith %}
+            </div>
+            <div>
                 {% if messages %}
-                <ul class="error-message-list">
-                    {% for message in messages %}
-                        <p class="error-message">{{ message|safe }}</p>
-                    {% endfor %}
-                </ul>
+                  <ul class="error-message-list">
+                      {% for field, message in messages.items() %}
+                        <li><strong>{{ field }}</strong>:
+                          <ul>
+                              {% for msg in message %}
+                                  <li>{{ msg }}</li>
+                              {% endfor %}
+                          </ul>
+                        </li>
+                      {% endfor %}
+                  </ul>
                 {% endif %}
-            {% endwith %}
+            </div>
         </form>
     </div>
 </div>

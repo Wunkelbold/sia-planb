@@ -1,4 +1,4 @@
-from wtforms import StringField, PasswordField, SubmitField, EmailField, IntegerField, SelectField, TextAreaField, DateField, HiddenField, DateTimeLocalField
+from wtforms import StringField, PasswordField, SubmitField, EmailField, IntegerField, SelectField, TextAreaField, DateField, HiddenField, DateTimeLocalField, BooleanField
 from wtforms.validators import InputRequired, Length, ValidationError, EqualTo, Email, Optional, Regexp, DataRequired, StopValidation
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileSize
@@ -10,13 +10,19 @@ class EmailRequiredIf(object):
         self.conditions = kwargs
 
     def __call__(self, form, field):
-        # Check if condition matches
-        for key, value in self.conditions.items():
+        for key, values in self.conditions.items():
             form_field = getattr(form, key)  # Get the related form field
-            if form_field.data == value and not field.data:  # If condition matches but field is empty
-                raise ValidationError(f"{field.label.text} muss angegeben werden wenn du {value} wählst.")
-            if form_field.data == value:
-                return
+
+            # Ensure values is iterable (tuple or list)
+            if not isinstance(values, (list, tuple)):
+                values = [values]
+
+            if form_field.data in values and not field.data:  # If condition matches but field is empty
+                raise ValidationError(f"{field.label.text} muss angegeben werden wenn du {', '.join(values)} wählst.")
+
+            if form_field.data in values:
+                return  # Validation passed
+            
             field.errors.clear()
             raise StopValidation
         
@@ -133,6 +139,10 @@ class Forms:
             choices=[],
             coerce=str,
             render_kw={"id": "inputRole"})
+        privacy_policy = BooleanField(
+            validators=[
+                InputRequired()]
+        )
 
     class LoginForm(FlaskForm):
         username = StringField(
@@ -397,7 +407,7 @@ class Forms:
         surname = StringField(
             render_kw={"placeholder": "Vorname"}, 
             validators=[
-                InputRequired(),
+                EmailRequiredIf(category=["kontakt","mieten","events"]),
                 Length(
                     min=0, 
                     max=20, 
@@ -405,7 +415,7 @@ class Forms:
         lastname = StringField(
             render_kw={"placeholder": "Nachname"}, 
             validators=[
-                InputRequired(),
+                EmailRequiredIf(category=["kontakt","mieten","events"]),
                 Length(
                     min=0, 
                     max=20, 
@@ -413,7 +423,7 @@ class Forms:
         email = StringField(
             render_kw={"placeholder": "Email"}, 
             validators=[
-                InputRequired(),
+                EmailRequiredIf(category=["kontakt","mieten","events"]),
                 Length(
                     min=0, 
                     max=30, 
@@ -427,6 +437,10 @@ class Forms:
                     min=20,
                     max=500,
                     message="Deine Nachricht muss zwischen 20 und 500 Zeichen lang sein")])
+        privacy_policy = BooleanField(
+            validators=[
+                InputRequired()]
+        )
         submit = SubmitField('Senden')
         
     class EventForm(FlaskForm):
@@ -453,7 +467,7 @@ class Forms:
             render_kw={"placeholder": "Start"}, 
             validators=[
                 Optional()])
-        end = DateTimeLocalField(
+        event_end = DateTimeLocalField(
             render_kw={"placeholder": "Ende"}, 
             validators=[
                 Optional()])
@@ -501,7 +515,7 @@ class Forms:
         date = DateTimeLocalField(
             render_kw={"placeholder": "Start"}, 
             validators=[Optional()])
-        end = DateTimeLocalField(
+        event_end = DateTimeLocalField(
             render_kw={"placeholder": "Ende"}, 
             validators=[
                 Optional()])
@@ -517,6 +531,7 @@ class Forms:
             validators = [
                 Optional(), 
                 FileSize(5 * 1024 * 1024,message="Uploadlimit 5mb und bitte Seitenverhältnis 1:1")])
+        move_shifts =  BooleanField(default="True")
         submit = SubmitField("Submit")
 
     class newShiftForm(FlaskForm):

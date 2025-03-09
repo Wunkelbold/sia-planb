@@ -180,7 +180,6 @@ def admin():
     today = datetime.now(timezone.utc)
     today -= timedelta12
     all_flag = request.args.get('all')
-    print(all_flag)
     if all_flag:
         eventlist = Tables.Event.query.order_by(Tables.Event.date.asc()).all()
     else:

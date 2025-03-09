@@ -20,14 +20,16 @@ def format_endtime(dt):
 def event_append(events,event,duty_count,shift_count):
     events.append({
         "id": event.id,
-        "name":event.name,
+        "name": event.name,
         "uid": event.uid,
-        "place":event.place,
-        "date":format_datetime_hr(event.date),
-        "end":format_endtime(event.end),
-        "description":event.description,
+        "place": event.place,
+        "visibility": event.visibility,
+        "date": format_datetime_hr(event.date),
+        "end": format_endtime(event.end),
+        "description": event.description,
         "duty_count": duty_count,
-        "shift_count": shift_count
+        "shift_count": shift_count,
+        "tasks": "0",
     })
     return events
 
@@ -124,11 +126,18 @@ def apiUpdateEvent(eventid: int):
                 if form.file.data:
                     form.file.data.save(os.path.join(os.path.dirname(os.path.abspath(__file__)), current_app.root_path,"static", "images", "eventposter", str(event.id)))
             if form.date.data:
+                if event.date != form.date.data and form.move_shifts.data:
+                    difference = form.date.data - event.date
+                    event.end += difference
+                    shifts = Tables.Shift.query.filter_by(event=event.id).all()
+                    for shift in shifts:
+                        shift.start += difference
+                        shift.end += difference
+                else:
+                    if form.event_end.data:
+                        event.end = form.event_end.data
                 event.date = form.date.data
-            if form.end.data:
-                event.end = form.end.data
-            if form.end.data:
-                event.end = form.end.data
+
             db.session.commit()
             return jsonify({'success': True})
         else:

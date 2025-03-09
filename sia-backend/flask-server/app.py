@@ -163,7 +163,7 @@ def admin():
             author = current_user.id,
             created = datetime.now(),
             date = form.date.data,
-            end = form.end.data,
+            end = form.event_end.data,
             description = form.description.data #,
             #postername = current_user.username
         )
@@ -265,14 +265,16 @@ def contact():
         else:
             flash("Captcha Falsch!",'error')
 
+
     if current_user.is_authenticated:
         if current_user.email: form.email.data=current_user.email
         if current_user.hs_email: form.email.data=current_user.hs_email #Prefer HS_Mail
         if current_user.surname: form.surname.data=current_user.surname 
         if current_user.lastname: form.lastname.data=current_user.lastname
         if current_user.hs_email: form.email.data=current_user.hs_email
+    messages=form.errors
     new_captcha_dict = SIMPLE_CAPTCHA.create()
-    return render_template('contact.html', title='Sia-PlanB.de', form=form, captcha=new_captcha_dict)
+    return render_template('contact.html', title='Sia-PlanB.de', form=form, messages=messages, captcha=new_captcha_dict)
         
 @app.route("/datenschutz",methods=['GET'])
 def datenschutz():
@@ -357,7 +359,7 @@ def profile():
         if current_user.postalcode: form.postalcode.data=current_user.postalcode 
         role=current_user.role if current_user.role else ""
     messages=form.errors
-    return render_template('profile.html', title='Sia-PlanB.de',form=form,role=role,messages=messages)
+    return render_template('profile.html', title='Sia-PlanB.de', form=form, role=role, messages=messages)
 
 @app.route("/verein",methods=['GET'])
 def verein():

@@ -463,7 +463,7 @@
                     <th>Beschreibung</th>
                     <th>Autor</th>
                     <th>Sichtbarkeit</th>
-                    <th>Helfer/Schicht</th>
+                    <th>Helfer | Schichten</th>
                     <th>Verwaltung</th>
                 </tr>
             </thead>
@@ -479,7 +479,7 @@
                             <td>{{ event.description }}</td> 
                             <td>{{ event.username }}</td> <!-- Aus SQL JOIN-->
                             <td>{{ event.visibility }}</td> 
-                            <td>{{ event.duty_count }}/{{ event.shift_count }}</td>
+                            <td>{{ event.duty_count }} | {{ event.shift_count }}</td>
                             <td>
                                 <div class="card-body">
                                   <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editEventModal" data-uid="{{ event.id }}"> <!-- HIER ID Aufgrund bestehender Infastruktur von MOPSKATER-->
@@ -553,7 +553,7 @@
               <th>Typ</th>
               <th>Start</th>
               <th>Ende</th>
-              <th>Eingetragene Nutzer</th>
+              <th>Eingetragene Helfer</th>
             </tr>
           </tbody>
         </table>
@@ -743,7 +743,13 @@ document.addEventListener("DOMContentLoaded", () => {
                       {{ form_edit_event.date }}
                     </div>
                     <div class="col-md-4">
-                      {{ form_edit_event.end }}
+                      {{ form_edit_event.event_end }}
+                    </div>
+                    <div class="col-md-1">
+                      {{ form_edit_event.move_shifts }}
+                    </div>
+                    <div class="col-md-11">
+                      Beim Ändern der Start-Uhrzeit alle Schichten + Eventende um die gleiche Differenz verschieben.
                     </div>
                     <div class="col-md-4">
                       {{ form_edit_event.place }}
@@ -786,7 +792,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     visibility: document.querySelector('input[name="visibility"]'),
                     place: document.querySelector('input[name="place"]'),
                     date: document.querySelector('input[name="date"]'),
-                    end: document.querySelector('input[name="end"]'),
+                    end: document.querySelector('input[name="event_end"]'),
                     description: document.querySelector('textarea[name="description"]'),
                     author: document.getElementById('event_author'),
                     created: document.getElementById('event_created'),
@@ -900,7 +906,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 {{ form.date() }}
               </div>
               <div class="col-md-2">
-                {{ form.end() }}
+                {{ form.event_end() }}
               </div>
               <div class="col-md-2">
                 {{ form.visibility() }}

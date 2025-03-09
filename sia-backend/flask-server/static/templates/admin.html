@@ -34,6 +34,12 @@
 
 {% block content %}
 <style>
+    @media screen and (max-width: 768px) {
+        .hide-on-mobile {
+            display: none;
+        }
+    }
+
     section {
         padding: 20px;
     }
@@ -91,17 +97,17 @@
             <table class="table table-dark table-striped sortable" id="user-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th class="hide-on-mobile" >ID</th>
                         <th>Benutzername</th>
                         <th>Rolle</th>
-                        <th>HS E-mail</th>
-                        <th>E-mail</th>
+                        <th class="hide-on-mobile">HS E-mail</th>
+                        <th class="hide-on-mobile">E-mail</th>
                         <th>Vorname</th>
                         <th>Nachname</th>
-                        <th>Straße</th>
-                        <th>Nr.</th>
-                        <th>Stadt</th>
-                        <th>PLZ</th>
+                        <th class="hide-on-mobile">Straße</th>
+                        <th class="hide-on-mobile">Nr.</th>
+                        <th class="hide-on-mobile">Stadt</th>
+                        <th class="hide-on-mobile">PLZ</th>
                         <th>Verwaltung</th>
                     </tr>
                 </thead>
@@ -109,11 +115,11 @@
                     {% if users %}
                         {% for user in users %}
                             <tr>
-                                <td>{{user.id}}</td>
+                                <td class="hide-on-mobile">{{user.id}}</td>
                                 <td>{{user.username}}</td>
                                 <td>{{user.role}}</td>
-                                <td {{ ('style="color:green;"' if user.hs_email_confirmed else '') | safe }}>{{user.hs_email}}</td>
-                                <td {{ ('style="color:green;"' if user.email_confirmed else '') | safe }}>{{user.email}}</td>
+                                <td class="hide-on-mobile" {{ ('style="color:green;"' if user.hs_email_confirmed else '') | safe }}>{{user.hs_email}}</td>
+                                <td class="hide-on-mobile" {{ ('style="color:green;"' if user.email_confirmed else '') | safe }}>{{user.email}}</td>
                                 {% if false %}
                                 <td>{{user.surname}}</td>
                                 <td>{{user.lastname}}</td>
@@ -124,10 +130,10 @@
                                 {% else %}
                                 <td>{{user.surname}}</td>
                                 <td>{{user.lastname}}</td>
-                                <td>****</td>
-                                <td>****</td>
-                                <td>****</td>
-                                <td>****</td>
+                                <td class="hide-on-mobile">****</td>
+                                <td class="hide-on-mobile">****</td>
+                                <td class="hide-on-mobile">****</td>
+                                <td class="hide-on-mobile">****</td>
                                 {% endif %}
                                 <td>
                                     <div class="card-body">
@@ -483,13 +489,13 @@
         <table class="table table-dark table-striped sortable" id="event-table">
             <thead>
                 <tr data-sort-method="none">
-                    <th>id</th>
+                    <th class="hide-on-mobile">id</th>
                     <th>Name</th>
                     <th>Ort</th>
                     <th>Start</th>
                     <th>Ende</th>
                     <th>Beschreibung</th>
-                    <th>Autor</th>
+                    <th class="hide-on-mobile">Autor</th>
                     <th>Sichtbarkeit</th>
                     <th>Einsätze | Schichten</th>
                     <th>Verwaltung</th>
@@ -499,13 +505,13 @@
                 {% if events %}
                     {% for event in events %}
                         <tr data-uid="{{ event.uid }}">
-                            <td>{{ event.id }}</td>
+                            <td class="hide-on-mobile">{{ event.id }}</td>
                             <td>{{ event.name }}</td>
                             <td>{{ event.place }}</td>
                             <td>{{ event.date }}</td>
                             <td>{{ event.end }}</td>     
                             <td>{{ event.description }}</td> 
-                            <td>{{ event.username }}</td> <!-- Aus SQL JOIN-->
+                            <td class="hide-on-mobile" >{{ event.username }}</td> <!-- Aus SQL JOIN-->
                             <td>{{ event.visibility }}</td> 
                             <td>{{ event.duty_count }} | {{ event.shift_count }}</td>
                             <td>

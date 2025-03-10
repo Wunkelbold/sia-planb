@@ -297,8 +297,8 @@ def newsletter():
 def profile():
     form = Forms.ChangeData()
     public_roles = Tables.Role.query.filter_by(selectable_on_register="yes").all()
-    if current_user.role == "Admin":
-        public_roles = Tables.Role.query.all()
+    user_role = Tables.Role.query.filter_by(name=current_user.role).first()
+    public_roles.append(user_role)
     form.role.choices = [(role.name, role.name) for role in public_roles]
     user = db.session.query(Tables.User).filter_by(username=current_user.username).first()
     if request.method == "POST" and form.validate_on_submit():

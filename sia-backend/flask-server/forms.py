@@ -550,5 +550,57 @@ class Forms:
             validators=[Optional()])
         submit = SubmitField("Submit")
 
+    class newRegistration(FlaskForm):
+        RegistrationName = StringField(
+            render_kw={"placeholder": "Schichtbezeichnung"}, 
+            validators=[
+                InputRequired(), 
+                Length(
+                    max=30,
+                    message="Name darf maximal 30 Zeichen lang sein.")])
+        RegistrationStart = DateTimeLocalField(
+            render_kw={"placeholder": "Start"}, 
+            validators=[Optional()])
+        RegistrationEnd = DateTimeLocalField(
+            render_kw={"placeholder": "Ende"}, 
+            validators=[Optional()])
+        RegistrationVisibility = SelectField(
+            label="Sichtbarkeit",
+            choices=[("public","public"),("member","member"),("private","private")], 
+            coerce=str, 
+            render_kw={ "id": "visibility"})
+        RegistrationAccept = SelectField(
+            label="Sichtbarkeit",
+            choices=[("True","Annehmen"),("False","Verweigern")], 
+            coerce=str, 
+            render_kw={ "id": "visibility"})
+        RegistrationSubmit = SubmitField("Submit")
+        
+    class updateRegistration(FlaskForm):
+        updateName = StringField(
+            render_kw={"placeholder": "Name für Anmeldung"}, 
+            validators=[
+                InputRequired(), 
+                Length(
+                    max=30,
+                    message="Name darf maximal 30 Zeichen lang sein.")])
+        updateRegistrationStart = DateTimeLocalField(
+            render_kw={"placeholder": "Start"}, 
+            validators=[Optional()])
+        updateRegistrationEnd = DateTimeLocalField(
+            render_kw={"placeholder": "Ende"}, 
+            validators=[Optional()])
+        updateRegistrationVisibility = SelectField(
+            label="Sichtbarkeit",
+            choices=[("public","public"),("member","member"),("private","private")], 
+            coerce=str, 
+            render_kw={ "id": "updateRegistrationVisibility"})
+        updateRegistrationAccept = SelectField(
+            label="Anmeldungen akzeptieren",
+            choices=[("True","Annehmen"),("False","Verweigern")], 
+            coerce=str, 
+            render_kw={ "id": "updateRegistrationAccept"})
+        updateRegistrationSubmit = SubmitField("Submit")
+
 
 

@@ -116,6 +116,36 @@ class Tables:
         message = db.Column(db.String(500))
         created = db.Column(db.TEXT)
 
+    class RegisterManager(db.Model):
+        __tablename__ = 'registermanager'
+        id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+        name = db.Column(db.String(30))
+        visibility = db.Column(db.String(10))
+        accept = db.Column(db.Boolean)
+        start = db.Column(db.DateTime)
+        end = db.Column(db.DateTime)
+        eventFK = db.Column(db.Integer, db.ForeignKey("events.id", ondelete="CASCADE"))
+
+        def getDict(self):
+            return {
+                "rmID": self.id,
+                "name": self.name,
+                "visibility": self.visibility,
+                "accept": self.accept,
+                "start": format_datetime(self.start),
+                "end": format_datetime(self.end),
+                "eventFK": self.eventFK,
+            }
+
+    class Registration(db.Model):
+        __tablename__ = 'registration'
+        registrationsID = db.Column(db.Integer, primary_key=True, autoincrement=True)
+        userFK = db.Column(db.Integer, db.ForeignKey("user.id", ondelete="CASCADE"))
+        rmFK = db.Column(db.Integer, db.ForeignKey("registermanager.id", ondelete="CASCADE"))
+        teamname = db.Column(db.String(30))
+
+
+
     
 def init_database():
     if os.getenv("DROP_AND_CREATE_DATABASE")=="true": #TODO für dev einmalig mit if os.getenv("DROP_AND_CREATE_DATABASE","true")=="true": ausführen

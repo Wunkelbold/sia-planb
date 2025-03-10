@@ -134,8 +134,12 @@ def init_roles():
         with open(roles_path, "r") as f:
             roles = json.load(f)
             for name, perm in roles.get("public").items():
-                if Tables.Role.query.filter_by(name=name).first():
-                    print(f"--- role '{name}' already exists and was skipped ---")
+                role = Tables.Role.query.filter_by(name=name).first()
+                if role:
+                    role.name=name
+                    role.permissions=permissions
+                    role.selectable_on_register="yes"
+                    print(f"--- role '{name}' already exists permission update---")
                 else:
                     permissions = perm if perm else []
                     new_role = Tables.Role(name=name, permissions=permissions, selectable_on_register="yes")
@@ -143,7 +147,11 @@ def init_roles():
                     print(f"--- role '{name}' initialized ---")
             
             for name, perm in roles.get("private").items():
-                if Tables.Role.query.filter_by(name=name).first():
+                role = Tables.Role.query.filter_by(name=name).first()
+                if role:
+                    role.name=name
+                    role.permissions=permissions
+                    role.selectable_on_register="no"
                     print(f"--- role '{name}' already exists and was skipped ---")
                 else:
                     permissions = perm if perm else [] 

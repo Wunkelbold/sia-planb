@@ -126,13 +126,16 @@ def apiUpdateEvent(eventid: int):
                 if form.file.data:
                     form.file.data.save(os.path.join(os.path.dirname(os.path.abspath(__file__)), current_app.root_path,"static", "images", "eventposter", str(event.id)))
             if form.date.data:
-                if event.date != form.date.data and form.move_shifts.data:
+                if event.date != form.date.data and form.move_shifts.data and event.date:
                     difference = form.date.data - event.date
-                    event.end += difference
+                    if event.end:
+                        event.end += difference
                     shifts = Tables.Shift.query.filter_by(event=event.id).all()
                     for shift in shifts:
-                        shift.start += difference
-                        shift.end += difference
+                        if shift.start:
+                            shift.start += difference
+                        if shift.end:
+                            shift.end += difference
                 else:
                     if form.event_end.data:
                         event.end = form.event_end.data

@@ -18,7 +18,7 @@ def format_datetime_hr(dt):
 def format_endtime(dt):
     return dt.strftime('%H:%M') if dt else None
 
-def event_append(events,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,registrations):
+def event_append(events,event,duty_count,shift_count,individuals_count,personal_count, registrationManager, show_register_button):
     events.append({
         "id": event.id,
         "name": event.name,
@@ -31,8 +31,10 @@ def event_append(events,event,duty_count,shift_count,individuals_count,personal_
         "duty_count": duty_count,
         "shift_count": shift_count,
         "tasks": "0",
-        "individuals_count":individuals_count,
-        "personal_count":personal_count,
+        "individuals_count": individuals_count,
+        "personal_count": personal_count,
+        "registrationManager": registrationManager,
+        "show_register_button": show_register_button,
     })
     return events
 
@@ -46,6 +48,10 @@ def getAllEvents() -> list[Tables.Event]:
         duty_count = db.session.query(Tables.Duty).join(Tables.Shift).filter(Tables.Shift.event == event.id).count()
         shift_count = Tables.Shift.query.filter_by(event=event.id).count()
         registrationManager = Tables.RegisterManager.query.filter_by(eventFK=event.id).first()
+
+        show_register_button = False
+        for rm in registrationManager:
+            if registrationManager
 
         individuals_count = (
             db.session.query(func.count(func.distinct(Tables.Duty.user)))
@@ -68,11 +74,11 @@ def getAllEvents() -> list[Tables.Event]:
             registrations=None
 
         if event.visibility=="public": 
-            event_append(event_data,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,registrations)
+            event_append(event_data,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,show_register_button)
         if event.visibility=="member" and hasPermissions("events.member"):
-            event_append(event_data,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,registrations)
+            event_append(event_data,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,show_register_button)
         if event.visibility=="private" and hasPermissions("events.private"):
-            event_append(event_data,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,registrations)
+            event_append(event_data,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,show_register_button)
     return event_data
 
 

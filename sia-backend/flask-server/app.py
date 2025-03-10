@@ -147,6 +147,7 @@ def logout():
 def admin():
     submitted=False
     form = Forms.EventForm()
+    form_new_registration = Forms.newRegistration()
 
     if form.is_submitted():
         if not hasPermissions("events.create"):
@@ -225,7 +226,7 @@ def admin():
     form_edit_event=Forms.ChangeEventForm()
     form_new_shift = Forms.newShiftForm()
     form_edit_user.role.choices = [(role.name, role.name) for role in roles] 
-    return render_template('admin.html', title='Sia-PlanB.de', events=events, users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(), form_edit_user=form_edit_user, form_edit_event=form_edit_event, form_new_shift=form_new_shift)
+    return render_template('admin.html', title='Sia-PlanB.de', events=events, users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(), form_edit_user=form_edit_user, form_edit_event=form_edit_event, form_new_shift=form_new_shift,form_new_registration=form_new_registration)
 
 
 

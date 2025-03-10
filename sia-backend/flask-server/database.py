@@ -125,24 +125,27 @@ class Tables:
         start = db.Column(db.DateTime)
         end = db.Column(db.DateTime)
         eventFK = db.Column(db.Integer, db.ForeignKey("events.id", ondelete="CASCADE"))
+        registration_rel = db.relationship("Registration", cascade="all,delete", backref="RegisterManaer", lazy="joined")
 
         def getDict(self):
             return {
                 "rmID": self.id,
                 "name": self.name,
                 "visibility": self.visibility,
-                "accept": self.accept,
+                "accept": "geöffnet" if self.accept else "geschlossen" ,
                 "start": format_datetime(self.start),
                 "end": format_datetime(self.end),
                 "eventFK": self.eventFK,
+                "users": [registration.user_obj.username for registration in self.registration_rel if registration.user_obj]
             }
 
     class Registration(db.Model):
         __tablename__ = 'registration'
-        registrationsID = db.Column(db.Integer, primary_key=True, autoincrement=True)
+        id = db.Column(db.Integer, primary_key=True, autoincrement=True)
         userFK = db.Column(db.Integer, db.ForeignKey("user.id", ondelete="CASCADE"))
         rmFK = db.Column(db.Integer, db.ForeignKey("registermanager.id", ondelete="CASCADE"))
         teamname = db.Column(db.String(30))
+        user_obj = db.relationship("User", backref="registration", lazy="joined")
 
 
 

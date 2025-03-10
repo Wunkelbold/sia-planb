@@ -552,7 +552,7 @@ class Forms:
 
     class newRegistration(FlaskForm):
         RegistrationName = StringField(
-            render_kw={"placeholder": "Schichtbezeichnung"}, 
+            render_kw={"placeholder": "Name der Anmeldung"}, 
             validators=[
                 InputRequired(), 
                 Length(
@@ -568,12 +568,12 @@ class Forms:
             label="Sichtbarkeit",
             choices=[("public","public"),("member","member"),("private","private")], 
             coerce=str, 
-            render_kw={ "id": "visibility"})
+            render_kw={ "id": "RegistrationVisibility"})
         RegistrationAccept = SelectField(
             label="Sichtbarkeit",
             choices=[("True","Annehmen"),("False","Verweigern")], 
             coerce=str, 
-            render_kw={ "id": "visibility"})
+            render_kw={ "id": "RegistrationAccept"})
         RegistrationSubmit = SubmitField("Submit")
         
     class updateRegistration(FlaskForm):

@@ -18,7 +18,7 @@ def format_datetime_hr(dt):
 def format_endtime(dt):
     return dt.strftime('%H:%M') if dt else None
 
-def event_append(events,event,duty_count,shift_count,individuals_count,personal_count):
+def event_append(events,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,registrations):
     events.append({
         "id": event.id,
         "name": event.name,
@@ -61,7 +61,8 @@ def getAllEvents() -> list[Tables.Event]:
                 .filter(Tables.Duty.user == current_user.id)
                 .scalar()
             )
-            registrations = Tables.Registration.query.filter_by(rmFK=registrationManager.rmFK,userFK=current_user.id).first()
+        if current_user.is_authenticated and registrationManager:
+            registrations = Tables.Registration.query.filter_by(rmFK=registrationManager.id,userFK=current_user.id).first()
         else:
             personal_count=None
             registrations=None
@@ -190,13 +191,13 @@ _____            _     _             _   _
 def apiNewRM(eventid: int):
     if hasPermissions(f"/api/events/event/{eventid}/newRM"):
         form = Forms.newRegistration()
-        event = Tables.RegisterManager.query.filter_by(id=eventid).first_or_404()
+        event = Tables.Event.query.filter_by(id=eventid).first()
         if event:
             if form.RegistrationAccept.data == "True":
                 vis = True
             else:
                 vis = False
-            new_RM = Tables.Shift(
+            new_RM = Tables.RegisterManager(
                 eventFK = event.id,
                 name = form.RegistrationName.data,
                 start = form.RegistrationStart.data ,
@@ -210,11 +211,11 @@ def apiNewRM(eventid: int):
     else:
         return jsonify({'success': False, 'message': "Dir fehlt die Berechtigung!"})
 
-@app.route("/api/events/event/<int:eventid>/getRM", methods=['POST'])
+@app.route("/api/events/event/<int:eventid>/getRM", methods=['GET'])
 @require_permissions("events.newRM")
 def apiGetRM(eventid: int):
     if hasPermissions(f"/api/events/event/{eventid}/getRM"):
-        registerManager = Tables.RegisterManager.query.filter_by(event=eventid).all()
+        registerManager = Tables.RegisterManager.query.filter_by(eventFK=eventid).all()
         if registerManager:
             return jsonify([RM.getDict() for RM in registerManager])
         else:
@@ -252,7 +253,7 @@ def apiRegisterEvent(eventid: int, rmID: int):
     if not registerManager:
         return jsonify({'success': False, 'errors': ["Keine Registrierung vorgesehen!"]}), 404
     
-    existing_registration = Tables.Registration.query.filter_by(rmFK=registerManager.rmFK, userFK=current_user.id).first()
+    existing_registration = Tables.Registration.query.filter_by(rmFK=registerManager.id, userFK=current_user.id).first()
     if existing_registration:
         return jsonify({'success': False, 'errors': [f"Bereits angemeldet!"]})
    
@@ -300,7 +301,7 @@ def apiUnregisterEvent(eventid: int, rmID: int):
     if not registerManager:
         return jsonify({'success': False, 'errors': ["Die Abmeldung war nicht möglich, da keine Registrierung (mehr) für das Event existiert!"]}), 404
     
-    existing_registration = Tables.Registration.query.filter_by(rmFK=registerManager.rmFK, userFK=current_user.id).first()
+    existing_registration = Tables.Registration.query.filter_by(rmFK=registerManager.id, userFK=current_user.id).first()
     if not existing_registration:
         return jsonify({'success': False, 'errors': [f"Du warst nie angemeldet!"]})
     

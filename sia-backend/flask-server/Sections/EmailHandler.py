@@ -39,7 +39,7 @@ def update_mail_user(email, password):
     except subprocess.CalledProcessError as e:
         print(f"Error generating password hash: {e.stderr}")
 
-def send_mail(email):
+def send_mail(app, email: Message, ):
     retcode = 0
     try:
         mail.send(email)

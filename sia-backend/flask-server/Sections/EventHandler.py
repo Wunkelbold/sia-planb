@@ -13,7 +13,9 @@ def format_datetime(dt):
     return dt.strftime('%Y-%m-%d %H:%M') if dt else None
 
 def format_datetime_hr(dt):
-    return dt.strftime('%d.%m.%Y %H:%M') if dt else None
+    local_tz = ZoneInfo("Europe/Berlin")
+    locale.setlocale(locale.LC_ALL, 'de_DE.utf8')
+    return dt.replace(tzinfo=local_tz).strftime('%a, %d/%m/%y %H:%M') if dt else None
 
 def format_endtime(dt):
     return dt.strftime('%H:%M') if dt else None

@@ -22,6 +22,8 @@ class EmailRequiredIf(object):
 
             if form_field.data in values:
                 return  # Validation passed
+            
+            StopValidation
         
 class Forms:
     class RegisterForm(FlaskForm):
@@ -86,7 +88,7 @@ class Forms:
                 Regexp(
                     ".+@hs-albsig\.de", 
                     message="Deine Email scheint keine HS-Email zu sein XXXXXXXXX@hs-albsig.de."),
-                EmailRequiredIf(role="Student"),
+                Optional(),
                 Length(
                     min=0, 
                     max=30, 
@@ -224,7 +226,6 @@ class Forms:
         hs_email = EmailField(
             render_kw={"placeholder": "Hochschul-Email (Nur als Student)"}, 
             validators=[
-                EmailRequiredIf(role="Student"),
                 Optional(),
                 Length(
                     min=0, 
@@ -340,7 +341,7 @@ class Forms:
         hs_email = EmailField(
             render_kw={"placeholder": "Hochschul-Email (Nur als Student)"}, 
             validators=[
-                EmailRequiredIf(role="Student"),
+                Optional(),
                 Length(
                     min=0, 
                     max=30, 

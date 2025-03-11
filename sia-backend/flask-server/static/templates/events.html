@@ -33,7 +33,7 @@
                         </div>
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item">{{ event.place }}</li>
-                            <li class="list-group-item">{{ event.date }}-{{ event.end }}</li>
+                            <li class="list-group-item">{{ event.date }} - {% if event.end %}{{ event.end }}{% else %} OpenEnd {% endif %}</li>
                         </ul>
                         {% if current_user.is_authenticated and hasPermissions("events.help") or current_user.is_authenticated and events.registrationManager %}
                         <div class="card-foot" style="margin: 5px; align-items: center; display: flex; flex-wrap: wrap;">
@@ -171,10 +171,11 @@
                                         <button style="margin:2px;" type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#JoinShiftModal" data-id="{{ event.id }}" data-id="event.name">
                                             Helfen
                                         </button>
-                                    {% else %}
+                                    {% elif event.shift_count  %}
                                         <button style="margin:2px;" type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#JoinShiftModal" data-id="{{ event.id }}" data-id="event.name">
                                             Helfen
                                         </button>
+                                    {% else %}  
                                     {% endif%}
                                 {% endif%}
     

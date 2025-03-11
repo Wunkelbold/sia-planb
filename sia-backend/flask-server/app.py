@@ -103,7 +103,11 @@ def register():
                             db.session.add(new_user)
                             db.session.commit()
                             login_user(new_user)
-                            verify_email(new_user)
+                            try:
+                                verify_email(new_user)
+                            except:
+                                flash("Der Maildienst hat gerade keine Lust deine Mail zu verifizieren :(")
+                                app.logger.info('%s failed to verify email', new_user.username)
                             return redirect(url_for('index'))
                         else:
                             flash('Nice Try!', 'error')
@@ -348,11 +352,12 @@ def profile():
             user.role = form.role.data
         user.last_updated = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         db.session.commit()
-        flash(f"Deine Daten wurden erfolgreich abgespeichert! {datetime.now().strftime('%H:%M')}", 'info')
+        flash(f"Deine Daten wurden erfolgreich abgespeichert! {datetime.now().astimezone(local_tz).strftime('%H:%M')}", 'info')
         try:
             verify_email(current_user)
         except:
-            flash("404 Mailserver")
+            flash("Der Maildienst hat gerade keine Lust deine Mail zu verifizieren :(")
+            app.logger.info('%s failed to verify email', current_user.username)
     if current_user.is_authenticated: #eigentlich unnötig da Profile nicht sichtbar ist für Anonyme User
         if current_user.username: form.username.data=current_user.username 
         form.password.data=""

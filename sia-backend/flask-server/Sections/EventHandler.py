@@ -87,6 +87,7 @@ def getAllEvents() -> list[Tables.Event]:
         else:
             personal_count = 0
             individuals_count = 0
+            personal_registration = 0
 
         if event.visibility=="public": 
             event_append(event_data,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,show_register_button,personal_registration)

@@ -288,14 +288,14 @@ def apiRegisterEvent(eventid: int, rmID: int):
     if registerManager:
         vis = registerManager.visibility
         rmID = registerManager.id
+        if not registerManager:
+                return jsonify({'success': False, 'errors': ["Keine Registrierung vorgesehen!"]}), 404
+        existing_registration = Tables.Registration.query.filter_by(rmFK=registerManager.id, userFK=current_user.id).first()
+        if existing_registration:
+            return jsonify({'success': False, 'errors': [f"Bereits angemeldet!"]})
         if registerManager.accept == "Zeitraum":
             local_tz = ZoneInfo("Europe/Berlin")
             current_time = datetime.now(timezone.utc)
-            if not registerManager:
-                return jsonify({'success': False, 'errors': ["Keine Registrierung vorgesehen!"]}), 404
-            existing_registration = Tables.Registration.query.filter_by(rmFK=registerManager.id, userFK=current_user.id).first()
-            if existing_registration:
-                return jsonify({'success': False, 'errors': [f"Bereits angemeldet!"]})
             if registerManager.start:
                 register_start_local = registerManager.start.replace(tzinfo=local_tz)  
                 register_start_utc = register_start_local.astimezone(timezone.utc)

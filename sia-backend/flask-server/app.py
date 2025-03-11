@@ -80,34 +80,39 @@ def register():
                         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
                         if form.role.data in [role.name for role in public_roles]: #ansonsten kann der user "admin" außerhalb der Form pushen und ich ´hab kein bock ein custom form validaotr zu schreiben
                             role = form.role.data
-                            new_user = Tables.User(
-                                username = username,
-                                password = hashed_password,
-                                register_date = "", 
-                                last_login = "",
-                                surname = form.surname.data,
-                                lastname = form.lastname.data,
-                                email = form.email.data,
-                                hs_email = form.hs_email.data,
-                                street = form.street.data,
-                                street_no = form.street_no.data,
-                                city = form.city.data,
-                                postalcode = form.postalcode.data,
-                                role = role,
-                                permissions = [],
-                                last_updated = ""
-                                )
-                            new_user.register_date = now
-                            new_user.last_updated = now
-                            new_user.last_login = now #TODO ungewöhnlicher Fall aber register != login
-                            db.session.add(new_user)
-                            db.session.commit()
-                            login_user(new_user)
-                            try:
-                                verify_email(new_user)
-                            except:
-                                flash("Der Maildienst hat gerade keine Lust deine Mail zu verifizieren :(")
-                                app.logger.info('%s failed to verify email', new_user.username)
+                            if form.role.data == "Student" and form.hs_email.data or form.role.data != "Student" :
+                                new_user = Tables.User(
+                                    username = username,
+                                    password = hashed_password,
+                                    register_date = "", 
+                                    last_login = "",
+                                    surname = form.surname.data,
+                                    lastname = form.lastname.data,
+                                    email = form.email.data,
+                                    hs_email = form.hs_email.data,
+                                    street = form.street.data,
+                                    street_no = form.street_no.data,
+                                    city = form.city.data,
+                                    postalcode = form.postalcode.data,
+                                    role = role,
+                                    permissions = [],
+                                    last_updated = ""
+                                    )
+                                new_user.register_date = now
+                                new_user.last_updated = now
+                                new_user.last_login = now #TODO ungewöhnlicher Fall aber register != login
+                                db.session.add(new_user)
+                                db.session.commit()
+                                login_user(new_user)
+                                try:
+                                    verify_email(new_user)
+                                except:
+                                    flash("Der Maildienst hat gerade keine Lust deine Mail zu verifizieren :(")
+                                    app.logger.info('%s failed to verify email', new_user.username)
+                            else:
+                                flash("Als Student musst du deine HS_Mail angeben!")
+                                return redirect(url_for('register'))
+
                             return redirect(url_for('index'))
                         else:
                             flash('Nice Try!', 'error')

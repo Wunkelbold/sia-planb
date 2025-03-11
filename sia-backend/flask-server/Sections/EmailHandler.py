@@ -56,7 +56,10 @@ def send_mail(email):
 
 def verify_email(current_user):
     domain = request.host_url.rstrip('/')
+    local_tz = ZoneInfo("Europe/Berlin")
+    locale.setlocale(locale.LC_ALL, 'de_DE.utf8')
     now = datetime.now()
+
     timedelta5 = timedelta(minutes=5)
     if current_user.email and not current_user.email_confirmed:
         last_sent = datetime.strptime(current_user.email_cooldown, '%Y-%m-%d %H:%M:%S')

@@ -10,7 +10,6 @@ from sqlalchemy import func
 import pytz
 from zoneinfo import ZoneInfo
 
-
 def format_datetime(dt):
     return dt.strftime('%Y-%m-%d %H:%M') if dt else None
 
@@ -61,16 +60,8 @@ def getAllEvents() -> list[Tables.Event]:
                     show_register_button = True
                 if rm_vis.visibility == "public":
                     show_register_button = True
+                print(f"Event ID: {event.id}, RegisterManager Visibility: {rm_vis.visibility}, show register button: {show_register_button}")
 
-
-
-        individuals_count = (
-            db.session.query(func.count(func.distinct(Tables.Duty.user)))
-            .join(Tables.Shift)
-            .filter(Tables.Shift.event == event.id)
-            .scalar()
-        )
-        if current_user.is_authenticated:
             personal_count = (
                 db.session.query(func.count(Tables.Duty.id))
                 .join(Tables.Shift)
@@ -78,8 +69,16 @@ def getAllEvents() -> list[Tables.Event]:
                 .filter(Tables.Duty.user == current_user.id)
                 .scalar()
             )
+            
+            individuals_count = (
+                db.session.query(func.count(func.distinct(Tables.Duty.user)))
+                .join(Tables.Shift)
+                .filter(Tables.Shift.event == event.id)
+                .scalar()
+            )
         else:
             personal_count = 0
+            individuals_count = 0
 
         if event.visibility=="public": 
             event_append(event_data,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,show_register_button)
@@ -89,7 +88,6 @@ def getAllEvents() -> list[Tables.Event]:
             event_append(event_data,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,show_register_button)
     return event_data
 
-
 '''
  _____             _            
 |  __ \           | |           
@@ -98,7 +96,6 @@ def getAllEvents() -> list[Tables.Event]:
 | | \ \ (_) | |_| | ||  __/\__ \
 |_|  \_\___/ \__,_|\__\___||___/                          
 '''
-
 
 @app.route("/events", methods=['GET'])
 def events():
@@ -185,10 +182,6 @@ def apiLeaveShift(shiftid: int):
         return jsonify({'success': True})
     
 
-    
-
-
-
 '''
 _____            _     _             _   _                                                           
 |  __ \          (_)   | |           | | (_)                                                          
@@ -224,7 +217,6 @@ def apiNewRM(eventid: int):
     else:
         return jsonify({'success': False, 'error': "Dir fehlt die Berechtigung!"})
     
-
 @app.route("/api/events/event/<int:eventid>/getRM/<int:rmID>", methods=['GET'])
 def apiGetRmSingle(eventid: int,rmID: int):
     if hasPermissions(f"/api/events/event/{eventid}/getRM/{rmID}"):
@@ -236,16 +228,20 @@ def apiGetRmSingle(eventid: int,rmID: int):
         return jsonify({'success': False, 'error': "Dir fehlt die Berechtigung!"})
 
 @app.route("/api/events/event/<int:eventid>/getRM", methods=['GET'])
-@require_permissions("events.newRM")
 def apiGetRmall(eventid: int):
-    if hasPermissions(f"/api/events/event/{eventid}/getRM"):
-        registerManager = Tables.RegisterManager.query.filter_by(eventFK=eventid).all()
-        if registerManager:
-            return jsonify([RM.getDict() for RM in registerManager])
-        else:
-            return jsonify({'success': True, 'error' : 'Alle Registrierungsmöglichkeiten wurden geladen'})
+    registerManager = Tables.RegisterManager.query.filter_by(eventFK=eventid).all()
+    rmList = []
+    if registerManager:
+        for rm in registerManager:
+            if rm.visibility == "private" and hasPermissions(f"events.register.private"):
+                rmList.append(rm)
+            if rm.visibility == "member" and hasPermissions(f"events.register.member"):
+                rmList.append(rm)
+            if rm.visibility == "public":
+                rmList.append(rm)
+        return jsonify([RM.getDict() for RM in rmList])
     else:
-        return jsonify({'success': False, 'error': "Dir fehlt die Berechtigung!"})
+        return jsonify({'success': False, 'error': "Es gibt keine Registrierungsmöglichkeit für dieses Event."})
 
 @app.route("/api/events/event/<int:eventid>/updateRM/<int:rmID>", methods=['POST'])
 @require_permissions("events.updateRM")
@@ -267,8 +263,6 @@ def apiUpdateRM(eventid: int,rmID: int):
     else:
         return jsonify({'success': False, 'error': "Dir fehlt die Berechtigung!"})
 
-
-
 @app.route("/api/events/event/<int:eventid>/deleteRM/<int:rmID>", methods=['POST'])
 @require_permissions("events.delRM")
 def apiDeleteRM(eventid: int,rmID: int):
@@ -279,11 +273,8 @@ def apiDeleteRM(eventid: int,rmID: int):
     else:
         return jsonify({'success': False, 'error': "Dir fehlt die Berechtigung!"})
 
-
 @app.route("/api/events/event/<int:eventid>/register/<int:rmID>", methods=['POST'])
-@require_permissions("events.register")
 def apiRegisterEvent(eventid: int, rmID: int):   
-
     registerManager = Tables.RegisterManager.query.filter_by(eventFK=eventid, id=rmID).first()
     if registerManager:
         vis = registerManager.visibility
@@ -320,17 +311,13 @@ def process_registration(eventid,rmID):
     return jsonify({'success': True, 'error': "Du wurdest erfolgreich für das Event angemeldet"})
 
 def check_register_perm(eventid,rmID,vis):
+    if vis == "member" and hasPermissions("events.register.member"):
+        return process_registration(eventid,rmID)
+    if vis == "private" and hasPermissions("events.register.private"):
+        return process_registration(eventid,rmID)
     if vis == "public":
         return process_registration(eventid,rmID) 
-    if vis == "member":
-        if hasPermissions("events.register.member"):
-            return process_registration(eventid,rmID)
-        return jsonify({'success': False, 'errors': ["Nur Mitglieder können sich für dieses Event anmelden!"]})
-    if vis == "private":
-        if hasPermissions("events.register.private"):
-            return process_registration(eventid,rmID)
-        return jsonify({'success': False, 'errors': ["Dieses Event benötigt 'private' Privilegien für eine Anmeldung."]})  
-    return jsonify({'success': False, 'errors': ["Invalid event visibility type."]})
+    return jsonify({'success': False, 'errors': ["Keine Berechtigung."]})
 
 
 

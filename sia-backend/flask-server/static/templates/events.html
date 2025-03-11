@@ -162,31 +162,38 @@
                                                 d="M 103.07533 93.828493 A 33.615673 57.626865 0 0 0 69.845319 142.91284 L 60.963691 142.91284 L 60.963691 227.13664 L 145.18749 227.13664 L 145.18749 142.91284 L 136.31826 142.91284 A 33.615673 57.626865 0 0 0 103.07533 93.828493 z M 103.07688 101.63939 L 103.0774 101.63939 A 26.169173 48.486618 0 0 1 128.95386 142.91284 L 77.210244 142.91284 A 26.169173 48.486618 0 0 1 103.07688 101.63939 z M 80.75163 160.69986 L 89.843065 160.69986 L 103.21021 187.2817 L 116.14017 160.69986 L 125.40007 160.69986 L 125.40007 208.44475 L 118.73277 208.44475 L 118.73277 167.30515 L 104.79306 195.29775 L 100.81966 195.29775 L 86.980707 167.30515 L 86.980707 208.44475 L 80.75163 208.44475 L 80.75163 160.69986 z " />
                                         </g>
                                     </svg>
-                            {% endif %}
-                            {% if current_user.is_authenticated and hasPermissions("events.help") or current_user.is_authenticated and events.registrationManager %}
-                            </div>
-                            {% endif%}
-                            {% if current_user.is_authenticated and hasPermissions("events.help") %}
-                                {% if event.personal_count %}
-                                    <button style="margin:2px;" type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#JoinShiftModal" data-id="{{ event.id }}" data-id="event.name">
-                                        Helfen
-                                    </button>
-                                {% else %}
-                                    <button style="margin:2px;" type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#JoinShiftModal" data-id="{{ event.id }}" data-id="event.name">
-                                        Helfen
+                                {% endif %}
+                                {% if current_user.is_authenticated and hasPermissions("events.help") or current_user.is_authenticated and events.registrationManager %}
+                                </div>
+                                {% endif%}
+                                {% if current_user.is_authenticated and hasPermissions("events.help") %}
+                                    {% if event.personal_count %}
+                                        <button style="margin:2px;" type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#JoinShiftModal" data-id="{{ event.id }}" data-id="event.name">
+                                            Helfen
+                                        </button>
+                                    {% else %}
+                                        <button style="margin:2px;" type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#JoinShiftModal" data-id="{{ event.id }}" data-id="event.name">
+                                            Helfen
+                                        </button>
+                                    {% endif%}
+                                {% endif%}
+    
+                                {% if event.show_register_button %}
+                                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#RegisterModal" data-id="{{ event.id }}" data-id="event.name"> 
+                                        Anmelden
                                     </button>
                                 {% endif%}
-                            {% endif%}
-    
-                            {% if current_user.is_authenticated and event.show_register_button %}
-                                <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#RegisterModal" data-id="{{ event.id }}" data-id="event.name"> 
-                                    Anmelden
-                                </button>
-                            {% endif%}
-                        </div>
+                            </div>
+                        {% elif current_user.is_authenticated %}
+                            <div style="align-items: center; display: flex; min-width: 100%; margin: 5px;">
+                                {% if event.show_register_button %}
+                                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#RegisterModal" data-id="{{ event.id }}" data-id="event.name"> 
+                                        Anmelden
+                                    </button>
+                                {% endif%}
+                            </div>
                         {% endif %}
                     </div>
-
                 </div>
             {%endfor%} 
         

@@ -10,10 +10,19 @@ from globals import *
 import uuid
 import secrets
 from sqlalchemy.dialects.postgresql import UUID
-from datetime import datetime
+from datetime import datetime, timezone
+
 
 def format_datetime(dt):
     return dt.strftime('%d-%m-%Y %H:%M') if dt else None
+
+def format_datetime_hr(dt):
+    local_tz = ZoneInfo("Europe/Berlin")
+    locale.setlocale(locale.LC_ALL, 'de_DE.utf8')
+    return dt.replace(tzinfo=local_tz).strftime('%a, %d/%m/%y %H:%M') if dt else None
+
+def format_datetime2(dt):
+    return dt.strftime('%Y-%m-%dT%H:%M') if dt else None
 
 class Tables:
     class User(db.Model, UserMixin):
@@ -95,6 +104,8 @@ class Tables:
                 "type": self.type,
                 "start": format_datetime(self.start),
                 "end": format_datetime(self.end),
+                "start_hr": format_datetime_hr(self.start),
+                "end_hr": format_datetime_hr(self.end),
                 "users": [duty.user_obj.username for duty in self.duty_rel if duty.user_obj]
             }
         
@@ -115,6 +126,54 @@ class Tables:
         email = db.Column(db.String(30))
         message = db.Column(db.String(500))
         created = db.Column(db.TEXT)
+        creation = db.Column(db.DateTime)
+        
+        def getDict(self):
+            return {
+                "id":self.id,
+                "uid":self.uid,
+                "category": self.category,
+                "surname":self.surname,
+                "lastname":self.lastname,
+                "email":self.email,
+                "message":self.message,
+                "creation":format_datetime_hr(self.creation)
+            }
+
+    class RegisterManager(db.Model):
+        __tablename__ = 'registermanager'
+        id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+        name = db.Column(db.String(30))
+        visibility = db.Column(db.String(10))
+        accept = db.Column(db.String(12))
+        start = db.Column(db.DateTime)
+        end = db.Column(db.DateTime)
+        eventFK = db.Column(db.Integer, db.ForeignKey("events.id", ondelete="CASCADE"))
+        registration_rel = db.relationship("Registration", cascade="all,delete", backref="RegisterManaer", lazy="joined")
+
+        def getDict(self):
+            return {
+                "rmID": self.id,
+                "name": self.name,
+                "visibility": self.visibility,
+                "accept": self.accept,
+                "start": format_datetime2(self.start),
+                "end": format_datetime2(self.end),
+                "start_hr": format_datetime_hr(self.start),
+                "end_hr": format_datetime_hr(self.end),
+                "eventFK": self.eventFK,
+                "users": [registration.user_obj.username for registration in self.registration_rel if registration.user_obj]
+            }
+
+    class Registration(db.Model):
+        __tablename__ = 'registration'
+        id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+        userFK = db.Column(db.Integer, db.ForeignKey("user.id", ondelete="CASCADE"))
+        rmFK = db.Column(db.Integer, db.ForeignKey("registermanager.id", ondelete="CASCADE"))
+        teamname = db.Column(db.String(30))
+        user_obj = db.relationship("User", backref="registration", lazy="joined")
+
+
 
     
 def init_database():

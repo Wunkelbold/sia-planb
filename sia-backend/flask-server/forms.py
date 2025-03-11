@@ -23,8 +23,6 @@ class EmailRequiredIf(object):
             if form_field.data in values:
                 return  # Validation passed
             
-            field.errors.clear()
-            raise StopValidation
         
 class Forms:
     class RegisterForm(FlaskForm):
@@ -86,15 +84,15 @@ class Forms:
         hs_email = EmailField(
             render_kw={"placeholder": "Hochschul-Email (Nur als Student)"}, 
             validators=[
-                EmailRequiredIf(role="Student"),
+                Regexp(
+                    ".+@hs-albsig\.de", 
+                    message="Deine Email scheint keine HS-Email zu sein XXXXXXXXX@hs-albsig.de."),
+                EmailRequiredIf(role=["Student"]),
                 Length(
                     min=0, 
                     max=30, 
                     message="Die Email darf maximal 30 Zeichen lang sein."),
-                Email(message="Deine Email scheint keine Email zu sein."),
-                Regexp(
-                    "........@hs-albsig\.de", 
-                    message="Deine Email scheint keine HS-Email zu sein XXXXXXXXX@hs-albsig.de.")]) #TODO edge cases überlegen
+                Email(message="Deine Email scheint keine Email zu sein.")]) #TODO edge cases überlegen
         street = StringField(
             render_kw={"placeholder": "Straße"},
             default="", 
@@ -227,7 +225,8 @@ class Forms:
         hs_email = EmailField(
             render_kw={"placeholder": "Hochschul-Email (Nur als Student)"}, 
             validators=[
-                EmailRequiredIf(role="Student"),
+                EmailRequiredIf(role=["Student"]),
+                Optional(),
                 Length(
                     min=0, 
                     max=30, 
@@ -349,7 +348,7 @@ class Forms:
                     message="Die Email darf maximal 30 Zeichen lang sein."),
                 Email(message="Deine Email scheint keine Email zu sein."),
                 Regexp(
-                    "........@hs-albsig\.de", 
+                    ".+@hs-albsig\.de", 
                     message="Deine Email scheint keine HS-Email zu sein XXXXXXXXX@hs-albsig.de.")]) #TODO edge cases überlegen
         street = StringField(
             render_kw={"placeholder": "Straße"},
@@ -484,7 +483,7 @@ class Forms:
                 Optional(), 
                 FileAllowed(["png", "jpg", "jpeg"]), 
                 FileSize(5 * 1024 * 1024,message="Uploadlimit 5mb und bitte Seitenverhältnis 1:1")])
-        submit = SubmitField("Submit")
+        submit = SubmitField("Neues Event")
 
     class contactDelete(FlaskForm):
         uid = HiddenField('UID', validators=[InputRequired()])
@@ -532,7 +531,7 @@ class Forms:
                 Optional(), 
                 FileSize(5 * 1024 * 1024,message="Uploadlimit 5mb und bitte Seitenverhältnis 1:1")])
         move_shifts =  BooleanField(default="True")
-        submit = SubmitField("Submit")
+        submit = SubmitField("Event ändern")
 
     class newShiftForm(FlaskForm):
         type = StringField(
@@ -548,7 +547,36 @@ class Forms:
         end = DateTimeLocalField(
             render_kw={"placeholder": "Ende"}, 
             validators=[Optional()])
-        submit = SubmitField("Submit")
+        submit = SubmitField("Neue Schicht")
+
+    class newRegistration(FlaskForm):
+        RegistrationName = StringField(
+            render_kw={"placeholder": "Name der Anmeldung"}, 
+            validators=[
+                InputRequired(), 
+                Length(
+                    max=30,
+                    message="Name darf maximal 30 Zeichen lang sein.")])
+        RegistrationStart = DateTimeLocalField(
+            render_kw={"placeholder": "Start"}, 
+            validators=[EmailRequiredIf(RegistrationAccept=["Zeitraum"])])
+        RegistrationEnd = DateTimeLocalField(
+            render_kw={"placeholder": "Ende"}, 
+            validators=[EmailRequiredIf(RegistrationAccept=["Zeitraum"])])
+        RegistrationVisibility = SelectField(
+            validators=[InputRequired()],
+            label="Sichtbarkeit",
+            choices=[("public","public"),("member","member"),("private","private")], 
+            coerce=str, 
+            render_kw={ "id": "RegistrationVisibility"})
+        RegistrationAccept = SelectField(
+            validators=[InputRequired()],
+            label="Sichtbarkeit",
+            choices=[("Zeitraum","Zeitraum"),("geöffnet","geöffnet"),("geschlossen","geschlossen")], 
+            coerce=str, 
+            render_kw={ "id": "RegistrationAccept"})
+        RegistrationSubmit = SubmitField("Neue Anmeldung")
+        
 
 
 

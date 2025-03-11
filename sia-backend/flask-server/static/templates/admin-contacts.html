@@ -1,0 +1,86 @@
+<!-- KONTAKTANFRAGEN -->
+<div id="hotlink_contact">
+    <h3>Kontaktanfragen</h3>
+    <div class="table-container">
+        <table class="table table-dark table-striped sortable" id="contact-table">
+            <thead>
+                <tr>
+                    <th class="hide-on-mobile">Kategorie</th>
+                    <th>Vorname</th>
+                    <th>Nachname</th>
+                    <th>Email</th>
+                    <th>Nachricht</th>
+                    <th>Erstellt</th>
+                    <th>Verwaltung</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if contacts %}
+                    {% for contact in contacts %}
+                        <tr data-uid="{{ contact.uid }}">
+                            <td class="hide-on-mobile">{{ contact.category }}</td>
+                            <td>{{ contact.surname }}</td>
+                            <td>{{ contact.lastname }}</td>
+                            <td>{{ contact.email }}</td>
+                            <td>{{ contact.message }}</td>     
+                            <td>{{ contact.creation }}</td>  
+                            <td>
+                                <div class="card-body">
+                                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-uid="{{ contact.uid }}">
+                                          <div style="display:flex; align-items: center;">
+                                            <svg fill="#FFFFFF" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                                                    width="20px" height="20px" viewBox="0 0 490.646 490.646"
+                                                    xml:space="preserve" >
+                                                <g>
+                                                  <g>
+                                                    <path d="M399.179,67.285l-74.794,0.033L324.356,0L166.214,0.066l0.029,67.318l-74.802,0.033l0.025,62.914h307.739L399.179,67.285z
+                                                        M198.28,32.11l94.03-0.041l0.017,35.262l-94.03,0.041L198.28,32.11z"/>
+                                                    <path d="M91.465,490.646h307.739V146.359H91.465V490.646z M317.461,193.372h16.028v250.259h-16.028V193.372L317.461,193.372z
+                                                        M237.321,193.372h16.028v250.259h-16.028V193.372L237.321,193.372z M157.18,193.372h16.028v250.259H157.18V193.372z"/>
+                                                  </g>
+                                                </g>
+                                              </svg>
+                                            </div>  
+                                        </button>
+                                </div>
+                            </td>      
+                    {% endfor %}
+                {% endif %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+<!-- DELETE CONTACT MODAL --->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-theme="dark" style="color:white;">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="deleteModalLabel">Anfrage löschen</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              Sicher dass du die Kontaktanfrage löschen möchtest?
+            </div>
+            <div class="modal-footer">
+              <form id="delete-form" method="POST" action="/delete_contact">
+                {{ form.hidden_tag() }}
+                <input type="hidden" name="uid" id="uid-contact-input" value="">
+                <button type="submit" class="btn btn-danger">Löschen</button>
+              </form>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            </div>
+          </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+        const deleteModal = document.getElementById('deleteModal');
+        const uidInput = document.getElementById('uid-contact-input');
+        deleteModal.addEventListener('show.bs.modal', (event) => {
+            const button = event.relatedTarget;
+            const uid = button.getAttribute('data-uid');
+            uidInput.value = uid;
+        });
+        });
+    </script>
+</div>

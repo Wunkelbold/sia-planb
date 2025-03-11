@@ -1,0 +1,889 @@
+ <!-- Eventliste -->
+ <div id="hotlink_event_list">
+    <h3>Events</h3>
+    <div class="table-container">
+      <table class="table table-dark table-striped sortable" id="event-table">
+          <thead>
+              <tr data-sort-method="none">
+                  <th class="hide-on-mobile">id</th>
+                  <th>Name</th>
+                  <th>Ort</th>
+                  <th>Start</th>
+                  <th>Ende</th>
+                  <th class="hide-on-mobile">Beschreibung</th>
+                  <th class="hide-on-mobile">Autor</th>
+                  <th>
+                    <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M15.0007 12C15.0007 13.6569 13.6576 15 12.0007 15C10.3439 15 9.00073 13.6569 9.00073 12C9.00073 10.3431 10.3439 9 12.0007 9C13.6576 9 15.0007 10.3431 15.0007 12Z" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M12.0012 5C7.52354 5 3.73326 7.94288 2.45898 12C3.73324 16.0571 7.52354 19 12.0012 19C16.4788 19 20.2691 16.0571 21.5434 12C20.2691 7.94291 16.4788 5 12.0012 5Z" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                  </th>
+                  <th style="min-width: 73px;">
+                    <svg fill="#FFF" width="20px" height="20px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 15.503A5.041 5.041 0 1 0 16 5.42a5.041 5.041 0 0 0 0 10.083zm0 2.215c-6.703 0-11 3.699-11 5.5v3.363h22v-3.363c0-2.178-4.068-5.5-11-5.5z"/></svg>
+                    | 
+                    <svg width="20px" height="20px" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <title>work-case-filled</title>
+                        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <g id="work-case" fill="#FFF" transform="translate(42.666667, 64.000000)">
+                                <path d="M1.20792265e-13,197.76 C54.5835501,218.995667 112.186031,231.452204 170.666667,234.666667 L170.666667,277.333333 L256,277.333333 L256,234.666667 C314.339546,231.013 371.833936,218.86731 426.666667,198.613333 L426.666667,362.666667 L1.20792265e-13,362.666667 L1.20792265e-13,197.76 Z M277.333333,-1.42108547e-14 L298.666667,21.3333333 L298.666667,64 L426.666667,64 L426.666667,175.146667 C361.254942,199.569074 292.110481,212.488551 222.293333,213.333333 L222.293333,213.333333 L206.933333,213.333333 C136.179047,212.568604 66.119345,199.278929 7.10542736e-15,174.08 L7.10542736e-15,174.08 L7.10542736e-15,64 L128,64 L128,21.3333333 L149.333333,-1.42108547e-14 L277.333333,-1.42108547e-14 Z M256,42.6666667 L170.666667,42.6666667 L170.666667,64 L256,64 L256,42.6666667 Z" id="Combined-Shape-Copy">
+                                </path>
+                            </g>
+                        </g>
+                    </svg>
+                  </th>
+                  <th>Verwaltung</th>
+              </tr>
+          </thead>
+          <tbody>
+              {% if events %}
+                  {% for event in events %}
+                      <tr data-uid="{{ event.uid }}">
+                          <td class="hide-on-mobile">{{ event.id }}</td>
+                          <td>{{ event.name }}</td>
+                          <td>{{ event.place }}</td>
+                          <td>{{ event.date }}</td>
+                          <td>{{ event.end }}</td>     
+                          <td class="hide-on-mobile" >{{ event.description }}</td> 
+                          <td class="hide-on-mobile" >{{ event.username }}</td> <!-- Aus SQL JOIN-->
+                          <td>
+                            {% if event.visibility == "private" %} 
+                              <svg
+                                  width="25px"
+                                  height="25px"
+                                  viewBox="0 0 143.13806 147.02239"
+                                  version="1.1"
+                                  id="svg5"
+                                  inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
+                                  sodipodi:docname="pSchloss1.svg"
+                                  xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+                                  xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  xmlns:svg="http://www.w3.org/2000/svg">
+                                  <sodipodi:namedview
+                                      id="namedview7"
+                                      pagecolor="#ffffff"
+                                      bordercolor="#000000"
+                                      borderopacity="0.25"
+                                      inkscape:showpageshadow="2"
+                                      inkscape:pageopacity="0.0"
+                                      inkscape:pagecheckerboard="0"
+                                      inkscape:deskcolor="#d1d1d1"
+                                      inkscape:document-units="mm"
+                                      showgrid="false"
+                                      inkscape:zoom="0.71624579"
+                                      inkscape:cx="539.61923"
+                                      inkscape:cy="344.1556"
+                                      inkscape:window-width="1920"
+                                      inkscape:window-height="991"
+                                      inkscape:window-x="-9"
+                                      inkscape:window-y="-9"
+                                      inkscape:window-maximized="1"
+                                      inkscape:current-layer="layer1" />
+                                  <defs
+                                      id="defs2" />
+                                  <g
+                                      inkscape:label="Ebene 1"
+                                      inkscape:groupmode="layer"
+                                      id="layer1"
+                                      transform="translate(-32.13806,-88.656716)">
+                                      <path
+                                          id="path1002"
+                                          style="fill:#ffffff;stroke:#000000;stroke-width:2.065;stroke-opacity:1;stroke-dasharray:none"
+                                          d="m 60.212632,142.91304 v 84.2238 h 84.223798 v -84.2238 z m 27.048995,19.08411 h 12.495877 c 0.345386,0 0.684296,0.004 1.016476,0.0114 0.33218,0.007 0.65771,0.0182 0.97668,0.0331 0.31897,0.0148 0.63113,0.0336 0.93689,0.0558 0.30576,0.0222 0.60507,0.0479 0.89762,0.0775 0.29255,0.0296 0.57849,0.0632 0.85783,0.10025 0.27934,0.037 0.55191,0.0775 0.81804,0.12196 0.26613,0.0445 0.52584,0.0928 0.77876,0.14469 0.25293,0.0519 0.49927,0.10763 0.73898,0.16692 0.23971,0.0567 0.47605,0.11733 0.709,0.18241 0.23294,0.0651 0.46215,0.13428 0.68833,0.20774 0.22618,0.0735 0.44928,0.15123 0.66869,0.23306 0.21941,0.0818 0.43538,0.16817 0.64802,0.25839 0.21265,0.0902 0.42199,0.18459 0.62787,0.28318 0.20588,0.0986 0.40809,0.20103 0.6072,0.30799 0.19912,0.10697 0.39521,0.21849 0.58756,0.33383 0.19235,0.11535 0.38131,0.23492 0.56689,0.35864 0.21909,0.14692 0.43168,0.29829 0.63821,0.45423 0.20652,0.15594 0.40652,0.31615 0.60048,0.48111 0.19396,0.16496 0.38188,0.33451 0.56327,0.5085 0.18139,0.17398 0.35672,0.35236 0.52555,0.53537 0.16883,0.183 0.33104,0.37073 0.48731,0.56275 0.15626,0.19203 0.3064,0.38858 0.4501,0.58963 0.1437,0.20105 0.28125,0.40643 0.41238,0.6165 0.13113,0.21007 0.25557,0.4248 0.37413,0.64389 0.0606,0.10954 0.11943,0.22066 0.17622,0.33383 0.0568,0.11317 0.11185,0.2284 0.16485,0.34519 0.053,0.1168 0.10375,0.23512 0.15296,0.35554 0.0492,0.12042 0.0967,0.24286 0.14211,0.3669 0.0454,0.12405 0.0891,0.25009 0.13074,0.37776 0.0417,0.12766 0.0815,0.25679 0.11938,0.38809 0.0378,0.13129 0.0734,0.26454 0.10748,0.39946 0.0341,0.13491 0.0663,0.27176 0.0966,0.41031 0.0606,0.27708 0.11373,0.56107 0.15916,0.85266 0.0454,0.29158 0.0834,0.5905 0.11369,0.89658 0.0303,0.30609 0.0531,0.61942 0.0682,0.94 0.0151,0.32058 0.0227,0.64832 0.0227,0.9834 0,0.25518 -0.006,0.50846 -0.017,0.75913 -0.0113,0.25066 -0.0281,0.49902 -0.0507,0.74517 -0.0225,0.24616 -0.0509,0.4901 -0.0847,0.73174 -0.0338,0.24164 -0.0732,0.48065 -0.11834,0.71778 -0.0451,0.23714 -0.0961,0.47225 -0.15244,0.70487 -0.0564,0.23262 -0.11838,0.4628 -0.18604,0.69092 -0.0677,0.22811 -0.14068,0.45439 -0.21962,0.67799 -0.0789,0.2236 -0.16352,0.44495 -0.25373,0.66404 -0.0876,0.21651 -0.17981,0.4293 -0.27647,0.63872 -0.0967,0.20943 -0.19818,0.4152 -0.30386,0.61754 -0.10568,0.20233 -0.21551,0.40109 -0.33021,0.59634 -0.1147,0.19525 -0.23388,0.387 -0.3576,0.57516 -0.12372,0.18816 -0.25225,0.3729 -0.38499,0.55397 -0.13274,0.18107 -0.2701,0.35829 -0.41186,0.53227 -0.14177,0.17398 -0.28795,0.3447 -0.43874,0.5116 -0.15078,0.16689 -0.30579,0.33008 -0.4656,0.48989 -0.19847,0.19847 -0.40177,0.391 -0.60926,0.57722 -0.2075,0.18623 -0.41911,0.36604 -0.63562,0.54002 -0.21652,0.17399 -0.438,0.34211 -0.66353,0.50385 -0.22553,0.16174 -0.45533,0.31714 -0.68988,0.46664 -0.23456,0.14949 -0.47369,0.29321 -0.71727,0.43046 -0.24358,0.13725 -0.49154,0.26825 -0.74414,0.39326 -0.2526,0.12501 -0.50991,0.2438 -0.77153,0.35657 -0.26162,0.11276 -0.52776,0.21935 -0.7984,0.31987 -0.27064,0.0979 -0.54983,0.18974 -0.83819,0.27544 -0.28836,0.0857 -0.58586,0.16528 -0.89194,0.23874 -0.30608,0.0735 -0.62084,0.14084 -0.94464,0.20206 -0.3238,0.0612 -0.65635,0.11639 -0.99787,0.16536 -0.34153,0.049 -0.69186,0.0919 -1.0511,0.12868 -0.35925,0.0367 -0.72736,0.0675 -1.10433,0.092 -0.37696,0.0245 -0.76287,0.0425 -1.15755,0.0548 -0.39469,0.0122 -0.798366,0.0186 -1.210776,0.0186 h -6.12417 v 17.1664 H 87.261587 Z M 102.3245,93.828381 A 33.615673,57.626865 0 0 0 69.094491,142.91324 h 7.364925 a 26.169173,48.486618 0 0 1 25.866634,-41.27397 26.169173,48.486618 0 0 1 25.87646,41.27397 h 7.36493 A 33.615673,57.626865 0 0 0 102.3245,93.828381 Z m -8.938696,73.426849 v 18.40352 h 5.16506 c 0.3093,0 0.6116,-0.003 0.9064,-0.01 0.29481,-0.007 0.582166,-0.017 0.862476,-0.0305 0.28031,-0.0135 0.55378,-0.0303 0.81959,-0.0506 0.26581,-0.0203 0.52435,-0.0443 0.77566,-0.0713 0.25131,-0.0271 0.49493,-0.0576 0.73174,-0.0915 0.23681,-0.0338 0.46653,-0.071 0.68885,-0.11162 0.22231,-0.0406 0.43762,-0.0844 0.64544,-0.13177 0.20781,-0.0474 0.40819,-0.0983 0.60151,-0.15245 0.19331,-0.0567 0.38208,-0.11714 0.56637,-0.1819 0.1843,-0.0648 0.36423,-0.13337 0.53951,-0.20619 0.17527,-0.0728 0.34586,-0.15012 0.51211,-0.23099 0.16625,-0.0809 0.32801,-0.16533 0.48524,-0.25425 0.15723,-0.0889 0.31016,-0.18207 0.45837,-0.27905 0.14821,-0.097 0.29179,-0.19779 0.43098,-0.30283 0.13919,-0.10503 0.27395,-0.21454 0.40411,-0.32763 0.13017,-0.11308 0.25558,-0.22973 0.37672,-0.35088 0.12115,-0.12372 0.23773,-0.24829 0.34985,-0.37362 0.11212,-0.12533 0.21988,-0.25184 0.32298,-0.37879 0.1031,-0.12694 0.20151,-0.25436 0.29559,-0.38292 0.0941,-0.12855 0.18366,-0.25792 0.26872,-0.38809 0.085,-0.13016 0.1658,-0.26148 0.24184,-0.39326 0.076,-0.13177 0.14744,-0.264 0.21446,-0.39739 0.067,-0.13339 0.12959,-0.26756 0.18758,-0.40256 0.058,-0.135 0.11175,-0.27112 0.16072,-0.40773 0.0516,-0.1366 0.0996,-0.27519 0.14469,-0.41599 0.0451,-0.1408 0.0869,-0.28341 0.12558,-0.4284 0.0387,-0.14498 0.0742,-0.29214 0.10645,-0.44131 0.0322,-0.14918 0.061,-0.30036 0.0868,-0.45372 0.0258,-0.15337 0.0484,-0.30909 0.0677,-0.46664 0.0193,-0.15755 0.0357,-0.3173 0.0486,-0.47904 0.0129,-0.16174 0.0225,-0.32552 0.0289,-0.49145 0.006,-0.16592 0.01,-0.33372 0.01,-0.50384 0,-0.19847 -0.005,-0.39399 -0.0134,-0.58601 -0.009,-0.19203 -0.0214,-0.38079 -0.0388,-0.56638 -0.0174,-0.18558 -0.0395,-0.36811 -0.0656,-0.54725 -0.0261,-0.17914 -0.0562,-0.35492 -0.091,-0.52762 -0.0348,-0.17269 -0.0743,-0.34224 -0.11782,-0.50849 -0.0435,-0.16625 -0.091,-0.32905 -0.14314,-0.48886 -0.0522,-0.15981 -0.10912,-0.31638 -0.17002,-0.46974 -0.0609,-0.15336 -0.12574,-0.3037 -0.19534,-0.45062 -0.0696,-0.14692 -0.14411,-0.29031 -0.22272,-0.43046 -0.0786,-0.14016 -0.16145,-0.27693 -0.24908,-0.41031 -0.0876,-0.13339 -0.17981,-0.26354 -0.27647,-0.39016 -0.0967,-0.12662 -0.19766,-0.24963 -0.30334,-0.36949 -0.10568,-0.11985 -0.21603,-0.23624 -0.33073,-0.34933 -0.1147,-0.11309 -0.23388,-0.22285 -0.3576,-0.32918 -0.12372,-0.10632 -0.25225,-0.20946 -0.38499,-0.30902 -0.13274,-0.0996 -0.26958,-0.19556 -0.41135,-0.28836 -0.12372,-0.0799 -0.25003,-0.15689 -0.37827,-0.23099 -0.12823,-0.0741 -0.25844,-0.14564 -0.39119,-0.21394 -0.13274,-0.0683 -0.26789,-0.13335 -0.40514,-0.19585 -0.13725,-0.0625 -0.27682,-0.1221 -0.41858,-0.1788 -0.14176,-0.0567 -0.28574,-0.11085 -0.43201,-0.16175 -0.14628,-0.0509 -0.29467,-0.0986 -0.44546,-0.14366 -0.15078,-0.0451 -0.3041,-0.0873 -0.4594,-0.12661 -0.1553,-0.0393 -0.31251,-0.0761 -0.47232,-0.10955 -0.15723,-0.0361 -0.31997,-0.0697 -0.48783,-0.10129 -0.16786,-0.0316 -0.34085,-0.0608 -0.51935,-0.0878 -0.17849,-0.0271 -0.36226,-0.0519 -0.55138,-0.0744 -0.18913,-0.0226 -0.38367,-0.0429 -0.58343,-0.061 -0.19976,-0.018 -0.40507,-0.034 -0.61547,-0.0475 -0.21039,-0.0135 -0.42596,-0.0246 -0.64698,-0.0336 -0.22103,-0.009 -0.44738,-0.0162 -0.67903,-0.0207 -0.231656,-0.005 -0.468776,-0.007 -0.711066,-0.007 z" />
+                                  </g>
+                              </svg>
+                          {% elif event.visibility == "member" %} 
+                            <svg
+                                width="25px"
+                                height="25px"
+                                viewBox="0 0 143.13806 147.02239"
+                                version="1.1"
+                                id="svg5"
+                                inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
+                                sodipodi:docname="SchlossM.svg"
+                                xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+                                xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+                                xmlns="http://www.w3.org/2000/svg"
+                                xmlns:svg="http://www.w3.org/2000/svg">
+                              <sodipodi:namedview
+                                  id="namedview7"
+                                  pagecolor="#ffffff"
+                                  bordercolor="#000000"
+                                  borderopacity="0.25"
+                                  inkscape:showpageshadow="2"
+                                  inkscape:pageopacity="0.0"
+                                  inkscape:pagecheckerboard="0"
+                                  inkscape:deskcolor="#d1d1d1"
+                                  inkscape:document-units="mm"
+                                  showgrid="false"
+                                  inkscape:zoom="0.71624579"
+                                  inkscape:cx="539.61923"
+                                  inkscape:cy="344.1556"
+                                  inkscape:window-width="1920"
+                                  inkscape:window-height="991"
+                                  inkscape:window-x="-9"
+                                  inkscape:window-y="-9"
+                                  inkscape:window-maximized="1"
+                                  inkscape:current-layer="layer1" />
+                              <defs
+                                  id="defs2">
+                                <rect
+                                    x="-89.354801"
+                                    y="287.61077"
+                                    width="19.546359"
+                                    height="16.75402"
+                                    id="rect5904" />
+                              </defs>
+                              <g
+                                  inkscape:label="Ebene 1"
+                                  inkscape:groupmode="layer"
+                                  id="layer1"
+                                  transform="translate(-32.13806,-88.656716)">
+                                <path
+                                    id="path1002"
+                                    style="fill:#ffffff;stroke:#000000;stroke-width:2.065;stroke-dasharray:none;stroke-opacity:1"
+                                    d="M 103.07533 93.828493 A 33.615673 57.626865 0 0 0 69.845319 142.91284 L 60.963691 142.91284 L 60.963691 227.13664 L 145.18749 227.13664 L 145.18749 142.91284 L 136.31826 142.91284 A 33.615673 57.626865 0 0 0 103.07533 93.828493 z M 103.07688 101.63939 L 103.0774 101.63939 A 26.169173 48.486618 0 0 1 128.95386 142.91284 L 77.210244 142.91284 A 26.169173 48.486618 0 0 1 103.07688 101.63939 z M 80.75163 160.69986 L 89.843065 160.69986 L 103.21021 187.2817 L 116.14017 160.69986 L 125.40007 160.69986 L 125.40007 208.44475 L 118.73277 208.44475 L 118.73277 167.30515 L 104.79306 195.29775 L 100.81966 195.29775 L 86.980707 167.30515 L 86.980707 208.44475 L 80.75163 208.44475 L 80.75163 160.69986 z " />
+                              </g>
+                            </svg>
+                          {% else %}
+                            <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path fill-rule="evenodd" clip-rule="evenodd" d="M9.17157 4.17157C9.92172 3.42143 10.9391 3 12 3C13.0609 3 14.0783 3.42143 14.8284 4.17157C15.3871 4.73025 15.7635 5.4372 15.9192 6.20001C16.0297 6.74114 16.5579 7.09026 17.099 6.97979C17.6401 6.86933 17.9893 6.34111 17.8788 5.79999C17.6452 4.65591 17.0807 3.59545 16.2426 2.75736C15.1174 1.63214 13.5913 1 12 1C10.4087 1 8.88258 1.63214 7.75736 2.75736C6.63214 3.88258 6 5.4087 6 7V10H5C3.34315 10 2 11.3431 2 13V20C2 21.6569 3.34315 23 5 23H19C20.6569 23 22 21.6569 22 20V13C22 11.3431 20.6569 10 19 10H8V7C8 5.93913 8.42143 4.92172 9.17157 4.17157ZM5 12C4.44772 12 4 12.4477 4 13V20C4 20.5523 4.44772 21 5 21H19C19.5523 21 20 20.5523 20 20V13C20 12.4477 19.5523 12 19 12H5Z" fill="#FFF"/>
+                            </svg>
+                          {% endif %}
+                          </td> 
+                          <td>{{ event.duty_count }} | {{ event.shift_count }}</td>
+                          <td>
+                              <div class="card-body">                                  
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editEventModal" data-uid="{{ event.id }}"> <!-- HIER ID Aufgrund bestehender Infastruktur von MOPSKATER-->
+                                  <div style="display:flex; align-items: center;">
+                                   <svg width="20px" height="20px" viewBox="0 0 24 24" fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="m3.99 16.854-1.314 3.504a.75.75 0 0 0 .966.965l3.503-1.314a3 3 0 0 0 1.068-.687L18.36 9.175s-.354-1.061-1.414-2.122c-1.06-1.06-2.122-1.414-2.122-1.414L4.677 15.786a3 3 0 0 0-.687 1.068zm12.249-12.63 1.383-1.383c.248-.248.579-.406.925-.348.487.08 1.232.322 1.934 1.025.703.703.945 1.447 1.025 1.934.058.346-.1.677-.348.925L19.774 7.76s-.353-1.06-1.414-2.12c-1.06-1.062-2.121-1.415-2.121-1.415z" fill="#FFFFFF"/></svg>
+                                  </div>
+                                </button>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#RegistrationModal" data-id="{{ event.id }}">
+                                    <div style="display:flex; align-items: center;">
+                                        <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M15.8125 12.0217H3.77148" stroke="#FFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12.8848 9.10571L15.8128 12.0217L12.8848 14.9377" stroke="#FFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path opacity="1" d="M8.50439 7.38897V6.45597C8.50439 4.42097 10.1534 2.77197 12.1894 2.77197H17.0734C19.1034 2.77197 20.7484 4.41697 20.7484 6.44697V17.587C20.7484 19.622 19.0984 21.272 17.0634 21.272H12.1784C10.1494 21.272 8.50439 19.626 8.50439 17.597V16.655" stroke="#FFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                </button>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ShiftModal" data-id="{{ event.id }}">
+                                  <div style="display:flex; align-items: center;">
+                                    <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M10 21H6.2C5.0799 21 4.51984 21 4.09202 20.782C3.71569 20.5903 3.40973 20.2843 3.21799 19.908C3 19.4802 3 18.9201 3 17.8V8.2C3 7.0799 3 6.51984 3.21799 6.09202C3.40973 5.71569 3.71569 5.40973 4.09202 5.21799C4.51984 5 5.0799 5 6.2 5H17.8C18.9201 5 19.4802 5 19.908 5.21799C20.2843 5.40973 20.5903 5.71569 20.782 6.09202C21 6.51984 21 7.0799 21 8.2V10M7 3V5M17 3V5M3 9H21M13.5 13.0001L7 13M10 17.0001L7 17M14 21L16.025 20.595C16.2015 20.5597 16.2898 20.542 16.3721 20.5097C16.4452 20.4811 16.5147 20.4439 16.579 20.399C16.6516 20.3484 16.7152 20.2848 16.8426 20.1574L21 16C21.5523 15.4477 21.5523 14.5523 21 14C20.4477 13.4477 19.5523 13.4477 19 14L14.8426 18.1574C14.7152 18.2848 14.6516 18.3484 14.601 18.421C14.5561 18.4853 14.5189 18.5548 14.4903 18.6279C14.458 18.7102 14.4403 18.7985 14.405 18.975L14 21Z" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                  </div>
+                                </button>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEventModal" data-uid="{{ event.uid }}" data-name="{{ event.name }}"> <!-- HIER UID Aufgrund bestehender Infastruktur von MOPSKATER-->
+                                  <div style="display:flex; align-items: center;">
+                                    <svg fill="#FFFFFF" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                                          width="20px" height="20px" viewBox="0 0 490.646 490.646"
+                                          xml:space="preserve">
+                                      <g>
+                                        <g>
+                                          <path d="M399.179,67.285l-74.794,0.033L324.356,0L166.214,0.066l0.029,67.318l-74.802,0.033l0.025,62.914h307.739L399.179,67.285z
+                                            M198.28,32.11l94.03-0.041l0.017,35.262l-94.03,0.041L198.28,32.11z"/>
+                                          <path d="M91.465,490.646h307.739V146.359H91.465V490.646z M317.461,193.372h16.028v250.259h-16.028V193.372L317.461,193.372z
+                                            M237.321,193.372h16.028v250.259h-16.028V193.372L237.321,193.372z M157.18,193.372h16.028v250.259H157.18V193.372z"/>
+                                        </g>
+                                      </g>
+                                    </svg>
+                                  </div>
+                                </button>
+                              </div>
+                          </td>      
+                  {% endfor %}
+              {% endif %}
+              </tr>
+          </tbody>
+      </table>
+  </div>
+
+<!-- DELETE EVENT MODAL --->
+  <div class="modal fade" id="deleteEventModal" tabindex="-1" aria-labelledby="deleteEventLabel" aria-hidden="true" data-bs-theme="dark" style="color:white;">
+    <div class="modal-dialog modal-dialog-centered" >
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModalLabel">Event Löschen</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="id-delete-event-modal-body">
+           Event wirklich löschen?
+        </div>
+        <div class="modal-footer">
+          <form id="delete-form" method="POST" action="/delete_event">
+            {{ form.hidden_tag() }}
+            <input type="hidden" name="uid" id="uid-event-input" value="">
+            <button type="submit" class="btn btn-danger">Löschen</button>
+          </form>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const deleteModal = document.getElementById('deleteEventModal');
+        const uidInput = document.getElementById('uid-event-input');
+        const deleteModalEventName = document.getElementById('id-delete-event-modal-body');
+        deleteModal.addEventListener('show.bs.modal', (event) => {
+            const button = event.relatedTarget;
+            const uid = button.getAttribute('data-uid');
+            const name = button.getAttribute('data-name');
+            uidInput.value = uid;
+            deleteModalEventName.innerHTML = '"' + name + '"' + " Wirklich löschen?"
+        });
+      });
+  </script>
+  
+<!-- SHIFT MODAL --->
+
+<div class="modal fade" id="ShiftModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-theme="dark" style="color:white;">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Schichten Verwalten</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table >
+                    <tbody id="id-shift-modal-table">
+                    <tr>
+                        <th>Typ</th>
+                        <th>Start</th>
+                        <th>Ende</th>
+                        <th>Eingetragene Helfer</th>
+                    </tr>
+                    </tbody>
+                </table>
+                <form class="row g-2" method="POST" action="/api/events/event/<int:eventid>/addshift" id="id-shift-modal-form">
+                    {{ form.hidden_tag() }}
+                    <input type="hidden" name="id" id="id-shift-modal-form-event-id" value="">
+                    <div class="col-md-6">
+                    {{ form_new_shift.type }}
+                    </div>
+                    <div class="col-md-2">
+                    {{ form_new_shift.start }}
+                    </div>
+                    <div class="col-md-2">
+                    {{ form_new_shift.end }}
+                    </div>
+                    <div class="col-md-2">
+                    {{ form_new_shift.submit }}
+                    </div>
+                    <div>
+                        {% with messages = get_flashed_messages() %}
+                          {% if messages %}
+                            <ul class="error-message-list">
+                              {% for message in messages %}
+                                <p class="error-message">{{ message }}</p>
+                              {% endfor %}
+                            </ul>
+                          {% endif %}
+                        {% endwith %}
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fertig</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const CSRF = document.getElementById("CSRF").getAttribute("content");
+        const ShiftModal = document.getElementById("ShiftModal");
+        const idInput = document.getElementById("id-shift-modal-form-event-id");
+        const form = document.getElementById("id-shift-modal-form");
+
+        async function fetchShifts(eventId) {
+            const tableBody = document.getElementById("id-shift-modal-table");
+
+            try {
+                const response = await fetch(`/api/events/event/${eventId}/getshifts`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                const data = await response.json();
+                tableBody.innerHTML = `
+                    <tr>
+                        <th>Typ</th>
+                        <th>Start</th>
+                        <th>Ende</th>
+                        <th>Eingetragene Nutzer</th>
+                        <th></th>
+                    </tr>
+                `;
+
+                if (data.error) {
+                    console.error(data.error);
+                    return;
+                }
+
+                if (data.length === 0) {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `<td colspan="5" class="text-center">Das Event besitzt keine Schichten bis jetzt</td>`;
+                    tableBody.appendChild(row);
+                } else {
+                    data.forEach((item) => {
+                        const row = document.createElement("tr");
+                        const usernames = item.users.length ? item.users.join(", ") : "-";
+                        row.innerHTML = `
+                            <td>${item.type}</td>
+                            <td>${item.start ?? "-"}</td>
+                            <td>${item.end ?? "-"}</td>
+                            <td>${usernames ?? "-"}</td>
+                            <td>
+                                <button class="delete-btn btn btn-danger" data-id="${item.id}" data-event-id="${eventId}">X</button>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+
+                    document.querySelectorAll(".delete-btn").forEach((button) => {
+                        button.addEventListener("click", async function () {
+                            const shiftId = this.getAttribute("data-id");
+                            const eventId = this.getAttribute("data-event-id");
+                            await deleteShift(shiftId, this.closest("tr"), eventId);
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+            }
+        }
+
+        async function deleteShift(shiftId, rowElement, eventId) {
+            try {
+                const response = await fetch(`/api/events/event/delshift/${shiftId}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-Token": CSRF,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to delete shift");
+                }
+
+                const data = await response.json();
+                console.log("Shift deleted:", data);
+                rowElement.remove(); 
+
+                await fetchShifts(eventId); 
+            } catch (error) {
+                console.error("Delete error:", error);
+            }
+        }
+
+    
+
+        ShiftModal.addEventListener("show.bs.modal", (event) => {
+            const button = event.relatedTarget;
+            const eventId = button.getAttribute("data-id");
+
+            idInput.value = eventId;
+            form.action = `/api/events/event/${eventId}/addshift`;
+
+            fetchShifts(eventId);
+
+            form.onsubmit = async (event) => {
+                event.preventDefault();
+                const formData = new FormData(form);
+                try {
+                    const response = await fetch(form.action, {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-CSRFToken": CSRF,
+                        },
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        fetchShifts(eventId);
+                    } else {
+                        displayFlashMessages(data.error || []);
+                    }
+                } catch (error) {
+                    console.error("Fehler:", error);
+                    displayFlashMessages([
+                        "Ein Fehler ist aufgetreten. Womöglich fehlt dir die Berechtigung!",
+                    ]);
+                }
+            };
+        });
+    });
+</script>
+
+
+<!-- EDIT EVENT MODAL --->
+      <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true" data-bs-theme="dark" style="color:white;">
+          <div class="modal-dialog modal-lg modal-dialog-scrollable" data-bs-theme="dark">
+            <div class="modal-content" data-bs-theme="dark">
+              <div class="modal-header">
+                <h5 class="modal-title" id="editEvenModalLabel">Eventdaten ändern</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <table style="color: white;">
+                  <tr>
+                    <td>Event-ID</td>
+                    <td>erstellt</td>
+                    <td>Autor</td>
+                  </tr>
+                  <tr>
+                    <td><p name="event_id" id="event_id"></p></td>
+                    <td><p name="created" id="event_created"></p></td>
+                    <td><p name="author" id="event_author"></p></td>
+                  </tr>
+                </table>
+                <form id="event_edit_modal_form" class="row g-2" method="POST" action="/api/events/event/update/">
+                  {{ form_edit_user.hidden_tag() }}
+                  <input type="hidden" id="uid" name="uid" value="">
+                  <div class="col-md-4">
+                    {{ form_edit_event.name }}
+                  </div>
+                  <div class="col-md-4">
+                    {{ form_edit_event.date }}
+                  </div>
+                  <div class="col-md-4">
+                    {{ form_edit_event.event_end }}
+                  </div>
+                  <div class="col-md-1">
+                    {{ form_edit_event.move_shifts }}
+                  </div>
+                  <div class="col-md-11">
+                    Beim Ändern der Start-Uhrzeit alle Schichten + Eventende um die gleiche Differenz verschieben.
+                  </div>
+                  <div class="col-md-4">
+                    {{ form_edit_event.place }}
+                  </div>
+                  <div class="col-md-4">
+                    {{ form_edit_event.visibility }}
+                  </div>
+                  <div class="col-md-12">
+                    {{ form_edit_event.description }}
+                  </div>
+                  <div class="col-md-12" style="color:white">
+                    {{ form_edit_event.file }}
+                  </div>
+                  <div class="col-md-12">
+                    {{ form_edit_event.submit }}
+                  </div>
+                  <div>
+                    {% with messages = get_flashed_messages() %}
+                      {% if messages %}
+                        <ul class="error-message-list">
+                          {% for message in messages %}
+                            <p class="error-message">{{ message }}</p>
+                          {% endfor %}
+                        </ul>
+                      {% endif %}
+                    {% endwith %}
+                  </div>
+                  <div id="flash-messages"></div>
+                </form>
+              </div>
+            </div>
+          </div>
+      </div>
+      <script>
+          document.addEventListener('DOMContentLoaded', () => {
+              const editEventModal = document.getElementById('editEventModal');
+              const uidEventInput = document.getElementById('uid');
+              const formEventFields = {
+                  name: document.querySelector('input[name="name"]'),
+                  visibility: document.querySelector('input[name="visibility"]'),
+                  place: document.querySelector('input[name="place"]'),
+                  date: document.querySelector('input[name="date"]'),
+                  end: document.querySelector('input[name="event_end"]'),
+                  description: document.querySelector('textarea[name="description"]'),
+                  author: document.getElementById('event_author'),
+                  created: document.getElementById('event_created'),
+                  id: document.getElementById('event_id'),
+                  event_author: document.getElementById('event_author'),
+              };
+              editEventModal.addEventListener('show.bs.modal', (event) => {
+                  const button = event.relatedTarget;
+                  const uid = button.getAttribute('data-uid');
+                  uidEventInput.value = uid;
+                  document.getElementById('event_edit_modal_form').setAttribute('action', `/api/events/event/update/${uid}`);
+                  fetch(`/api/events/event/${uid}`, {
+                  method: 'GET',
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'X-CSRFToken': '{{ csrf_token() }}',
+                  },
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                        if (data.error) {
+                        console.error(data.error);
+                        } else {
+                            formEventFields.name.value = data.name || '';
+                            //formEventFields.visibility.value = data.visibility || '';
+                            formEventFields.place.value = data.place || '';
+                            formEventFields.date.value = data.date || '';
+                            formEventFields.end.value = data.end || '';
+                            formEventFields.description.textContent = data.description || '';
+                            formEventFields.author.textContent  = data.author || '';
+                            formEventFields.created.textContent  = data.created || '';
+                            formEventFields.id.textContent  = data.id || '';
+                            formEventFields.event_author.textContent  = data.username || '';
+                            const visibility = document.getElementById('visibility');
+                            if (visibility) {
+                                for (let option of visibility.options) {
+                                    if (option.value === data.visibility) {
+                                        option.selected = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    })
+                  .catch(error => console.error('An error occurred:', error));
+              });
+
+              const form = document.getElementById('event_edit_modal_form');
+              const modal = new bootstrap.Modal(document.getElementById('editEventModal'));  // Bootstrap Modal Instanz
+
+              form.addEventListener('submit', (event) => {
+                  event.preventDefault(); 
+                  const formData = new FormData(form);  
+                  fetch(form.action, {
+                      method: 'POST',
+                      body: formData,
+                      headers: {
+                          'X-CSRFToken': '{{ csrf_token() }}'  
+                      }
+                  })
+                  .then(response => response.json())  
+                  .then(data => {
+                      if (data.success) {
+                          window.location.href = 'admin';
+                      } else {
+                          displayFlashMessages(data.error || []);
+                      }
+                  })
+                  .catch(error => {
+                      console.error('Fehler:', error);
+                      displayFlashMessages(['Ein Fehler ist aufgetreten. Womöglich fehlt dir die Berechtigung!']);
+                  });
+              });
+
+          });
+          function displayFlashMessages(messages) {
+              const flashContainer = document.getElementById('flash-messages');
+              flashContainer.innerHTML = '';  // Leere den Container vor dem Hinzufügen neuer Nachrichten
+
+              if (messages.length > 0) {
+                  const ul = document.createElement('ul');
+                  ul.classList.add('error-message-list');
+                  messages.forEach(message => {
+                      const li = document.createElement('li');
+                      li.classList.add('error-message');
+                      li.textContent = message;
+                      ul.appendChild(li);
+                  });
+                  flashContainer.appendChild(ul);
+              }
+          }
+      </script>
+  </div>
+
+
+
+<!-- Registration Modal -->
+
+<div class="modal fade" id="RegistrationModal" tabindex="-1" aria-labelledby="RegistrationModal" aria-hidden="true" data-bs-theme="dark" style="color:white;">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="RegistrationModalH1">Anmeldungen für Event verwalten</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h5>Anmeldung = Zeitraum -> Anmeldung nur im Zeitraum möglich</h5>
+                <table >
+                    <tbody id="id-registration-modal-table">
+                        <tr>
+                            <th>Name</th>
+                            <th>
+                                <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M15.0007 12C15.0007 13.6569 13.6576 15 12.0007 15C10.3439 15 9.00073 13.6569 9.00073 12C9.00073 10.3431 10.3439 9 12.0007 9C13.6576 9 15.0007 10.3431 15.0007 12Z" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12.0012 5C7.52354 5 3.73326 7.94288 2.45898 12C3.73324 16.0571 7.52354 19 12.0012 19C16.4788 19 20.2691 16.0571 21.5434 12C20.2691 7.94291 16.4788 5 12.0012 5Z" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </th>
+                            <th>Anmeldung</th>
+                            <th>möglich ab</th>
+                            <th>möglich bis</th>
+                        </tr>
+                    </tbody>
+                </table>
+                <form class="row g-2" method="POST" action="/api/events/event/<int:eventid>/newRM" id="id-registration-modal-form">
+                    {{ form.hidden_tag() }}
+                    <input type="hidden" name="id" id="id-registration-modal-form-event-id" value="">
+                    <div class="col-md-4">
+                    {{ form_new_registration.RegistrationName }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ form_new_registration.RegistrationStart }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ form_new_registration.RegistrationEnd }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ form_new_registration.RegistrationVisibility }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ form_new_registration.RegistrationAccept }}
+                    </div>
+                    <div class="col-md-12">
+                        {{ form_new_registration.RegistrationSubmit }}
+                    </div>
+                    <div id="registration-flash-messages"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fertig</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const CSRF = document.getElementById("CSRF").getAttribute("content");
+    const RegistrationModal = document.getElementById("RegistrationModal");
+    const idInput = document.getElementById("id-registration-modal-form-event-id");
+    const form = document.getElementById("id-registration-modal-form");
+    const tableBody = document.getElementById("id-registration-modal-table");
+    const submitButton = document.getElementById("RegistrationSubmit");
+
+    const formRegistrationsFields = {
+        RegistrationName: document.querySelector('input[name="RegistrationName"]'),
+        RegistrationStart: document.querySelector('input[name="RegistrationStart"]'),
+        RegistrationEnd: document.querySelector('input[name="RegistrationEnd"]'),
+        RegistrationVisibility: document.querySelector('select[name="RegistrationVisibility"]'),
+        RegistrationAccept: document.querySelector('select[name="RegistrationAccept"]'),
+    };
+
+    function displayFlashMessages(messages) {
+        const flashContainer = document.getElementById('registration-flash-messages');
+        flashContainer.innerHTML = ''; // Clear the container before adding new messages
+
+        if (!messages || Object.keys(messages).length === 0) return;
+
+        const ul = document.createElement('ul');
+        ul.classList.add('error-message-list');
+
+        Object.entries(messages).forEach(([field, errors]) => {
+            errors.forEach(error => {
+                const li = document.createElement('li');
+                li.classList.add('error-message');
+                li.textContent = `${field}: ${error}`; // Format: Field Name - Error Message
+                ul.appendChild(li);
+            });
+        });
+
+        flashContainer.appendChild(ul);
+        flashContainer.classList.remove('d-none'); // Make sure it's visible
+
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            flashContainer.classList.add('d-none');
+        }, 5000);
+    }
+
+
+    async function fetchRegistrationManagers(eventId) {
+        try {
+            const response = await fetch(`/api/events/event/${eventId}/getRM`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+            });
+
+            const data = await response.json();
+            tableBody.innerHTML = `
+                <tr>
+                    <th>Name</th>
+                    <th>
+                        <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15.0007 12C15.0007 13.6569 13.6576 15 12.0007 15C10.3439 15 9.00073 13.6569 9.00073 12C9.00073 10.3431 10.3439 9 12.0007 9C13.6576 9 15.0007 10.3431 15.0007 12Z" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12.0012 5C7.52354 5 3.73326 7.94288 2.45898 12C3.73324 16.0571 7.52354 19 12.0012 19C16.4788 19 20.2691 16.0571 21.5434 12C20.2691 7.94291 16.4788 5 12.0012 5Z" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>    
+                    </th>
+                    <th>Anmeldung</th>
+                    <th>möglich ab</th>
+                    <th>möglich bis</th>
+                    <th>Usernames</th>
+                    <th>Verwaltung</th>
+                </tr>
+            `;
+
+            if (data.error) {
+                displayFlashMessages(data.error || []);
+                return;
+            }
+
+            if (data.length === 0) {
+                tableBody.innerHTML += `<tr><td colspan="7" class="text-center">No registrations available.</td></tr>`;
+                return;
+            }
+
+            data.forEach((item) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.visibility ?? "-"}</td>
+                    <td>${item.accept ?? "-"}</td>
+                    <td>${item.start_hr ?? "-"}</td>
+                    <td>${item.end_hr ?? "-"}</td>
+                    <td>${item.users.length ? item.users.join(", ") : "-"}</td>
+                    <td>
+                        <button class="update-register-btn btn btn-primary" data-id="${item.rmID}" data-event-id="${eventId}">
+                            <div style="display:flex; align-items: center;">
+                                <svg width="20px" height="20px" viewBox="0 0 24 24" fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="m3.99 16.854-1.314 3.504a.75.75 0 0 0 .966.965l3.503-1.314a3 3 0 0 0 1.068-.687L18.36 9.175s-.354-1.061-1.414-2.122c-1.06-1.06-2.122-1.414-2.122-1.414L4.677 15.786a3 3 0 0 0-.687 1.068zm12.249-12.63 1.383-1.383c.248-.248.579-.406.925-.348.487.08 1.232.322 1.934 1.025.703.703.945 1.447 1.025 1.934.058.346-.1.677-.348.925L19.774 7.76s-.353-1.06-1.414-2.12c-1.06-1.062-2.121-1.415-2.121-1.415z" fill="#FFFFFF"/></svg>
+                            </div>    
+                        </button>
+                        <button class="delete-register-btn btn btn-danger" data-id="${item.rmID}" data-event-id="${eventId}">
+                            <div style="display:flex; align-items: center;">
+                                <svg fill="#FFFFFF" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                                        width="20px" height="20px" viewBox="0 0 490.646 490.646"
+                                        xml:space="preserve">
+                                    <g>
+                                    <g>
+                                        <path d="M399.179,67.285l-74.794,0.033L324.356,0L166.214,0.066l0.029,67.318l-74.802,0.033l0.025,62.914h307.739L399.179,67.285z
+                                        M198.28,32.11l94.03-0.041l0.017,35.262l-94.03,0.041L198.28,32.11z"/>
+                                        <path d="M91.465,490.646h307.739V146.359H91.465V490.646z M317.461,193.372h16.028v250.259h-16.028V193.372L317.461,193.372z
+                                        M237.321,193.372h16.028v250.259h-16.028V193.372L237.321,193.372z M157.18,193.372h16.028v250.259H157.18V193.372z"/>
+                                    </g>
+                                    </g>
+                                </svg>
+                            </div>   
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        } catch (error) {
+            displayFlashMessages(data.error || []);
+        }
+    }
+
+    async function deleteRM(rmID, eventId) {
+        try {
+            const response = await fetch(`/api/events/event/${eventId}/deleteRM/${rmID}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "X-CSRF-Token": CSRF },
+            });
+
+            if (!response.ok) throw new Error("Failed to delete registration");
+
+            console.log("Registration deleted");
+            fetchRegistrationManagers(eventId);
+        } catch (error) {
+            console.error("Delete error:", error);
+        }
+    }
+
+    function resetForm(eventId) {
+        form.reset();
+        form.action = `/api/events/event/${eventId}/newRM`;
+        submitButton.value = "Neue Registrierung";
+        displayFlashMessages([]);
+    }
+
+    RegistrationModal.addEventListener("show.bs.modal", (event) => {
+        const button = event.relatedTarget;
+        const eventId = button.getAttribute("data-id");
+
+        idInput.value = eventId;
+        resetForm(eventId);
+        fetchRegistrationManagers(eventId);
+
+        // Remove previous submit event listener to prevent duplicate submissions
+        form.onsubmit = null;
+        form.onsubmit = async (event) => {
+            event.preventDefault();
+            const formData = new FormData(form);
+            
+            try {
+                const response = await fetch(form.action, {
+                    method: "POST",
+                    body: formData,
+                    headers: { "X-CSRFToken": CSRF },
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    fetchRegistrationManagers(eventId);
+                    resetForm(eventId);
+                } else {
+                    displayFlashMessages(data.error || []);
+                }
+            } catch (error) {
+                displayFlashMessages(data.error || []);
+            }
+        };
+    });
+
+    // ✅ Event Delegation for Buttons (prevents multiple event bindings)
+    tableBody.addEventListener("click", async (event) => {
+        const button = event.target.closest("button");
+        if (!button) return;
+        
+        const rmID = button.getAttribute("data-id");
+        const eventId = button.getAttribute("data-event-id");
+
+        if (button.classList.contains("update-register-btn")) {
+            form.action = `/api/events/event/${eventId}/updateRM/${rmID}`;
+            submitButton.value = "Daten ändern!";
+
+            try {
+                const response = await fetch(`/api/events/event/${eventId}/getRM/${rmID}`, {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF },
+                });
+
+                const data = await response.json();
+                if (data.error) {
+                    displayFlashMessages(data.error || []);;
+                    return;
+                }
+
+                formRegistrationsFields.RegistrationName.value = data.name || '';
+                formRegistrationsFields.RegistrationStart.value = data.start || '';
+                formRegistrationsFields.RegistrationEnd.value = data.end || '';
+                formRegistrationsFields.RegistrationAccept.value = data.accept || '';
+
+                const visibility = formRegistrationsFields.RegistrationVisibility;
+                const accept = formRegistrationsFields.RegistrationAccept;
+                if (visibility) {
+                    visibility.value = data.visibility;
+                }
+                if (accept) {
+                    accept.value = data.accept;
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+            }
+        }
+
+        if (button.classList.contains("delete-register-btn")) {
+            if (confirm("Are you sure you want to delete this registration?")) {
+                await deleteRM(rmID, eventId);
+            }
+        }
+    });
+});
+
+</script>

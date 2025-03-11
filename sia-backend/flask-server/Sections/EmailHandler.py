@@ -1,10 +1,13 @@
 from globals import *
+from permissions import *
 from flask import request, flash, url_for, redirect, current_app
 import subprocess
 from database import Tables
 from datetime import datetime, timedelta
 from flask_login import login_required, current_user
 import flask_mail
+import threading
+
 from smtplib import SMTPAuthenticationError, SMTPServerDisconnected, SMTPException
 
 
@@ -56,7 +59,10 @@ def send_mail(email):
 
 def verify_email(current_user):
     domain = request.host_url.rstrip('/')
+    local_tz = ZoneInfo("Europe/Berlin")
+    locale.setlocale(locale.LC_ALL, 'de_DE.utf8')
     now = datetime.now()
+
     timedelta5 = timedelta(minutes=5)
     if current_user.email and not current_user.email_confirmed:
         last_sent = datetime.strptime(current_user.email_cooldown, '%Y-%m-%d %H:%M:%S')
@@ -70,10 +76,11 @@ def verify_email(current_user):
                 recipients=[f"{current_user.email}"],
                 html = f'<p> Hallo {current_user.username}, <br><br> verifiziere jetzt deine E-Mail Adresse bei uns. <br> Erst danach kannst du: <ul><li>Dein Passwort zurücksetzen</li><li>Newsletter erhalten (wenn du möchtest)</li></ul></p> <a href="{domain}/verify_mail/{current_user.uid}/{current_user.email_confirm_token}">Jetzt Verfizieren</a><br><br>Alle deine perösnlichen Daten kannst auf der Profilseite verwalten oder löschen wenn du möchtest.'
             )
-            send_mail(email_msg)
-            flash(f"Eine Email zur Verifizierung von {current_user.email} wurde gesendet! {datetime.now().strftime('%H:%M')}")
+            thread = threading.Thread(target=send_mail, args=(current_app._get_current_object(), email_msg))
+            thread.start()
+            flash(f"Eine Email zur Verifizierung von {current_user.email} wird versendet! {datetime.now().astimezone(local_tz).strftime('%H:%M')}")
         else:
-            flash(f"{current_user.email} ist noch nicht bestätigt. Überprüfe bitte deinen Spamordner! Eine neue Verifizierungsmail kannst du um {(last_sent+timedelta5).strftime('%H:%M')} anfordern.")
+            flash(f"{current_user.email} ist noch nicht bestätigt. Überprüfe bitte deinen Spamordner! Eine neue Verifizierungsmail kannst du um {(last_sent+timedelta5).astimezone(local_tz).strftime('%H:%M')} anfordern.")
             timedelta.min
     if current_user.hs_email and not current_user.hs_email_confirmed:
         last_sent = datetime.strptime(current_user.hs_email_cooldown, '%Y-%m-%d %H:%M:%S')
@@ -87,10 +94,11 @@ def verify_email(current_user):
                 recipients=[f"{current_user.hs_email}"],
                 html = f'<p> Hallo {current_user.username}, <br><br> verifiziere jetzt deine E-Mail Adresse bei uns. <br> Erst danach kannst du: <ul><li>Dein Passwort zurücksetzen</li><li>Newsletter erhalten (wenn du möchtest)</li></ul></p> <a href="{domain}/verify_hs_mail/{current_user.uid}/{current_user.hs_email_confirm_token}">Jetzt Verfizieren</a><br><br>Alle deine perösnlichen Daten kannst auf der Profilseite verwalten oder löschen wenn du möchtest.'
             )
-            send_mail(hs_email_msg)
-            flash(f"Eine Email zur Verifizierung von {current_user.hs_email} wurde gesendet! {datetime.now().strftime('%H:%M')}")
+            thread = threading.Thread(target=send_mail, args=(current_app._get_current_object(), email_msg))
+            thread.start()
+            flash(f"Eine Email zur Verifizierung von {current_user.hs_email} wird versendet! {datetime.now().astimezone(local_tz).strftime('%H:%M')}")
         else:
-            flash(f"{current_user.hs_email} ist noch nicht bestätigt. Überprüfe bitte deinen Spamordner! Eine neue Verifizierungsmail kannst du um {(last_sent+timedelta5).strftime('%H:%M')} anfordern.")
+            flash(f"{current_user.hs_email} ist noch nicht bestätigt. Überprüfe bitte deinen Spamordner! Eine neue Verifizierungsmail kannst du um {(last_sent+timedelta5).astimezone(local_tz).strftime('%H:%M')} anfordern.")
 
 @app.route("/verify_mail/<uid>/<token>",methods=['GET'])
 def verify_mail(uid,token):
@@ -125,7 +133,6 @@ def verify_hs_mail(uid,token):
     else:
         return "Link abgelaufen!"
     return redirect(url_for('profile'))
-
 
 @app.route("/send_verifikation_mail",methods=['GET'])
 @login_required

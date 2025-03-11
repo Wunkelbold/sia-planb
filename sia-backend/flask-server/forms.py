@@ -23,8 +23,6 @@ class EmailRequiredIf(object):
             if form_field.data in values:
                 return  # Validation passed
             
-            field.errors.clear()
-            raise StopValidation
         
 class Forms:
     class RegisterForm(FlaskForm):
@@ -86,15 +84,15 @@ class Forms:
         hs_email = EmailField(
             render_kw={"placeholder": "Hochschul-Email (Nur als Student)"}, 
             validators=[
-                EmailRequiredIf(role="Student"),
+                Regexp(
+                    ".+@hs-albsig\.de", 
+                    message="Deine Email scheint keine HS-Email zu sein XXXXXXXXX@hs-albsig.de."),
+                EmailRequiredIf(role=["Student"]),
                 Length(
                     min=0, 
                     max=30, 
                     message="Die Email darf maximal 30 Zeichen lang sein."),
-                Email(message="Deine Email scheint keine Email zu sein."),
-                Regexp(
-                    "........@hs-albsig\.de", 
-                    message="Deine Email scheint keine HS-Email zu sein XXXXXXXXX@hs-albsig.de.")]) #TODO edge cases überlegen
+                Email(message="Deine Email scheint keine Email zu sein.")]) #TODO edge cases überlegen
         street = StringField(
             render_kw={"placeholder": "Straße"},
             default="", 
@@ -227,7 +225,8 @@ class Forms:
         hs_email = EmailField(
             render_kw={"placeholder": "Hochschul-Email (Nur als Student)"}, 
             validators=[
-                EmailRequiredIf(role="Student"),
+                EmailRequiredIf(role=["Student"]),
+                Optional(),
                 Length(
                     min=0, 
                     max=30, 
@@ -349,7 +348,7 @@ class Forms:
                     message="Die Email darf maximal 30 Zeichen lang sein."),
                 Email(message="Deine Email scheint keine Email zu sein."),
                 Regexp(
-                    "........@hs-albsig\.de", 
+                    ".+@hs-albsig\.de", 
                     message="Deine Email scheint keine HS-Email zu sein XXXXXXXXX@hs-albsig.de.")]) #TODO edge cases überlegen
         street = StringField(
             render_kw={"placeholder": "Straße"},

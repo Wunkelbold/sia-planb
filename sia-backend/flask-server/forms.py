@@ -484,7 +484,7 @@ class Forms:
                 Optional(), 
                 FileAllowed(["png", "jpg", "jpeg"]), 
                 FileSize(5 * 1024 * 1024,message="Uploadlimit 5mb und bitte Seitenverhältnis 1:1")])
-        submit = SubmitField("Submit")
+        submit = SubmitField("Neues Event")
 
     class contactDelete(FlaskForm):
         uid = HiddenField('UID', validators=[InputRequired()])
@@ -532,7 +532,7 @@ class Forms:
                 Optional(), 
                 FileSize(5 * 1024 * 1024,message="Uploadlimit 5mb und bitte Seitenverhältnis 1:1")])
         move_shifts =  BooleanField(default="True")
-        submit = SubmitField("Submit")
+        submit = SubmitField("Event ändern")
 
     class newShiftForm(FlaskForm):
         type = StringField(
@@ -548,7 +548,7 @@ class Forms:
         end = DateTimeLocalField(
             render_kw={"placeholder": "Ende"}, 
             validators=[Optional()])
-        submit = SubmitField("Submit")
+        submit = SubmitField("Neue Schicht")
 
     class newRegistration(FlaskForm):
         RegistrationName = StringField(
@@ -571,36 +571,11 @@ class Forms:
             render_kw={ "id": "RegistrationVisibility"})
         RegistrationAccept = SelectField(
             label="Sichtbarkeit",
-            choices=[("True","Annehmen"),("False","Verweigern")], 
+            choices=[("geöffnet","geöffnet"),("geschlossen","geschlossen")], 
             coerce=str, 
             render_kw={ "id": "RegistrationAccept"})
-        RegistrationSubmit = SubmitField("Submit")
+        RegistrationSubmit = SubmitField("Neue Anmeldung")
         
-    class updateRegistration(FlaskForm):
-        updateName = StringField(
-            render_kw={"placeholder": "Name für Anmeldung"}, 
-            validators=[
-                InputRequired(), 
-                Length(
-                    max=30,
-                    message="Name darf maximal 30 Zeichen lang sein.")])
-        updateRegistrationStart = DateTimeLocalField(
-            render_kw={"placeholder": "Start"}, 
-            validators=[Optional()])
-        updateRegistrationEnd = DateTimeLocalField(
-            render_kw={"placeholder": "Ende"}, 
-            validators=[Optional()])
-        updateRegistrationVisibility = SelectField(
-            label="Sichtbarkeit",
-            choices=[("public","public"),("member","member"),("private","private")], 
-            coerce=str, 
-            render_kw={ "id": "updateRegistrationVisibility"})
-        updateRegistrationAccept = SelectField(
-            label="Anmeldungen akzeptieren",
-            choices=[("True","Annehmen"),("False","Verweigern")], 
-            coerce=str, 
-            render_kw={ "id": "updateRegistrationAccept"})
-        updateRegistrationSubmit = SubmitField("Submit")
 
 
 

@@ -15,6 +15,9 @@ from datetime import datetime
 def format_datetime(dt):
     return dt.strftime('%d-%m-%Y %H:%M') if dt else None
 
+def format_datetime2(dt):
+    return dt.strftime('%Y-%m-%dT%H:%M') if dt else None
+
 class Tables:
     class User(db.Model, UserMixin):
         __tablename__ = 'user'
@@ -121,7 +124,7 @@ class Tables:
         id = db.Column(db.Integer, primary_key=True, autoincrement=True)
         name = db.Column(db.String(30))
         visibility = db.Column(db.String(10))
-        accept = db.Column(db.Boolean)
+        accept = db.Column(db.String(12))
         start = db.Column(db.DateTime)
         end = db.Column(db.DateTime)
         eventFK = db.Column(db.Integer, db.ForeignKey("events.id", ondelete="CASCADE"))
@@ -132,9 +135,9 @@ class Tables:
                 "rmID": self.id,
                 "name": self.name,
                 "visibility": self.visibility,
-                "accept": "geöffnet" if self.accept else "geschlossen" ,
-                "start": format_datetime(self.start),
-                "end": format_datetime(self.end),
+                "accept": self.accept,
+                "start": format_datetime2(self.start),
+                "end": format_datetime2(self.end),
                 "eventFK": self.eventFK,
                 "users": [registration.user_obj.username for registration in self.registration_rel if registration.user_obj]
             }

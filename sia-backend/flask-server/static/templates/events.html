@@ -178,7 +178,7 @@
                                 {% endif%}
                             {% endif%}
     
-                            {% if current_user.is_authenticated and event.registrationManager %}
+                            {% if current_user.is_authenticated and event.show_register_button %}
                                 <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#RegisterModal" data-id="{{ event.id }}" data-id="event.name"> 
                                     Anmelden
                                 </button>
@@ -357,5 +357,182 @@
         });
     </script> 
 {% endif %}
+
+<!--Register Modal-->
+
+{% if current_user.is_authenticated %}
+    <div class="modal fade" id="RegisterModal" tabindex="-1" aria-labelledby="RegisterModal" aria-hidden="true" data-bs-theme="dark" style="color:white;">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="RegisterModalLabel">Bei Event helfen</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            <input id="id-register-modal-form-event-id" type="hidden" value="">
+                <table >
+                <tbody id="id-register-modal-table">
+                    <tr>
+                        <th>Name</th>
+                        <th>
+                            <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15.0007 12C15.0007 13.6569 13.6576 15 12.0007 15C10.3439 15 9.00073 13.6569 9.00073 12C9.00073 10.3431 10.3439 9 12.0007 9C13.6576 9 15.0007 10.3431 15.0007 12Z" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12.0012 5C7.52354 5 3.73326 7.94288 2.45898 12C3.73324 16.0571 7.52354 19 12.0012 19C16.4788 19 20.2691 16.0571 21.5434 12C20.2691 7.94291 16.4788 5 12.0012 5Z" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </th>
+                        <th>Anmeldung</th>
+                        <th>möglich ab</th>
+                        <th>möglich bis</th>
+                    </tr>
+                </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fertig</button>
+            </div>
+            </div>
+        </div>
+    </div> 
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const CSRF = document.getElementById("CSRF").getAttribute("content");
+            const RegisterModal = document.getElementById("RegisterShiftModal");
+            const idInput = document.getElementById("id-register-modal-form-event-id");
+        
+            async function fetchRM(eventId) {
+                const tableBody = document.getElementById("id-register-modal-table");
+        
+                try {
+                    const response = await fetch(`/api/events/event/${eventId}/getRM`, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    });
+        
+                    const data = await response.json();
+                    tableBody.innerHTML = `
+                        <tr>
+                            <th>Name</th>
+                            <th>
+                                <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M15.0007 12C15.0007 13.6569 13.6576 15 12.0007 15C10.3439 15 9.00073 13.6569 9.00073 12C9.00073 10.3431 10.3439 9 12.0007 9C13.6576 9 15.0007 10.3431 15.0007 12Z" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12.0012 5C7.52354 5 3.73326 7.94288 2.45898 12C3.73324 16.0571 7.52354 19 12.0012 19C16.4788 19 20.2691 16.0571 21.5434 12C20.2691 7.94291 16.4788 5 12.0012 5Z" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </th>
+                            <th>Anmeldung</th>
+                            <th>möglich ab</th>
+                            <th>möglich bis</th>
+                        </tr>
+                    `;
+        
+                    if (data.error) {
+                        console.error(data.error);
+                        return;
+                    }
+        
+                    if (data.length === 0) {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `<td colspan="5" class="text-center">Das Event besitzt keine Anmeldemöglichkeiten bis jetzt.</td>`;
+                        tableBody.appendChild(row);
+                    } else {
+                        data.forEach((item) => {
+                            const row = document.createElement("tr");
+                            const usernames = item.users.length ? item.users.join(", ") : "-";
+                            row.innerHTML = `
+                                <td>${item.name}</td>
+                                <td>${item.visibility ?? "-"}</td>
+                                <td>${item.accept ?? "-"}</td>
+                                <td>${item.start ?? "-"}</td>
+                                <td>${item.end ?? "-"}</td>
+                                <td>${usernames ?? "-"}</td>
+                                <td>
+                                    <button class="register-btn btn btn-success" data-id="${item.id}" data-event-id="${eventId}"><svg width="20px" height="20px" viewBox="0 0 24 24" id="_24x24_On_Light_Session-Join" data-name="24x24/On Light/Session-Join" xmlns="http://www.w3.org/2000/svg"><rect id="view-box" width="24" height="24" fill="none"/><path id="Shape" d="M5.75,17.5a.75.75,0,0,1,0-1.5h8.8A1.363,1.363,0,0,0,16,14.75v-12A1.363,1.363,0,0,0,14.55,1.5H5.75a.75.75,0,0,1,0-1.5h8.8A2.853,2.853,0,0,1,17.5,2.75v12A2.853,2.853,0,0,1,14.55,17.5ZM7.22,13.28a.75.75,0,0,1,0-1.061L9.939,9.5H.75A.75.75,0,0,1,.75,8H9.94L7.22,5.28A.75.75,0,0,1,8.28,4.22l4,4,.013.013.005.006.007.008.007.008,0,.005.008.009,0,0,.008.01,0,0,.008.011,0,0,.008.011,0,0,.008.011,0,0,.007.011,0,.005.006.01,0,.007,0,.008,0,.009,0,.006.006.011,0,0,.008.015h0a.751.751,0,0,1-.157.878L8.28,13.28a.75.75,0,0,1-1.06,0Z" transform="translate(3.25 3.25)" fill="#FFF"/></svg></button>
+                                    <button class="unregister-btn btn btn-danger" data-id="${item.id}" data-event-id="${eventId}"><svg width="20px" height="20px" viewBox="0 0 24 24" id="_24x24_On_Light_Session-Leave" data-name="24x24/On Light/Session-Leave" xmlns="http://www.w3.org/2000/svg"><rect id="view-box" width="24" height="24" fill="none"/><path id="Shape" d="M2.95,17.5A2.853,2.853,0,0,1,0,14.75v-12A2.854,2.854,0,0,1,2.95,0h8.8a.75.75,0,0,1,0,1.5H2.95A1.362,1.362,0,0,0,1.5,2.75v12A1.363,1.363,0,0,0,2.95,16h8.8a.75.75,0,0,1,0,1.5Zm9.269-4.219a.751.751,0,0,1,0-1.061L14.939,9.5H5.75a.75.75,0,0,1,0-1.5h9.19L12.219,5.28A.75.75,0,1,1,13.28,4.22l4,4a.749.749,0,0,1,0,1.06l-4,4a.751.751,0,0,1-1.061,0Z" transform="translate(3.25 3.25)" fill="#FFF"/></svg></button>
+                                </td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+        
+                        document.querySelectorAll(".register-btn").forEach((button) => {
+                            button.addEventListener("click", async function () {
+                                const shiftId = this.getAttribute("data-id");
+                                const eventId = this.getAttribute("data-event-id");
+                                await register(shiftId, this.closest("tr"), eventId);
+                            });
+                        });
+                        document.querySelectorAll(".unregister-btn").forEach((button) => {
+                            button.addEventListener("click", async function () {
+                                const shiftId = this.getAttribute("data-id");
+                                const eventId = this.getAttribute("data-event-id");
+                                await unregister(shiftId, this.closest("tr"), eventId);
+                            });
+                        });
+                    }
+                } catch (error) {
+                    console.error("Fetch error:", error);
+                }
+            }
+        
+            async function register(shiftId, rowElement, eventId) {
+                try {
+                    const response = await fetch(`/api/events/event/${eventId}/register/${shiftId}`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-Token": CSRF,
+                        },
+                    });
+        
+                    if (!response.ok) {
+                        throw new Error("Failed to register");
+                    }
+        
+                    const data = await response.json();
+                    console.log("Registered:", data);
+                    rowElement.remove(); 
+        
+                    await fetchRM(eventId); 
+                } catch (error) {
+                    console.error("register error:", error);
+                }
+            }
+            async function unregister(shiftId, rowElement, eventId) {
+                try {
+                    const response = await fetch(`/api/events/event/${eventId}/unregister/${shiftId}`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-Token": CSRF,
+                        },
+                    });
+        
+                    if (!response.ok) {
+                        throw new Error("Failed to unregister");
+                    }
+        
+                    const data = await response.json();
+                    console.log("Unregistered:", data);
+                    rowElement.remove(); 
+        
+                    await fetchRM(eventId); 
+                } catch (error) {
+                    console.error("unregister error:", error);
+                }
+            }
+        
+            
+        
+            ShiftModal.addEventListener("show.bs.modal", (event) => {
+                const button = event.relatedTarget;
+                const eventId = button.getAttribute("data-id");
+                idInput.value = eventId;
+        
+                fetchRM(eventId);
+            });
+        });
+    </script> 
+{% endif %}
+
 {% endblock %}
 

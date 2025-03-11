@@ -47,11 +47,20 @@ def getAllEvents() -> list[Tables.Event]:
     for event in event_list:
         duty_count = db.session.query(Tables.Duty).join(Tables.Shift).filter(Tables.Shift.event == event.id).count()
         shift_count = Tables.Shift.query.filter_by(event=event.id).count()
-        registrationManager = Tables.RegisterManager.query.filter_by(eventFK=event.id).first()
+        registrationManager = Tables.RegisterManager.query.filter_by(eventFK=event.id).all()
 
+        #Logik, ob dem User der Anmeldebutton angezeigt wird oder nicht.
         show_register_button = False
-        for rm in registrationManager:
-            if registrationManager
+        if current_user.is_authenticated:
+            for rm_vis in registrationManager:
+                if rm_vis.visibility == "private" and hasPermissions("events.private"):
+                    show_register_button = True
+                if rm_vis.visibility == "member" and hasPermissions("events.member"):
+                    show_register_button = True
+                if rm_vis.visibility == "public":
+                    show_register_button = True
+
+
 
         individuals_count = (
             db.session.query(func.count(func.distinct(Tables.Duty.user)))
@@ -67,11 +76,8 @@ def getAllEvents() -> list[Tables.Event]:
                 .filter(Tables.Duty.user == current_user.id)
                 .scalar()
             )
-        if current_user.is_authenticated and registrationManager:
-            registrations = Tables.Registration.query.filter_by(rmFK=registrationManager.id,userFK=current_user.id).first()
-        else:
-            personal_count=None
-            registrations=None
+
+        registrations=None
 
         if event.visibility=="public": 
             event_append(event_data,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,show_register_button)
@@ -198,28 +204,39 @@ def apiNewRM(eventid: int):
     if hasPermissions(f"/api/events/event/{eventid}/newRM"):
         form = Forms.newRegistration()
         event = Tables.Event.query.filter_by(id=eventid).first()
-        if event:
-            if form.RegistrationAccept.data == "True":
-                vis = True
-            else:
-                vis = False
+        if form.validate_on_submit and form:
             new_RM = Tables.RegisterManager(
                 eventFK = event.id,
                 name = form.RegistrationName.data,
                 start = form.RegistrationStart.data ,
                 end = form.RegistrationEnd.data,
                 visibility = form.RegistrationVisibility.data,
-                accept = vis
+                accept = form.RegistrationAccept.data
             )
             db.session.add(new_RM)
             db.session.commit()
             return jsonify({'success': True, 'message' : 'Neue Registrierungsmöglichkeit angelegt.'})
+        else:
+            messages=form.errors
+            return jsonify({'success': False, 'message' : messages})
+    else:
+        return jsonify({'success': False, 'message': "Dir fehlt die Berechtigung!"})
+    
+
+@app.route("/api/events/event/<int:eventid>/getRM/<int:rmID>", methods=['GET'])
+def apiGetRmSingle(eventid: int,rmID: int):
+    if hasPermissions(f"/api/events/event/{eventid}/getRM/{rmID}"):
+        registerManager = Tables.RegisterManager.query.filter_by(eventFK=eventid,id=rmID).first()
+        if registerManager:
+            return jsonify(registerManager.getDict())
+        else:
+            return jsonify({'success': True, 'message' : 'Registrierungsmöglichkeiten wurde geladen.'})
     else:
         return jsonify({'success': False, 'message': "Dir fehlt die Berechtigung!"})
 
 @app.route("/api/events/event/<int:eventid>/getRM", methods=['GET'])
 @require_permissions("events.newRM")
-def apiGetRM(eventid: int):
+def apiGetRmall(eventid: int):
     if hasPermissions(f"/api/events/event/{eventid}/getRM"):
         registerManager = Tables.RegisterManager.query.filter_by(eventFK=eventid).all()
         if registerManager:
@@ -232,13 +249,30 @@ def apiGetRM(eventid: int):
 @app.route("/api/events/event/<int:eventid>/updateRM/<int:rmID>", methods=['POST'])
 @require_permissions("events.updateRM")
 def apiUpdateRM(eventid: int,rmID: int):
-    pass
+    if hasPermissions(f"/api/events/event/{eventid}/updateRM/{rmID}"):
+        form = Forms.newRegistration()
+        rm=Tables.RegisterManager.query.filter_by(eventFK=eventid,id=rmID).first()
+        if form.validate_on_submit() and rm:
+            rm.name = form.RegistrationName.data,
+            rm.start = form.RegistrationStart.data ,
+            rm.end = form.RegistrationEnd.data,
+            rm.visibility = form.RegistrationVisibility.data,
+            rm.accept = form.RegistrationAccept.data
+            db.session.commit()
+            return jsonify({'success': True, 'message' : 'Daten angepasst'})
+        else:
+            messages=form.errors
+            return jsonify({'success': False, 'message' : messages})
+    else:
+        return jsonify({'success': False, 'message': "Dir fehlt die Berechtigung!"})
+
+
 
 @app.route("/api/events/event/<int:eventid>/deleteRM/<int:rmID>", methods=['POST'])
 @require_permissions("events.delRM")
 def apiDeleteRM(eventid: int,rmID: int):
-    if hasPermissions(f"/api/events/event/{eventid}/deleteRM"):
-        Tables.RegisterManager.query.filter_by(event=eventid).delete()
+    if hasPermissions(f"/api/events/event/{eventid}/deleteRM/{rmID}"):
+        Tables.RegisterManager.query.filter_by(eventFK=eventid,id=rmID).delete()
         db.session.commit()
         return jsonify({'success': True, 'message' : 'Registrierungsmöglichkeit wurde gelöscht'})
     else:

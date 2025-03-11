@@ -156,12 +156,16 @@
                               <div class="card-body">                                  
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editEventModal" data-uid="{{ event.id }}"> <!-- HIER ID Aufgrund bestehender Infastruktur von MOPSKATER-->
                                   <div style="display:flex; align-items: center;">
-                                  <svg width="20px" height="20px" viewBox="0 0 24 24" fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="m3.99 16.854-1.314 3.504a.75.75 0 0 0 .966.965l3.503-1.314a3 3 0 0 0 1.068-.687L18.36 9.175s-.354-1.061-1.414-2.122c-1.06-1.06-2.122-1.414-2.122-1.414L4.677 15.786a3 3 0 0 0-.687 1.068zm12.249-12.63 1.383-1.383c.248-.248.579-.406.925-.348.487.08 1.232.322 1.934 1.025.703.703.945 1.447 1.025 1.934.058.346-.1.677-.348.925L19.774 7.76s-.353-1.06-1.414-2.12c-1.06-1.062-2.121-1.415-2.121-1.415z" fill="#FFFFFF"/></svg>
+                                   <svg width="20px" height="20px" viewBox="0 0 24 24" fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="m3.99 16.854-1.314 3.504a.75.75 0 0 0 .966.965l3.503-1.314a3 3 0 0 0 1.068-.687L18.36 9.175s-.354-1.061-1.414-2.122c-1.06-1.06-2.122-1.414-2.122-1.414L4.677 15.786a3 3 0 0 0-.687 1.068zm12.249-12.63 1.383-1.383c.248-.248.579-.406.925-.348.487.08 1.232.322 1.934 1.025.703.703.945 1.447 1.025 1.934.058.346-.1.677-.348.925L19.774 7.76s-.353-1.06-1.414-2.12c-1.06-1.062-2.121-1.415-2.121-1.415z" fill="#FFFFFF"/></svg>
                                   </div>
                                 </button>
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#RegistrationModal" data-id="{{ event.id }}">
                                     <div style="display:flex; align-items: center;">
-                                    <svg width="20px" height="20px" viewBox="0 0 24 24" fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="m3.99 16.854-1.314 3.504a.75.75 0 0 0 .966.965l3.503-1.314a3 3 0 0 0 1.068-.687L18.36 9.175s-.354-1.061-1.414-2.122c-1.06-1.06-2.122-1.414-2.122-1.414L4.677 15.786a3 3 0 0 0-.687 1.068zm12.249-12.63 1.383-1.383c.248-.248.579-.406.925-.348.487.08 1.232.322 1.934 1.025.703.703.945 1.447 1.025 1.934.058.346-.1.677-.348.925L19.774 7.76s-.353-1.06-1.414-2.12c-1.06-1.062-2.121-1.415-2.121-1.415z" fill="#FFFFFF"/></svg>
+                                        <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M15.8125 12.0217H3.77148" stroke="#FFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12.8848 9.10571L15.8128 12.0217L12.8848 14.9377" stroke="#FFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path opacity="1" d="M8.50439 7.38897V6.45597C8.50439 4.42097 10.1534 2.77197 12.1894 2.77197H17.0734C19.1034 2.77197 20.7484 4.41697 20.7484 6.44697V17.587C20.7484 19.622 19.0984 21.272 17.0634 21.272H12.1784C10.1494 21.272 8.50439 19.626 8.50439 17.597V16.655" stroke="#FFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
                                     </div>
                                 </button>
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ShiftModal" data-id="{{ event.id }}">
@@ -509,30 +513,30 @@
                   })
                   .then(response => response.json())
                   .then(data => {
-                      if (data.error) {
-                      console.error(data.error);
-                      } else {
-                          formEventFields.name.value = data.name || '';
-                          //formEventFields.visibility.value = data.visibility || '';
-                          formEventFields.place.value = data.place || '';
-                          formEventFields.date.value = data.date || '';
-                          formEventFields.end.value = data.end || '';
-                          formEventFields.description.textContent = data.description || '';
-                          formEventFields.author.textContent  = data.author || '';
-                          formEventFields.created.textContent  = data.created || '';
-                          formEventFields.id.textContent  = data.id || '';
-                          formEventFields.event_author.textContent  = data.username || '';
-                          const visibility = document.getElementById('visibility');
-                          if (visibility) {
-                              for (let option of visibility.options) {
-                                  if (option.value === data.visibility) {
-                                      option.selected = true;
-                                      break;
-                                  }
-                              }
-                          }
-                      }
-                  })
+                        if (data.error) {
+                        console.error(data.error);
+                        } else {
+                            formEventFields.name.value = data.name || '';
+                            //formEventFields.visibility.value = data.visibility || '';
+                            formEventFields.place.value = data.place || '';
+                            formEventFields.date.value = data.date || '';
+                            formEventFields.end.value = data.end || '';
+                            formEventFields.description.textContent = data.description || '';
+                            formEventFields.author.textContent  = data.author || '';
+                            formEventFields.created.textContent  = data.created || '';
+                            formEventFields.id.textContent  = data.id || '';
+                            formEventFields.event_author.textContent  = data.username || '';
+                            const visibility = document.getElementById('visibility');
+                            if (visibility) {
+                                for (let option of visibility.options) {
+                                    if (option.value === data.visibility) {
+                                        option.selected = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    })
                   .catch(error => console.error('An error occurred:', error));
               });
 
@@ -614,22 +618,22 @@
                 <form class="row g-2" method="POST" action="/api/events/event/<int:eventid>/newRM" id="id-registration-modal-form">
                     {{ form.hidden_tag() }}
                     <input type="hidden" name="id" id="id-registration-modal-form-event-id" value="">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                     {{ form_new_registration.RegistrationName }}
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-2">
                         {{ form_new_registration.RegistrationStart }}
-                        </div>
-                    <div class="col-md-6">
+                    </div>
+                    <div class="col-md-2">
                         {{ form_new_registration.RegistrationEnd }}
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-2">
                         {{ form_new_registration.RegistrationVisibility }}
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-2">
                         {{ form_new_registration.RegistrationAccept }}
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         {{ form_new_registration.RegistrationSubmit }}
                     </div>
                 </form>
@@ -643,140 +647,201 @@
 
 
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const CSRF = document.getElementById("CSRF").getAttribute("content");
-        const RegistrationModal = document.getElementById("RegistrationModal");
-        const idInput = document.getElementById("id-registration-modal-form-event-id");
-        const form = document.getElementById("id-registration-modal-form");
+document.addEventListener("DOMContentLoaded", () => {
+    const CSRF = document.getElementById("CSRF").getAttribute("content");
+    const RegistrationModal = document.getElementById("RegistrationModal");
+    const idInput = document.getElementById("id-registration-modal-form-event-id");
+    const form = document.getElementById("id-registration-modal-form");
+    const tableBody = document.getElementById("id-registration-modal-table");
+    const submitButton = document.getElementById("RegistrationSubmit");
 
-        async function fetchRegistrationManagers(eventId) {
-            const tableBody = document.getElementById("id-registration-modal-table");
+    const formRegistrationsFields = {
+        RegistrationName: document.querySelector('input[name="RegistrationName"]'),
+        RegistrationStart: document.querySelector('input[name="RegistrationStart"]'),
+        RegistrationEnd: document.querySelector('input[name="RegistrationEnd"]'),
+        RegistrationVisibility: document.querySelector('select[name="RegistrationVisibility"]'),
+        RegistrationAccept: document.querySelector('select[name="RegistrationAccept"]'),
+    };
 
+    async function fetchRegistrationManagers(eventId) {
+        try {
+            const response = await fetch(`/api/events/event/${eventId}/getRM`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+            });
+
+            const data = await response.json();
+            tableBody.innerHTML = `
+                <tr>
+                    <th>Name</th>
+                    <th>
+                        <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15.0007 12C15.0007 13.6569 13.6576 15 12.0007 15C10.3439 15 9.00073 13.6569 9.00073 12C9.00073 10.3431 10.3439 9 12.0007 9C13.6576 9 15.0007 10.3431 15.0007 12Z" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12.0012 5C7.52354 5 3.73326 7.94288 2.45898 12C3.73324 16.0571 7.52354 19 12.0012 19C16.4788 19 20.2691 16.0571 21.5434 12C20.2691 7.94291 16.4788 5 12.0012 5Z" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>    
+                    </th>
+                    <th>Anmeldung</th>
+                    <th>möglich ab</th>
+                    <th>möglich bis</th>
+                    <th>Usernames</th>
+                    <th>Verwaltung</th>
+                </tr>
+            `;
+
+            if (data.error) {
+                console.error(data.error);
+                return;
+            }
+
+            if (data.length === 0) {
+                tableBody.innerHTML += `<tr><td colspan="7" class="text-center">No registrations available.</td></tr>`;
+                return;
+            }
+
+            data.forEach((item) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.visibility ?? "-"}</td>
+                    <td>${item.accept ?? "-"}</td>
+                    <td>${item.start ?? "-"}</td>
+                    <td>${item.end ?? "-"}</td>
+                    <td>${item.users.length ? item.users.join(", ") : "-"}</td>
+                    <td>
+                        <button class="update-register-btn btn btn-primary" data-id="${item.rmID}" data-event-id="${eventId}">
+                            <div style="display:flex; align-items: center;">
+                                <svg width="20px" height="20px" viewBox="0 0 24 24" fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="m3.99 16.854-1.314 3.504a.75.75 0 0 0 .966.965l3.503-1.314a3 3 0 0 0 1.068-.687L18.36 9.175s-.354-1.061-1.414-2.122c-1.06-1.06-2.122-1.414-2.122-1.414L4.677 15.786a3 3 0 0 0-.687 1.068zm12.249-12.63 1.383-1.383c.248-.248.579-.406.925-.348.487.08 1.232.322 1.934 1.025.703.703.945 1.447 1.025 1.934.058.346-.1.677-.348.925L19.774 7.76s-.353-1.06-1.414-2.12c-1.06-1.062-2.121-1.415-2.121-1.415z" fill="#FFFFFF"/></svg>
+                            </div>    
+                        </button>
+                        <button class="delete-register-btn btn btn-danger" data-id="${item.rmID}" data-event-id="${eventId}">
+                            <div style="display:flex; align-items: center;">
+                                <svg fill="#FFFFFF" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                                        width="20px" height="20px" viewBox="0 0 490.646 490.646"
+                                        xml:space="preserve">
+                                    <g>
+                                    <g>
+                                        <path d="M399.179,67.285l-74.794,0.033L324.356,0L166.214,0.066l0.029,67.318l-74.802,0.033l0.025,62.914h307.739L399.179,67.285z
+                                        M198.28,32.11l94.03-0.041l0.017,35.262l-94.03,0.041L198.28,32.11z"/>
+                                        <path d="M91.465,490.646h307.739V146.359H91.465V490.646z M317.461,193.372h16.028v250.259h-16.028V193.372L317.461,193.372z
+                                        M237.321,193.372h16.028v250.259h-16.028V193.372L237.321,193.372z M157.18,193.372h16.028v250.259H157.18V193.372z"/>
+                                    </g>
+                                    </g>
+                                </svg>
+                            </div>   
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        } catch (error) {
+            console.error("Fetch error:", error);
+        }
+    }
+
+    async function deleteRM(rmID, eventId) {
+        try {
+            const response = await fetch(`/api/events/event/${eventId}/deleteRM/${rmID}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "X-CSRF-Token": CSRF },
+            });
+
+            if (!response.ok) throw new Error("Failed to delete registration");
+
+            console.log("Registration deleted");
+            fetchRegistrationManagers(eventId);
+        } catch (error) {
+            console.error("Delete error:", error);
+        }
+    }
+
+    function resetForm(eventId) {
+        form.reset();
+        form.action = `/api/events/event/${eventId}/newRM`;
+        submitButton.value = "Neue Registrierung";
+    }
+
+    RegistrationModal.addEventListener("show.bs.modal", (event) => {
+        const button = event.relatedTarget;
+        const eventId = button.getAttribute("data-id");
+
+        idInput.value = eventId;
+        resetForm(eventId);
+        fetchRegistrationManagers(eventId);
+
+        // Remove previous submit event listener to prevent duplicate submissions
+        form.onsubmit = null;
+        form.onsubmit = async (event) => {
+            event.preventDefault();
+            const formData = new FormData(form);
+            
             try {
-                const response = await fetch(`/api/events/event/${eventId}/getRM`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
+                const response = await fetch(form.action, {
+                    method: "POST",
+                    body: formData,
+                    headers: { "X-CSRFToken": CSRF },
                 });
 
                 const data = await response.json();
-                tableBody.innerHTML = `
-                    <tr>
-                        <th>Name</th>
-                        <th>
-                            <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M15.0007 12C15.0007 13.6569 13.6576 15 12.0007 15C10.3439 15 9.00073 13.6569 9.00073 12C9.00073 10.3431 10.3439 9 12.0007 9C13.6576 9 15.0007 10.3431 15.0007 12Z" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M12.0012 5C7.52354 5 3.73326 7.94288 2.45898 12C3.73324 16.0571 7.52354 19 12.0012 19C16.4788 19 20.2691 16.0571 21.5434 12C20.2691 7.94291 16.4788 5 12.0012 5Z" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>    
-                        </th>
-                        <th>Anmeldung</th>
-                        <th>möglich ab</th>
-                        <th>möglich bis</th>
-                        <th>Nutzernamen</th>
-                    </tr>
-                `;
+                if (data.success) {
+                    fetchRegistrationManagers(eventId);
+                    resetForm(eventId);
+                } else {
+                    console.error("Form submission error:", data.errors);
+                }
+            } catch (error) {
+                console.error("Error submitting form:", error);
+            }
+        };
+    });
 
+    // ✅ Event Delegation for Buttons (prevents multiple event bindings)
+    tableBody.addEventListener("click", async (event) => {
+        const button = event.target.closest("button");
+        if (!button) return;
+        
+        const rmID = button.getAttribute("data-id");
+        const eventId = button.getAttribute("data-event-id");
+
+        if (button.classList.contains("update-register-btn")) {
+            form.action = `/api/events/event/${eventId}/updateRM/${rmID}`;
+            submitButton.value = "Daten ändern!";
+
+            try {
+                const response = await fetch(`/api/events/event/${eventId}/getRM/${rmID}`, {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF },
+                });
+
+                const data = await response.json();
                 if (data.error) {
                     console.error(data.error);
                     return;
                 }
 
-                if (data.length === 0) {
-                    const row = document.createElement("tr");
-                    row.innerHTML = `<td colspan="5" class="text-center">Das Event besitzt keine Anmeldemöglichkeit.</td>`;
-                    tableBody.appendChild(row);
-                } else {
-                    data.forEach((item) => {
-                        const row = document.createElement("tr");
-                        const usernames = item.users.length ? item.users.join(", ") : "-";
-                        row.innerHTML = `
-                            <td>${item.name}</td>
-                            <td>${item.visibility ?? "-"}</td>
-                            <td>${item.accept ?? "-"}</td>
-                            <td>${item.start ?? "-"}</td>
-                            <td>${item.end ?? "-"}</td>
-                            <td>${usernames ?? "-"}</td>
-                            <td>
-                                <button class="delete-btn btn btn-danger" data-id="${item.rmID}" data-event-id="${eventId}">X</button>
-                            </td>
-                        `;
-                        tableBody.appendChild(row);
-                    });
+                formRegistrationsFields.RegistrationName.value = data.name || '';
+                formRegistrationsFields.RegistrationStart.value = data.start || '';
+                formRegistrationsFields.RegistrationEnd.value = data.end || '';
+                formRegistrationsFields.RegistrationAccept.value = data.accept || '';
 
-                    document.querySelectorAll(".delete-btn").forEach((button) => {
-                        button.addEventListener("click", async function () {
-                            const rmID = this.getAttribute("data-uid");
-                            const eventId = this.getAttribute("data-event-id");
-                            await deleteShift(rmID, this.closest("tr"), eventId);
-                        });
-                    });
+                const visibility = formRegistrationsFields.RegistrationVisibility;
+                const accept = formRegistrationsFields.RegistrationAccept;
+                if (visibility) {
+                    visibility.value = data.visibility;
+                }
+                if (accept) {
+                    accept.value = data.accept;
                 }
             } catch (error) {
                 console.error("Fetch error:", error);
             }
         }
 
-        async function deleteShift(rmID, rowElement, eventId) {
-            try {
-                const response = await fetch(`/api/events/event/${eventid}/deleteRM/${rmID}`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-Token": CSRF,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error("Failed to delete registration");
-                }
-
-                const data = await response.json();
-                console.log("Registration deleted:", data);
-                rowElement.remove(); 
-
-                await fetchRegistrationManagers(eventId); 
-            } catch (error) {
-                console.error("Delete error:", error);
+        if (button.classList.contains("delete-register-btn")) {
+            if (confirm("Are you sure you want to delete this registration?")) {
+                await deleteRM(rmID, eventId);
             }
         }
-
-    
-
-        RegistrationModal.addEventListener("show.bs.modal", (event) => {
-            const button = event.relatedTarget;
-            const eventId = button.getAttribute("data-id");
-
-            idInput.value = eventId;
-            form.action = `/api/events/event/${eventId}/newRM`;
-
-            fetchRegistrationManagers(eventId);
-
-            form.onsubmit = async (event) => {
-                event.preventDefault();
-                const formData = new FormData(form);
-                try {
-                    const response = await fetch(form.action, {
-                        method: "POST",
-                        body: formData,
-                        headers: {
-                            "X-CSRFToken": CSRF,
-                        },
-                    });
-
-                    const data = await response.json();
-                    if (data.success) {
-                        fetchRegistrationManagers(eventId);
-                    } else {
-                        displayFlashMessages(data.errors || []);
-                    }
-                } catch (error) {
-                    console.error("Fehler:", error);
-                    displayFlashMessages([
-                        "Ein Fehler ist aufgetreten. Womöglich fehlt dir die Berechtigung!",
-                    ]);
-                }
-            };
-        });
     });
+});
+
 </script>

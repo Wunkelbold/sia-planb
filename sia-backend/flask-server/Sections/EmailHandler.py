@@ -41,17 +41,18 @@ def update_mail_user(email, password):
 
 def send_mail(app, email: Message, ):
     retcode = 0
-    try:
-        mail.send(email)
-    except SMTPAuthenticationError as e:
-        retcode = 2
-        print(f"SMTP Authentication Error: {e}")
-    except SMTPServerDisconnected as e:
-        retcode = 3
-        print(f"SMTP Server Disconnected: {e}")
-    except SMTPException as e:
-        retcode = 1
-        print(f"General SMTP Exception: {e}")
+    with app.app_context():
+        try:
+            mail.send(email)
+        except SMTPAuthenticationError as e:
+            retcode = 2
+            print(f"SMTP Authentication Error: {e}")
+        except SMTPServerDisconnected as e:
+            retcode = 3
+            print(f"SMTP Server Disconnected: {e}")
+        except SMTPException as e:
+            retcode = 1
+            print(f"General SMTP Exception: {e}")
     if retcode:
         flash("Es gab ein Serverseitiges Problem mit deiner Mail! :(")
         with app.app_context():

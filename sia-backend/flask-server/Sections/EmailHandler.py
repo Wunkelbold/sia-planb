@@ -1,4 +1,5 @@
 from globals import *
+from permissions import *
 from flask import request, flash, url_for, redirect, current_app
 import subprocess
 from database import Tables
@@ -132,7 +133,6 @@ def verify_hs_mail(uid,token):
     else:
         return "Link abgelaufen!"
     return redirect(url_for('profile'))
-
 
 @app.route("/send_verifikation_mail",methods=['GET'])
 @login_required

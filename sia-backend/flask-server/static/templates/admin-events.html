@@ -272,6 +272,17 @@
                     <div class="col-md-2">
                     {{ form_new_shift.submit }}
                     </div>
+                    <div>
+                        {% with messages = get_flashed_messages() %}
+                          {% if messages %}
+                            <ul class="error-message-list">
+                              {% for message in messages %}
+                                <p class="error-message">{{ message }}</p>
+                              {% endfor %}
+                            </ul>
+                          {% endif %}
+                        {% endwith %}
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -398,7 +409,7 @@
                     if (data.success) {
                         fetchShifts(eventId);
                     } else {
-                        displayFlashMessages(data.errors || []);
+                        displayFlashMessages(data.error || []);
                     }
                 } catch (error) {
                     console.error("Fehler:", error);
@@ -558,7 +569,7 @@
                       if (data.success) {
                           window.location.href = 'admin';
                       } else {
-                          displayFlashMessages(data.errors || []);
+                          displayFlashMessages(data.error || []);
                       }
                   })
                   .catch(error => {
@@ -636,6 +647,7 @@
                     <div class="col-md-12">
                         {{ form_new_registration.RegistrationSubmit }}
                     </div>
+                    <div id="registration-flash-messages"></div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -663,6 +675,34 @@ document.addEventListener("DOMContentLoaded", () => {
         RegistrationAccept: document.querySelector('select[name="RegistrationAccept"]'),
     };
 
+    function displayFlashMessages(messages) {
+        const flashContainer = document.getElementById('registration-flash-messages');
+        flashContainer.innerHTML = ''; // Clear the container before adding new messages
+
+        if (!messages || Object.keys(messages).length === 0) return;
+
+        const ul = document.createElement('ul');
+        ul.classList.add('error-message-list');
+
+        Object.entries(messages).forEach(([field, errors]) => {
+            errors.forEach(error => {
+                const li = document.createElement('li');
+                li.classList.add('error-message');
+                li.textContent = `${field}: ${error}`; // Format: Field Name - Error Message
+                ul.appendChild(li);
+            });
+        });
+
+        flashContainer.appendChild(ul);
+        flashContainer.classList.remove('d-none'); // Make sure it's visible
+
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            flashContainer.classList.add('d-none');
+        }, 5000);
+    }
+
+
     async function fetchRegistrationManagers(eventId) {
         try {
             const response = await fetch(`/api/events/event/${eventId}/getRM`, {
@@ -689,7 +729,7 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
 
             if (data.error) {
-                console.error(data.error);
+                displayFlashMessages(data.error || []);
                 return;
             }
 
@@ -734,7 +774,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 tableBody.appendChild(row);
             });
         } catch (error) {
-            console.error("Fetch error:", error);
+            displayFlashMessages(data.error || []);
         }
     }
 
@@ -758,6 +798,7 @@ document.addEventListener("DOMContentLoaded", () => {
         form.reset();
         form.action = `/api/events/event/${eventId}/newRM`;
         submitButton.value = "Neue Registrierung";
+        displayFlashMessages([]);
     }
 
     RegistrationModal.addEventListener("show.bs.modal", (event) => {
@@ -786,10 +827,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     fetchRegistrationManagers(eventId);
                     resetForm(eventId);
                 } else {
-                    console.error("Form submission error:", data.errors);
+                    displayFlashMessages(data.error || []);
                 }
             } catch (error) {
-                console.error("Error submitting form:", error);
+                displayFlashMessages(data.error || []);
             }
         };
     });
@@ -814,7 +855,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const data = await response.json();
                 if (data.error) {
-                    console.error(data.error);
+                    displayFlashMessages(data.error || []);;
                     return;
                 }
 

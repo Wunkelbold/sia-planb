@@ -560,18 +560,20 @@ class Forms:
                     message="Name darf maximal 30 Zeichen lang sein.")])
         RegistrationStart = DateTimeLocalField(
             render_kw={"placeholder": "Start"}, 
-            validators=[Optional()])
+            validators=[EmailRequiredIf(RegistrationAccept=["Zeitraum"])])
         RegistrationEnd = DateTimeLocalField(
             render_kw={"placeholder": "Ende"}, 
-            validators=[Optional()])
+            validators=[EmailRequiredIf(RegistrationAccept=["Zeitraum"])])
         RegistrationVisibility = SelectField(
+            validators=[InputRequired()],
             label="Sichtbarkeit",
             choices=[("public","public"),("member","member"),("private","private")], 
             coerce=str, 
             render_kw={ "id": "RegistrationVisibility"})
         RegistrationAccept = SelectField(
+            validators=[InputRequired()],
             label="Sichtbarkeit",
-            choices=[("geöffnet","geöffnet"),("geschlossen","geschlossen")], 
+            choices=[("Zeitraum","Zeitraum"),("geöffnet","geöffnet"),("geschlossen","geschlossen")], 
             coerce=str, 
             render_kw={ "id": "RegistrationAccept"})
         RegistrationSubmit = SubmitField("Neue Anmeldung")

@@ -5,8 +5,10 @@ from permissions import require_permissions, hasPermissions
 from database import *
 from forms import *
 from flask import current_app
-from datetime import timedelta, timezone
+from datetime import timedelta, timezone, datetime
 from sqlalchemy import func
+import pytz
+from zoneinfo import ZoneInfo
 
 
 def format_datetime(dt):
@@ -76,8 +78,8 @@ def getAllEvents() -> list[Tables.Event]:
                 .filter(Tables.Duty.user == current_user.id)
                 .scalar()
             )
-
-        registrations=None
+        else:
+            personal_count = 0
 
         if event.visibility=="public": 
             event_append(event_data,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,show_register_button)
@@ -204,7 +206,7 @@ def apiNewRM(eventid: int):
     if hasPermissions(f"/api/events/event/{eventid}/newRM"):
         form = Forms.newRegistration()
         event = Tables.Event.query.filter_by(id=eventid).first()
-        if form.validate_on_submit and form:
+        if form.validate() and form:
             new_RM = Tables.RegisterManager(
                 eventFK = event.id,
                 name = form.RegistrationName.data,
@@ -215,12 +217,12 @@ def apiNewRM(eventid: int):
             )
             db.session.add(new_RM)
             db.session.commit()
-            return jsonify({'success': True, 'message' : 'Neue Registrierungsmöglichkeit angelegt.'})
+            return jsonify({'success': True, 'error' : 'Neue Registrierungsmöglichkeit angelegt.'})
         else:
-            messages=form.errors
-            return jsonify({'success': False, 'message' : messages})
+            errors=form.errors
+            return jsonify({'success': False, 'error' : errors})
     else:
-        return jsonify({'success': False, 'message': "Dir fehlt die Berechtigung!"})
+        return jsonify({'success': False, 'error': "Dir fehlt die Berechtigung!"})
     
 
 @app.route("/api/events/event/<int:eventid>/getRM/<int:rmID>", methods=['GET'])
@@ -229,10 +231,9 @@ def apiGetRmSingle(eventid: int,rmID: int):
         registerManager = Tables.RegisterManager.query.filter_by(eventFK=eventid,id=rmID).first()
         if registerManager:
             return jsonify(registerManager.getDict())
-        else:
-            return jsonify({'success': True, 'message' : 'Registrierungsmöglichkeiten wurde geladen.'})
+        return jsonify({'success': False, 'error' : 'Keine Registrierungsmöglichkeiten gefunden.'})
     else:
-        return jsonify({'success': False, 'message': "Dir fehlt die Berechtigung!"})
+        return jsonify({'success': False, 'error': "Dir fehlt die Berechtigung!"})
 
 @app.route("/api/events/event/<int:eventid>/getRM", methods=['GET'])
 @require_permissions("events.newRM")
@@ -242,9 +243,9 @@ def apiGetRmall(eventid: int):
         if registerManager:
             return jsonify([RM.getDict() for RM in registerManager])
         else:
-            return jsonify({'success': True, 'message' : 'Alle Registrierungsmöglichkeiten wurden geladen'})
+            return jsonify({'success': True, 'error' : 'Alle Registrierungsmöglichkeiten wurden geladen'})
     else:
-        return jsonify({'success': False, 'message': "Dir fehlt die Berechtigung!"})
+        return jsonify({'success': False, 'error': "Dir fehlt die Berechtigung!"})
 
 @app.route("/api/events/event/<int:eventid>/updateRM/<int:rmID>", methods=['POST'])
 @require_permissions("events.updateRM")
@@ -259,12 +260,12 @@ def apiUpdateRM(eventid: int,rmID: int):
             rm.visibility = form.RegistrationVisibility.data,
             rm.accept = form.RegistrationAccept.data
             db.session.commit()
-            return jsonify({'success': True, 'message' : 'Daten angepasst'})
+            return jsonify({'success': True, 'error' : 'Daten angepasst'})
         else:
-            messages=form.errors
-            return jsonify({'success': False, 'message' : messages})
+            error=form.errors
+            return jsonify({'success': False, 'error' : error})
     else:
-        return jsonify({'success': False, 'message': "Dir fehlt die Berechtigung!"})
+        return jsonify({'success': False, 'error': "Dir fehlt die Berechtigung!"})
 
 
 
@@ -274,61 +275,66 @@ def apiDeleteRM(eventid: int,rmID: int):
     if hasPermissions(f"/api/events/event/{eventid}/deleteRM/{rmID}"):
         Tables.RegisterManager.query.filter_by(eventFK=eventid,id=rmID).delete()
         db.session.commit()
-        return jsonify({'success': True, 'message' : 'Registrierungsmöglichkeit wurde gelöscht'})
+        return jsonify({'success': True, 'error' : 'Registrierungsmöglichkeit wurde gelöscht'})
     else:
-        return jsonify({'success': False, 'message': "Dir fehlt die Berechtigung!"})
+        return jsonify({'success': False, 'error': "Dir fehlt die Berechtigung!"})
 
 
 @app.route("/api/events/event/<int:eventid>/register/<int:rmID>", methods=['POST'])
 @require_permissions("events.register")
-def apiRegisterEvent(eventid: int, rmID: int):
-    
+def apiRegisterEvent(eventid: int, rmID: int):   
+
     registerManager = Tables.RegisterManager.query.filter_by(eventFK=eventid, id=rmID).first()
-
-    
-    current_time = datetime.now(timezone.utc)
-    vis = registerManager.visibility
-    rmID = registerManager.rmID
-    
-    if not registerManager:
-        return jsonify({'success': False, 'errors': ["Keine Registrierung vorgesehen!"]}), 404
-    
-    existing_registration = Tables.Registration.query.filter_by(rmFK=registerManager.id, userFK=current_user.id).first()
-    if existing_registration:
-        return jsonify({'success': False, 'errors': [f"Bereits angemeldet!"]})
-   
-    if registerManager.start:
-        if current_time < registerManager.start:
-            return jsonify({'success': False, 'errors': [f"Anmeldungen sind erst ab {current_time.astimezone().strftime('%d.%m.%y %H:%M')} möglich."]})
+    if registerManager:
+        vis = registerManager.visibility
+        rmID = registerManager.id
+        if registerManager.accept == "Zeitraum":
+            local_tz = ZoneInfo("Europe/Berlin")
+            current_time = datetime.now(timezone.utc)
+            if not registerManager:
+                return jsonify({'success': False, 'errors': ["Keine Registrierung vorgesehen!"]}), 404
+            existing_registration = Tables.Registration.query.filter_by(rmFK=registerManager.id, userFK=current_user.id).first()
+            if existing_registration:
+                return jsonify({'success': False, 'errors': [f"Bereits angemeldet!"]})
+            if registerManager.start:
+                register_start_local = registerManager.start.replace(tzinfo=local_tz)  
+                register_start_utc = register_start_local.astimezone(timezone.utc)
+                if current_time < register_start_utc:
+                    return jsonify({'success': False, 'errors': [f"Anmeldungen sind erst ab {current_time.astimezone().strftime('%d.%m.%y %H:%M')} möglich."]})
+            if registerManager.end:
+                register_end_local = registerManager.end.replace(tzinfo=local_tz)  
+                register_end_utc = register_end_local.astimezone(timezone.utc)
+                if current_time > register_end_utc:
+                    return jsonify({'success': False, 'errors': [f"Anmeldungen sind seit {current_time.astimezone().strftime('%d.%m.%y %H:%M')} nicht mehr möglich."]})    
+            check_register_perm(eventid,rmID,vis)
+        elif registerManager.accept == "geschlossen":
+            return jsonify({'success': False, 'errors': [f"Anmeldungen sind manuell geschlossen."]})
+        elif registerManager.accept == "geöffnet":
+            check_register_perm(eventid,rmID,vis)
+    return jsonify({'success': False, 'errors': [f"Something went wrong"]})
         
-    if registerManager.end:
-        if current_time > registerManager.end:
-            return jsonify({'success': False, 'errors': [f"Anmeldungen sind seit {current_time.astimezone().strftime('%d.%m.%y %H:%M')} nicht mehr möglich."]})
-
-    if vis == "public":
-        return process_registration(eventid,rmID)
-    
-    if vis == "member":
-        if hasPermissions("events.register.member"):
-            return process_registration(eventid,rmID)
-        else:
-            abort(403, "Nur Mitglieder können sich für dieses Event anmelden!")
-
-    if vis == "private":
-        if hasPermissions("events.register.private"):
-            return process_registration(eventid,rmID)
-        else:
-            abort(403, "Dieses Event benötigt 'private' Privilegien für eine Anmeldung.")
-    
-    return jsonify({'success': False, 'errors': ["Invalid event visibility type."]}), 400
-
 def process_registration(eventid,rmID):
-
     new_registration = Tables.Registration(rmFK=rmID, userFK=current_user.id)
     db.session.add(new_registration)
     db.session.commit()
+    return jsonify({'success': True, 'error': "Du wurdest erfolgreich für das Event angemeldet"})
 
-    return jsonify({'success': True, 'message': "Du wurdest erfolgreich für das Event angemeldet"})
+def check_register_perm(eventid,rmID,vis):
+    if vis == "public":
+        return process_registration(eventid,rmID) 
+    if vis == "member":
+        if hasPermissions("events.register.member"):
+            return process_registration(eventid,rmID)
+        return jsonify({'success': False, 'errors': ["Nur Mitglieder können sich für dieses Event anmelden!"]})
+    if vis == "private":
+        if hasPermissions("events.register.private"):
+            return process_registration(eventid,rmID)
+        return jsonify({'success': False, 'errors': ["Dieses Event benötigt 'private' Privilegien für eine Anmeldung."]})  
+    return jsonify({'success': False, 'errors': ["Invalid event visibility type."]})
+
+
+
+
 
 
 
@@ -349,7 +355,7 @@ def apiUnregisterEvent(eventid: int, rmID: int):
         db.session.delete(existing_registration)
         db.session.commit()
 
-    return jsonify({'success': True, 'message': "Du wurdest erfolgreich für das Event angemeldet"})
+    return jsonify({'success': True, 'error': "Du wurdest erfolgreich für das Event angemeldet"})
 
 
 

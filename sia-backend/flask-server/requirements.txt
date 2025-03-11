@@ -18,4 +18,3 @@ passlib>=1.7;
 flask-validators;
 flask-simple-captcha>=5.5.5;
 Flask-Migrate>=4.1.0;
-pytz>=2025.1;

@@ -7,7 +7,6 @@ from forms import *
 from flask import current_app
 from datetime import timedelta, timezone, datetime
 from sqlalchemy import func
-import pytz
 from zoneinfo import ZoneInfo
 
 def format_datetime(dt):
@@ -222,6 +221,11 @@ def apiGetRmSingle(eventid: int,rmID: int):
     if hasPermissions(f"/api/events/event/{eventid}/getRM/{rmID}"):
         registerManager = Tables.RegisterManager.query.filter_by(eventFK=eventid,id=rmID).first()
         if registerManager:
+            register_data = registerManager.getDict()
+            if registerManager.accept == "Zeitraum":
+                register_data["join_button_active"] = check_time_span(registerManager)
+            if registerManager.accept == "geschlossen":
+                register_data["join_button_active"] = False
             return jsonify(registerManager.getDict())
         return jsonify({'success': False, 'error' : 'Keine Registrierungsmöglichkeiten gefunden.'})
     else:
@@ -233,13 +237,22 @@ def apiGetRmall(eventid: int):
     rmList = []
     if registerManager:
         for rm in registerManager:
-            if rm.visibility == "private" and hasPermissions(f"events.register.private"):
-                rmList.append(rm)
-            if rm.visibility == "member" and hasPermissions(f"events.register.member"):
-                rmList.append(rm)
-            if rm.visibility == "public":
-                rmList.append(rm)
-        return jsonify([RM.getDict() for RM in rmList])
+            rmDict = rm.getDict()
+            if rmDict["accept"] == "Zeitraum":
+                rmDict["join_button_active"] = check_time_span(rm)
+            elif rmDict["accept"] == "geschlossen":
+                rmDict["join_button_active"] = False
+            else:
+                rmDict["join_button_active"] = True 
+
+            if (
+                rmDict["visibility"] == "public" or
+                (rmDict["visibility"] == "private" and hasPermissions("events.register.private")) or
+                (rmDict["visibility"] == "member" and hasPermissions("events.register.member"))
+            ):
+                rmList.append(rmDict)
+
+        return jsonify(rmList)
     else:
         return jsonify({'success': False, 'error': "Es gibt keine Registrierungsmöglichkeit für dieses Event."})
 
@@ -285,24 +298,15 @@ def apiRegisterEvent(eventid: int, rmID: int):
         if existing_registration:
             return jsonify({'success': False, 'errors': [f"Bereits angemeldet!"]})
         if registerManager.accept == "Zeitraum":
-            local_tz = ZoneInfo("Europe/Berlin")
-            current_time = datetime.now(timezone.utc)
-            if registerManager.start:
-                register_start_local = registerManager.start.replace(tzinfo=local_tz)  
-                register_start_utc = register_start_local.astimezone(timezone.utc)
-                if current_time < register_start_utc:
-                    return jsonify({'success': False, 'errors': [f"Anmeldungen sind erst ab {current_time.astimezone().strftime('%d.%m.%y %H:%M')} möglich."]})
-            if registerManager.end:
-                register_end_local = registerManager.end.replace(tzinfo=local_tz)  
-                register_end_utc = register_end_local.astimezone(timezone.utc)
-                if current_time > register_end_utc:
-                    return jsonify({'success': False, 'errors': [f"Anmeldungen sind seit {current_time.astimezone().strftime('%d.%m.%y %H:%M')} nicht mehr möglich."]})    
-            check_register_perm(eventid,rmID,vis)
+            if check_time_span(registerManager):
+                return check_register_perm(eventid,rmID,vis)
+            else:
+                return jsonify({'success': False, 'error': [f"Die Anmeldephase hat noch nicht begonnen oder ist schon vorbei:"]})
         elif registerManager.accept == "geschlossen":
-            return jsonify({'success': False, 'errors': [f"Anmeldungen sind manuell geschlossen."]})
+            return jsonify({'success': False, 'error': [f"Anmeldungen sind manuell geschlossen."]})
         elif registerManager.accept == "geöffnet":
-            check_register_perm(eventid,rmID,vis)
-    return jsonify({'success': False, 'errors': [f"Something went wrong"]})
+            return check_register_perm(eventid,rmID,vis)
+    return jsonify({'success': False, 'error': [f"Something went wrong"]})
         
 def process_registration(eventid,rmID):
     new_registration = Tables.Registration(rmFK=rmID, userFK=current_user.id)
@@ -310,7 +314,7 @@ def process_registration(eventid,rmID):
     db.session.commit()
     return jsonify({'success': True, 'error': "Du wurdest erfolgreich für das Event angemeldet"})
 
-def check_register_perm(eventid,rmID,vis):
+def check_register_perm(eventid: int, rmID: int, vis: str):
     if vis == "member" and hasPermissions("events.register.member"):
         return process_registration(eventid,rmID)
     if vis == "private" and hasPermissions("events.register.private"):
@@ -318,6 +322,23 @@ def check_register_perm(eventid,rmID,vis):
     if vis == "public":
         return process_registration(eventid,rmID) 
     return jsonify({'success': False, 'errors': ["Keine Berechtigung."]})
+
+def check_time_span(registerManager: Tables.RegisterManager) -> bool:
+    inBetween = True
+    local_tz = ZoneInfo("Europe/Berlin")
+    current_time = datetime.now(timezone.utc)
+    if registerManager.start:
+        register_start_local = registerManager.start.replace(tzinfo=local_tz)  
+        register_start_utc = register_start_local.astimezone(timezone.utc)
+        if current_time < register_start_utc:
+            inBetween = False
+    if registerManager.end:
+        register_end_local = registerManager.end.replace(tzinfo=local_tz)  
+        register_end_utc = register_end_local.astimezone(timezone.utc)
+        if current_time > register_end_utc:
+            inBetween = False
+    return inBetween
+
 
 
 

@@ -10,10 +10,16 @@ from globals import *
 import uuid
 import secrets
 from sqlalchemy.dialects.postgresql import UUID
-from datetime import datetime
+from datetime import datetime, timezone
+
 
 def format_datetime(dt):
     return dt.strftime('%d-%m-%Y %H:%M') if dt else None
+
+def format_datetime_hr(dt):
+    local_tz = ZoneInfo("Europe/Berlin")
+    locale.setlocale(locale.LC_ALL, 'de_DE.utf8')
+    return dt.replace(tzinfo=local_tz).strftime('%a, %d/%m/%y %H:%M') if dt else None
 
 def format_datetime2(dt):
     return dt.strftime('%Y-%m-%dT%H:%M') if dt else None
@@ -98,6 +104,8 @@ class Tables:
                 "type": self.type,
                 "start": format_datetime(self.start),
                 "end": format_datetime(self.end),
+                "start_hr": format_datetime_hr(self.start),
+                "end_hr": format_datetime_hr(self.end),
                 "users": [duty.user_obj.username for duty in self.duty_rel if duty.user_obj]
             }
         
@@ -118,6 +126,19 @@ class Tables:
         email = db.Column(db.String(30))
         message = db.Column(db.String(500))
         created = db.Column(db.TEXT)
+        creation = db.Column(db.DateTime)
+        
+        def getDict(self):
+            return {
+                "id":self.id,
+                "uid":self.uid,
+                "category": self.category,
+                "surname":self.surname,
+                "lastname":self.lastname,
+                "email":self.email,
+                "message":self.message,
+                "creation":format_datetime_hr(self.creation)
+            }
 
     class RegisterManager(db.Model):
         __tablename__ = 'registermanager'
@@ -138,6 +159,8 @@ class Tables:
                 "accept": self.accept,
                 "start": format_datetime2(self.start),
                 "end": format_datetime2(self.end),
+                "start_hr": format_datetime_hr(self.start),
+                "end_hr": format_datetime_hr(self.end),
                 "eventFK": self.eventFK,
                 "users": [registration.user_obj.username for registration in self.registration_rel if registration.user_obj]
             }

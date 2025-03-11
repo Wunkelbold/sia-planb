@@ -745,8 +745,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td>${item.name}</td>
                     <td>${item.visibility ?? "-"}</td>
                     <td>${item.accept ?? "-"}</td>
-                    <td>${item.start ?? "-"}</td>
-                    <td>${item.end ?? "-"}</td>
+                    <td>${item.start_hr ?? "-"}</td>
+                    <td>${item.end_hr ?? "-"}</td>
                     <td>${item.users.length ? item.users.join(", ") : "-"}</td>
                     <td>
                         <button class="update-register-btn btn btn-primary" data-id="${item.rmID}" data-event-id="${eventId}">

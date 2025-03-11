@@ -5,6 +5,8 @@ from flask_bcrypt import Bcrypt
 from flask_simple_captcha import CAPTCHA
 from flask_mail import Mail, Message
 from flask_migrate import Migrate, upgrade, migrate
+import locale
+from zoneinfo import ZoneInfo
 
 app = Flask(__name__, template_folder='static/templates', static_folder='static')
 app.config.from_object(Config)

@@ -7,6 +7,7 @@ from http import HTTPStatus
 import os
 from datetime import datetime, timezone
 from functools import wraps
+
 #-----FILES-----
 from database import Tables, init_database, init_roles, init_default_role
 from forms import Forms
@@ -39,6 +40,11 @@ def run_migrations():
         migrate(message="Auto migration")  # Equivalent to `flask db migrate`
         upgrade()  # Equivalent to `flask db upgrade`
         print("--- Migrations complete.  ---")
+
+def format_datetime_hr(dt):
+    local_tz = ZoneInfo("Europe/Berlin")
+    locale.setlocale(locale.LC_ALL, 'de_DE.utf8')
+    return dt.replace(tzinfo=local_tz).strftime('%a, %d/%m/%y %H:%M') if dt else None
 
 if os.getenv('RUN_MIGRATIONS')=="true":
     run_migrations()
@@ -177,6 +183,7 @@ def admin():
 
     users = Tables.User.query.order_by(Tables.User.last_login.desc()).all()
     contacts = Tables.Contact.query.order_by(Tables.Contact.created.desc()).all() 
+    contacts = [contact.getDict() for contact in contacts]
     timedelta12 = timedelta(days=1)
     today = datetime.now(timezone.utc)
     today -= timedelta12
@@ -209,8 +216,8 @@ def admin():
             "visibility":event.visibility,
             "place":event.place,
             "created":event.created,
-            "date":format_datetime(event.date),
-            "end":format_datetime(event.end),
+            "date":format_datetime_hr(event.date),
+            "end":format_datetime_hr(event.end),
             "description":event.description,
             "duty_count": duty_count,
             "shift_count": shift_count
@@ -258,7 +265,8 @@ def contact():
                 lastname = form.lastname.data,
                 email = form.email.data,
                 message = form.message.data,
-                created = datetime.now()
+                created = datetime.now(),
+                creation = datetime.now()
             )
             db.session.add(newContact)
             db.session.commit()

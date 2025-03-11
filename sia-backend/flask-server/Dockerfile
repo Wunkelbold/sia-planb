@@ -8,5 +8,6 @@ COPY . /opt/flask-backend
 
 RUN pip install -r requirements.txt
 RUN apt-get update && apt-get install -y dovecot-core
+RUN locale-gen de_DE.UTF-8
 
 CMD uwsgi --socket 0.0.0.0:80 --enable-threads --protocol=http -w app:app --stats 0.0.0.0:9191 --stats-http --workers 4 --threads 2

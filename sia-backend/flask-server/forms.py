@@ -22,7 +22,6 @@ class EmailRequiredIf(object):
 
             if form_field.data in values:
                 return  # Validation passed
-            
         
 class Forms:
     class RegisterForm(FlaskForm):
@@ -87,7 +86,7 @@ class Forms:
                 Regexp(
                     ".+@hs-albsig\.de", 
                     message="Deine Email scheint keine HS-Email zu sein XXXXXXXXX@hs-albsig.de."),
-                EmailRequiredIf(role=["Student"]),
+                EmailRequiredIf(role="Student"),
                 Length(
                     min=0, 
                     max=30, 
@@ -225,7 +224,7 @@ class Forms:
         hs_email = EmailField(
             render_kw={"placeholder": "Hochschul-Email (Nur als Student)"}, 
             validators=[
-                EmailRequiredIf(role=["Student"]),
+                EmailRequiredIf(role="Student"),
                 Optional(),
                 Length(
                     min=0, 
@@ -559,10 +558,14 @@ class Forms:
                     message="Name darf maximal 30 Zeichen lang sein.")])
         RegistrationStart = DateTimeLocalField(
             render_kw={"placeholder": "Start"}, 
-            validators=[EmailRequiredIf(RegistrationAccept=["Zeitraum"])])
+            validators=[
+                Optional()
+            ])
         RegistrationEnd = DateTimeLocalField(
             render_kw={"placeholder": "Ende"}, 
-            validators=[EmailRequiredIf(RegistrationAccept=["Zeitraum"])])
+            validators=[
+                Optional()
+            ])
         RegistrationVisibility = SelectField(
             validators=[InputRequired()],
             label="Sichtbarkeit",
@@ -572,7 +575,7 @@ class Forms:
         RegistrationAccept = SelectField(
             validators=[InputRequired()],
             label="Sichtbarkeit",
-            choices=[("Zeitraum","Zeitraum"),("geöffnet","geöffnet"),("geschlossen","geschlossen")], 
+            choices=[("geöffnet","geöffnet"),("Zeitraum","Zeitraum"),("geschlossen","geschlossen")], 
             coerce=str, 
             render_kw={ "id": "RegistrationAccept"})
         RegistrationSubmit = SubmitField("Neue Anmeldung")

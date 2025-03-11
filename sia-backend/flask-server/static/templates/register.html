@@ -176,6 +176,48 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+document.addEventListener("DOMContentLoaded", function () {
+    const roleSelect = document.getElementById("inputRole");
+    const hsEmailInput = document.getElementById("hs_email");
+
+    // Function to validate if email ends with "@hs-albsig.de"
+    function validateHsEmail() {
+        if (roleSelect.value === "Student") {
+            hsEmailInput.required = true;
+            hsEmailInput.classList.add("invalid-input");
+
+            // Check for valid email provider
+            hsEmailInput.addEventListener("input", function () {
+                const emailValue = hsEmailInput.value;
+                if (!emailValue.endsWith("@hs-albsig.de")) {
+                    hsEmailInput.setCustomValidity("Email muss mit '@hs-albsig.de' enden.");
+                    hsEmailInput.classList.add("invalid-input");
+                } else {
+                    hsEmailInput.setCustomValidity(""); // Clear any previous validation errors
+                    hsEmailInput.classList.remove("invalid-input");
+                }
+            });
+        } else {
+            hsEmailInput.required = false;
+            hsEmailInput.setCustomValidity(""); // Clear validation when "Student" is not selected
+            hsEmailInput.classList.remove("invalid-input");
+        }
+    }
+
+    // Initial check on page load
+    validateHsEmail();
+
+    // Listen for role selection change
+    roleSelect.addEventListener("change", validateHsEmail);
+
+    // Prevent form submission if the email is invalid
+    document.querySelector("form").addEventListener("submit", function (event) {
+        if (roleSelect.value === "Student" && !hsEmailInput.validity.valid) {
+            hsEmailInput.classList.add("invalid-input");
+            event.preventDefault(); // Prevent form submission
+        }
+    });
+});
 </script>
 
 {% endblock %}

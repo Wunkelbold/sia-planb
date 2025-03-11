@@ -829,9 +829,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     resetForm(eventId);
                 } else {
                     displayFlashMessages(data.error || []);
+                    console.log(data.error);
                 }
             } catch (error) {
                 displayFlashMessages(data.error || []);
+                console.log(data.error);
             }
         };
     });

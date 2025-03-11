@@ -18,7 +18,7 @@ def format_datetime_hr(dt):
 def format_endtime(dt):
     return dt.strftime('%H:%M') if dt else None
 
-def event_append(events,event,duty_count,shift_count,individuals_count,personal_count, registrationManager, show_register_button):
+def event_append(events,event,duty_count,shift_count,individuals_count,personal_count, registrationManager, show_register_button,personal_registration):
     events.append({
         "id": event.id,
         "name": event.name,
@@ -35,6 +35,7 @@ def event_append(events,event,duty_count,shift_count,individuals_count,personal_
         "personal_count": personal_count,
         "registrationManager": registrationManager,
         "show_register_button": show_register_button,
+        "personal_registration":personal_registration
     })
     return events
 
@@ -68,6 +69,14 @@ def getAllEvents() -> list[Tables.Event]:
                 .filter(Tables.Duty.user == current_user.id)
                 .scalar()
             )
+
+            personal_registration = (
+                db.session.query(func.count(Tables.Registration.id))
+                .join(Tables.RegisterManager)
+                .filter(Tables.RegisterManager.eventFK == event.id)
+                .filter(Tables.Registration.userFK == current_user.id)
+                .scalar()
+            )
             
             individuals_count = (
                 db.session.query(func.count(func.distinct(Tables.Duty.user)))
@@ -80,11 +89,11 @@ def getAllEvents() -> list[Tables.Event]:
             individuals_count = 0
 
         if event.visibility=="public": 
-            event_append(event_data,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,show_register_button)
+            event_append(event_data,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,show_register_button,personal_registration)
         if event.visibility=="member" and hasPermissions("events.member"):
-            event_append(event_data,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,show_register_button)
+            event_append(event_data,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,show_register_button,personal_registration)
         if event.visibility=="private" and hasPermissions("events.private"):
-            event_append(event_data,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,show_register_button)
+            event_append(event_data,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,show_register_button,personal_registration)
     return event_data
 
 '''
@@ -195,21 +204,34 @@ _____            _     _             _   _
 @app.route("/api/events/event/<int:eventid>/newRM", methods=['POST'])
 @require_permissions("events.newRM")
 def apiNewRM(eventid: int):
+    def add_rm(form: Forms.newRegistration) -> str:
+        new_RM = Tables.RegisterManager(
+            eventFK = event.id,
+            name = form.RegistrationName.data,
+            start = form.RegistrationStart.data ,
+            end = form.RegistrationEnd.data,
+            visibility = form.RegistrationVisibility.data,
+            accept = form.RegistrationAccept.data
+        )
+        db.session.add(new_RM)
+        db.session.commit()
+        return jsonify({'success': True, 'error' : 'Neue Registrierungsmöglichkeit angelegt.'})
+
     if hasPermissions(f"/api/events/event/{eventid}/newRM"):
         form = Forms.newRegistration()
         event = Tables.Event.query.filter_by(id=eventid).first()
-        if form.validate() and form:
-            new_RM = Tables.RegisterManager(
-                eventFK = event.id,
-                name = form.RegistrationName.data,
-                start = form.RegistrationStart.data ,
-                end = form.RegistrationEnd.data,
-                visibility = form.RegistrationVisibility.data,
-                accept = form.RegistrationAccept.data
-            )
-            db.session.add(new_RM)
-            db.session.commit()
-            return jsonify({'success': True, 'error' : 'Neue Registrierungsmöglichkeit angelegt.'})
+        if form.validate():
+            if (form.RegistrationAccept.data == "Zeitraum" and form.RegistrationEnd.data and form.RegistrationName.data):
+                return add_rm(form)
+            elif form.RegistrationAccept.data == "geöffnet":
+                return add_rm(form)
+            elif form.RegistrationAccept.data == "geschlossen":
+                return add_rm(form)
+            else:
+                return jsonify({
+                            'success': False,
+                            'error': {'Form': ["Für 'Zeitraum' musst du Start und Ende angeben"]}
+                        })
         else:
             errors=form.errors
             return jsonify({'success': False, 'error' : errors})

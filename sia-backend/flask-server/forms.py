@@ -394,6 +394,10 @@ class Forms:
             choices=[],
             coerce=str, 
             render_kw={ "id": "inputRole"})
+        verify_mail = BooleanField(
+            validators=[
+                Optional()]
+        )
 
     class ContactForm(FlaskForm):
         category = SelectField(

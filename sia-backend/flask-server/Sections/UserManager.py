@@ -5,6 +5,7 @@ from datetime import datetime
 from database import Tables
 from forms import Forms
 from permissions import *
+from Sections.EmailHandler import verify_email
 
 
 
@@ -49,6 +50,11 @@ def update_user(uid):
         user.role = form.role.data
         user.last_updated = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         db.session.commit()
+        if form.verify_mail.data:
+            try:
+                verify_email(user)
+            except:
+                app.logger.info('%s failed to verify email by admin', user.username)
         return jsonify({'success': True})  # JSON-Antwort bei Erfolg
     else:
         for field_name, field_errors in form.errors.items():

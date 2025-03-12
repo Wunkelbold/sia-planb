@@ -254,7 +254,13 @@ def apiGetRmSingle(eventid: int,rmID: int):
     if hasPermissions(f"/api/events/event/{eventid}/getRM/{rmID}"):
         registerManager = Tables.RegisterManager.query.filter_by(eventFK=eventid,id=rmID).first()
         if registerManager:
+            count = (
+                db.session.query(func.count(func.distinct(Tables.Registration.userFK)))
+                .filter(Tables.Registration.rmFK == rmID)
+                .scalar()
+            )
             register_data = registerManager.getDict()
+            register_data["registration_count"] = count
             if registerManager.accept == "Zeitraum":
                 register_data["join_button_active"] = check_time_span(registerManager)
             if registerManager.accept == "geschlossen":
@@ -270,7 +276,13 @@ def apiGetRmall(eventid: int):
     rmList = []
     if registerManager:
         for rm in registerManager:
+            count = (
+                db.session.query(func.count(func.distinct(Tables.Registration.userFK)))
+                .filter(Tables.Registration.rmFK == rm.id)
+                .scalar()
+            )
             rmDict = rm.getDict()
+            rmDict["registration_count"] = count
             if rmDict["accept"] == "Zeitraum":
                 rmDict["join_button_active"] = check_time_span(rm)
             elif rmDict["accept"] == "geschlossen":

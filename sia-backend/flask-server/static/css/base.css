@@ -23,3 +23,11 @@ thead {
   top: 0;
 }
 
+*{
+  color: rgb(224, 224, 224)
+}
+
+.bub{
+  background-color: grey;
+}
+

@@ -44,16 +44,6 @@ thead {
   font-weight: 600;
 }
 
-.crop {
-  max-height: 290px;
-  overflow: hidden;
-}
-
-.crop-events{
-  max-height: 304px;
-  overflow: hidden;
-}
-
 .personal_score {
   color: #198754;
 }

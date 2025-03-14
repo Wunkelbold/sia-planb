@@ -19,7 +19,7 @@
         padding: 10px;
         text-align: left;
     }
-    
+
 </style>
 {% if events %}
 <div class="container" data-bs-theme="dark" style="margin: 100px auto 50px auto ;">
@@ -473,19 +473,37 @@
                         data.forEach((item) => {
                             const row = document.createElement("tr");
                             const usernames = item.users.length ? item.users.join(", ") : "-";
-                            row.innerHTML = `
-                                <td data-label="Name">${item.name}</td>
-                                <td data-label="&#128065;">${item.visibility ?? "-"}</td>
-                                <td data-label="Anmeldemodus">${item.accept ?? "-"}</td>
+                            if(item.accept == "Zeitraum")
+                            { 
+                                row.innerHTML = `
+                                <td>${item.name}</td>
+                                <td class="hide-on-mobile">${item.visibility ?? "-"}</td>
+                                <td class="hide-on-mobile">${item.accept ?? "-"}</td>
                                 <td data-label="Anmeldestart">${item.start_hr ?? "-"}</td>
                                 <td data-label="Anmeldeschluss">${item.end_hr ?? "-"}</td>
-                                <td data-label="#">${item.registration_count ?? "-"}</td>
-                                <td data-label="Angemeldet">${usernames ?? "-"}</td>
+                                <td class="hide-on-mobile" data-label="#">${item.registration_count ?? "-"}</td>
+                                <td data-label="Angemeldet: ${item.registration_count}">${usernames ?? "-"}</td>
                                 <td>
                                     <button class="register-btn btn btn-success ${item.join_button_active === false ? 'disabled' : ''}" data-id="${item.rmID}" data-event-id="${eventId}"><svg width="20px" height="20px" viewBox="0 0 24 24" id="_24x24_On_Light_Session-Join" data-name="24x24/On Light/Session-Join" xmlns="http://www.w3.org/2000/svg"><rect id="view-box" width="24" height="24" fill="none"/><path id="Shape" d="M5.75,17.5a.75.75,0,0,1,0-1.5h8.8A1.363,1.363,0,0,0,16,14.75v-12A1.363,1.363,0,0,0,14.55,1.5H5.75a.75.75,0,0,1,0-1.5h8.8A2.853,2.853,0,0,1,17.5,2.75v12A2.853,2.853,0,0,1,14.55,17.5ZM7.22,13.28a.75.75,0,0,1,0-1.061L9.939,9.5H.75A.75.75,0,0,1,.75,8H9.94L7.22,5.28A.75.75,0,0,1,8.28,4.22l4,4,.013.013.005.006.007.008.007.008,0,.005.008.009,0,0,.008.01,0,0,.008.011,0,0,.008.011,0,0,.008.011,0,0,.007.011,0,.005.006.01,0,.007,0,.008,0,.009,0,.006.006.011,0,0,.008.015h0a.751.751,0,0,1-.157.878L8.28,13.28a.75.75,0,0,1-1.06,0Z" transform="translate(3.25 3.25)" fill="#FFF"/></svg></button>
                                     <button class="unregister-btn btn btn-danger" data-id="${item.rmID}" data-event-id="${eventId}"><svg width="20px" height="20px" viewBox="0 0 24 24" id="_24x24_On_Light_Session-Leave" data-name="24x24/On Light/Session-Leave" xmlns="http://www.w3.org/2000/svg"><rect id="view-box" width="24" height="24" fill="none"/><path id="Shape" d="M2.95,17.5A2.853,2.853,0,0,1,0,14.75v-12A2.854,2.854,0,0,1,2.95,0h8.8a.75.75,0,0,1,0,1.5H2.95A1.362,1.362,0,0,0,1.5,2.75v12A1.363,1.363,0,0,0,2.95,16h8.8a.75.75,0,0,1,0,1.5Zm9.269-4.219a.751.751,0,0,1,0-1.061L14.939,9.5H5.75a.75.75,0,0,1,0-1.5h9.19L12.219,5.28A.75.75,0,1,1,13.28,4.22l4,4a.749.749,0,0,1,0,1.06l-4,4a.751.751,0,0,1-1.061,0Z" transform="translate(3.25 3.25)" fill="#FFF"/></svg></button>
                                 </td>
                             `;
+                            } else {
+                                row.innerHTML = `
+                                <td>${item.name}</td>
+                                <td class="hide-on-mobile">${item.visibility ?? "-"}</td>
+                                <td data-label="Anmeldemodus">${item.accept ?? "-"}</td>
+                                <td class="hide-on-mobile">${item.start_hr ?? "-"}</td>
+                                <td class="hide-on-mobile">${item.end_hr ?? "-"}</td>
+                                <td class="hide-on-mobile" data-label="#">${item.registration_count ?? "-"}</td>
+                                <td data-label="Angemeldet: ${item.registration_count}">${usernames ?? "-"}</td>
+                                <td>
+                                    <button class="register-btn btn btn-success ${item.join_button_active === false ? 'disabled' : ''}" data-id="${item.rmID}" data-event-id="${eventId}"><svg width="20px" height="20px" viewBox="0 0 24 24" id="_24x24_On_Light_Session-Join" data-name="24x24/On Light/Session-Join" xmlns="http://www.w3.org/2000/svg"><rect id="view-box" width="24" height="24" fill="none"/><path id="Shape" d="M5.75,17.5a.75.75,0,0,1,0-1.5h8.8A1.363,1.363,0,0,0,16,14.75v-12A1.363,1.363,0,0,0,14.55,1.5H5.75a.75.75,0,0,1,0-1.5h8.8A2.853,2.853,0,0,1,17.5,2.75v12A2.853,2.853,0,0,1,14.55,17.5ZM7.22,13.28a.75.75,0,0,1,0-1.061L9.939,9.5H.75A.75.75,0,0,1,.75,8H9.94L7.22,5.28A.75.75,0,0,1,8.28,4.22l4,4,.013.013.005.006.007.008.007.008,0,.005.008.009,0,0,.008.01,0,0,.008.011,0,0,.008.011,0,0,.008.011,0,0,.007.011,0,.005.006.01,0,.007,0,.008,0,.009,0,.006.006.011,0,0,.008.015h0a.751.751,0,0,1-.157.878L8.28,13.28a.75.75,0,0,1-1.06,0Z" transform="translate(3.25 3.25)" fill="#FFF"/></svg></button>
+                                    <button class="unregister-btn btn btn-danger" data-id="${item.rmID}" data-event-id="${eventId}"><svg width="20px" height="20px" viewBox="0 0 24 24" id="_24x24_On_Light_Session-Leave" data-name="24x24/On Light/Session-Leave" xmlns="http://www.w3.org/2000/svg"><rect id="view-box" width="24" height="24" fill="none"/><path id="Shape" d="M2.95,17.5A2.853,2.853,0,0,1,0,14.75v-12A2.854,2.854,0,0,1,2.95,0h8.8a.75.75,0,0,1,0,1.5H2.95A1.362,1.362,0,0,0,1.5,2.75v12A1.363,1.363,0,0,0,2.95,16h8.8a.75.75,0,0,1,0,1.5Zm9.269-4.219a.751.751,0,0,1,0-1.061L14.939,9.5H5.75a.75.75,0,0,1,0-1.5h9.19L12.219,5.28A.75.75,0,1,1,13.28,4.22l4,4a.749.749,0,0,1,0,1.06l-4,4a.751.751,0,0,1-1.061,0Z" transform="translate(3.25 3.25)" fill="#FFF"/></svg></button>
+                                </td>
+                            `;
+                            }
+
                             tableBody.appendChild(row);
                         });
         

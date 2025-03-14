@@ -34,12 +34,6 @@
 
 {% block content %}
 <style>
-    @media screen and (max-width: 768px) {
-        .hide-on-mobile {
-            display: none;
-        }
-    }
-
     section {
         padding: 20px;
     }
@@ -79,11 +73,20 @@
         margin-bottom: 20px;
     }
     table, th, td {
-        border: 2px solid #000000;
+      border: 2px solid #000000;
     }
     th, td {
         padding: 10px;
         text-align: left;
+    }
+    @media screen and (max-width: 768px) {
+        .hide-on-mobile {
+          display: none;
+        }
+        th, td {
+          border: none;
+          border-bottom: 1px solid #000000;
+        }
     }
 </style>
 

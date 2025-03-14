@@ -12,12 +12,16 @@
         border-collapse: collapse;
         margin-bottom: 20px;
     }
-    table, th, td {
-        border: 2px solid #000000;
-    }
     th, td {
         padding: 10px;
         text-align: left;
+        border: 1px solid #000000;
+    }
+    @media screen and (max-width: 768px) {
+         th, td {
+          border: none;
+          border-bottom: 1px solid #000000;
+        }
     }
 
 </style>
@@ -293,10 +297,10 @@
                             const row = document.createElement("tr");
                             const usernames = item.users.length ? item.users.join(", ") : "-";
                             row.innerHTML = `
-                                <td data-label="Schicht">${item.type}</td>
-                                <td data-label="Start">${item.start ?? "-"}</td>
-                                <td data-label="ende">${item.end ?? "-"}</td>
-                                <td data-label="Helfer">${usernames ?? "-"}</td>
+                                <td data-label="${item.type}" class="name"></td>
+                                <td data-label="Start:">${item.start ?? "-"}</td>
+                                <td data-label="Ende:">${item.end ?? "-"}</td>
+                                <td data-label="Helfer:">${usernames ?? "-"}</td>
                                 <td>
                                     <button class="join-btn btn btn-success" data-id="${item.id}" data-event-id="${eventId}"><svg width="20px" height="20px" viewBox="0 0 24 24" id="_24x24_On_Light_Session-Join" data-name="24x24/On Light/Session-Join" xmlns="http://www.w3.org/2000/svg"><rect id="view-box" width="24" height="24" fill="none"/><path id="Shape" d="M5.75,17.5a.75.75,0,0,1,0-1.5h8.8A1.363,1.363,0,0,0,16,14.75v-12A1.363,1.363,0,0,0,14.55,1.5H5.75a.75.75,0,0,1,0-1.5h8.8A2.853,2.853,0,0,1,17.5,2.75v12A2.853,2.853,0,0,1,14.55,17.5ZM7.22,13.28a.75.75,0,0,1,0-1.061L9.939,9.5H.75A.75.75,0,0,1,.75,8H9.94L7.22,5.28A.75.75,0,0,1,8.28,4.22l4,4,.013.013.005.006.007.008.007.008,0,.005.008.009,0,0,.008.01,0,0,.008.011,0,0,.008.011,0,0,.008.011,0,0,.007.011,0,.005.006.01,0,.007,0,.008,0,.009,0,.006.006.011,0,0,.008.015h0a.751.751,0,0,1-.157.878L8.28,13.28a.75.75,0,0,1-1.06,0Z" transform="translate(3.25 3.25)" fill="#FFF"/></svg></button>
                                     <button class="leave-btn btn btn-danger" data-id="${item.id}" data-event-id="${eventId}"><svg width="20px" height="20px" viewBox="0 0 24 24" id="_24x24_On_Light_Session-Leave" data-name="24x24/On Light/Session-Leave" xmlns="http://www.w3.org/2000/svg"><rect id="view-box" width="24" height="24" fill="none"/><path id="Shape" d="M2.95,17.5A2.853,2.853,0,0,1,0,14.75v-12A2.854,2.854,0,0,1,2.95,0h8.8a.75.75,0,0,1,0,1.5H2.95A1.362,1.362,0,0,0,1.5,2.75v12A1.363,1.363,0,0,0,2.95,16h8.8a.75.75,0,0,1,0,1.5Zm9.269-4.219a.751.751,0,0,1,0-1.061L14.939,9.5H5.75a.75.75,0,0,1,0-1.5h9.19L12.219,5.28A.75.75,0,1,1,13.28,4.22l4,4a.749.749,0,0,1,0,1.06l-4,4a.751.751,0,0,1-1.061,0Z" transform="translate(3.25 3.25)" fill="#FFF"/></svg></button>
@@ -396,7 +400,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-            <h5>Anmeldung = Zeitraum -> Anmeldung nur im Zeitraum möglich</h5>
+            <h5 class="hide-on-mobile">Anmeldung = Zeitraum -> Anmeldung nur im Zeitraum möglich</h5>
             <input id="id-register-modal-form-event-id" type="hidden" value="">
                 <table class="table table-dark table-striped sortable">
                 <tbody id="id-register-modal-table">
@@ -476,11 +480,11 @@
                             if(item.accept == "Zeitraum")
                             { 
                                 row.innerHTML = `
-                                <td>${item.name}</td>
+                                <td class="name">${item.name}</td>
                                 <td class="hide-on-mobile">${item.visibility ?? "-"}</td>
                                 <td class="hide-on-mobile">${item.accept ?? "-"}</td>
-                                <td data-label="Anmeldestart">${item.start_hr ?? "-"}</td>
-                                <td data-label="Anmeldeschluss">${item.end_hr ?? "-"}</td>
+                                <td data-label="Anmeldestart:">${item.start_hr ?? "-"}</td>
+                                <td data-label="Anmeldeschluss:">${item.end_hr ?? "-"}</td>
                                 <td class="hide-on-mobile" data-label="#">${item.registration_count ?? "-"}</td>
                                 <td data-label="Angemeldet: ${item.registration_count}">${usernames ?? "-"}</td>
                                 <td>
@@ -490,7 +494,7 @@
                             `;
                             } else {
                                 row.innerHTML = `
-                                <td>${item.name}</td>
+                                <td class="name">${item.name}</td>
                                 <td class="hide-on-mobile">${item.visibility ?? "-"}</td>
                                 <td data-label="Anmeldemodus">${item.accept ?? "-"}</td>
                                 <td class="hide-on-mobile">${item.start_hr ?? "-"}</td>

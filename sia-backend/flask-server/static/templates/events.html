@@ -26,7 +26,9 @@
             {% for event in events %}
                 <div class="col">
                     <div class="card h-100" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
-                        <img src="{{ url_for('static', filename='images/eventposter/' + event.uid|string ) }}" class="card-img-top" alt="...">
+                        <div class="crop-events">
+                            <img src="{{ url_for('static', filename='images/eventposter/' + event.uid|string ) }}" class="card-img-top" alt="...">
+                        </div>
                         <div class="card-body">
                             <h5 class="card-title">{{ event.name }}</h5>
                             <p class="card-text">{{ event.description }}</p>
@@ -45,7 +47,7 @@
                                 <!-- SVG Person -->
                                 <svg fill="#FFF" width="20px" height="20px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 15.503A5.041 5.041 0 1 0 16 5.42a5.041 5.041 0 0 0 0 10.083zm0 2.215c-6.703 0-11 3.699-11 5.5v3.363h22v-3.363c0-2.178-4.068-5.5-11-5.5z"/></svg>
                                 
-                                &nbsp;&nbsp;{% if event.personal_count %}<span style="color: rgb(0, 94, 0);"><b>{{ event.personal_count }}</b></span>|{% endif%}{{ event.shift_filled_count}}|{{ event.shift_count}}&nbsp;
+                                &nbsp;&nbsp;{% if event.personal_count %}<span class="personal_score"><b>{{ event.personal_count }}</b></span>|{% endif%}{{ event.shift_filled_count}}|{{ event.shift_count}}&nbsp;
                                 <!--SVG Tasche-->
                                     <svg width="20px" height="20px" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                                         <title>work-case-filled</title>

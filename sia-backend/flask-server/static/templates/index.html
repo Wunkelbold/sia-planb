@@ -25,7 +25,6 @@
                 <source src="{{ url_for('static', filename='images/slider/kamerafahrt.mp4') }}" type="video/mp4" />
             </video>
             <div class="carousel-caption d-none d-md-block slidertext">
-            <h4>Gemeinschaft</h4>
             <p>Der soziale Ausgleich, den man im Leben braucht.</p>
             </div>
         </div>
@@ -151,6 +150,8 @@
             transition: opacity 1s ease-in-out;
         }
 
+
+
     </style>
 <div style="  display: flex; margin: 20px; justify-content: center; align-items: center;"><a href="{{url_for('events')}}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="true">Alle kommenden Events!</a></div>
 {% if events %}
@@ -165,7 +166,10 @@
                                 {% if event != ' ' %}
                                     <div class="col-md-2 card-group">
                                         <div class="card h-20" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                                            <div class="crop">
                                                 <img src="{{ url_for('static', filename='images/eventposter/' + event.uid|string ) }}" class="card-img-top" alt="...">
+                                            </div>
+                                                    
                                                 <div class="card-body">
                                                     <h5 class="card-title">{{ event.name }}</h5>
                                                     <p class="card-text">{{ event.description }}</p>

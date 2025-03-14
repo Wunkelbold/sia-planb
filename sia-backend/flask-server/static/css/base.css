@@ -23,8 +23,8 @@ thead {
   top: 0;
 }
 
-*{
-  color: rgb(224, 224, 224)
+.white_224{
+  color: rgb(224, 224, 224);
 }
 
 .bub{
@@ -42,5 +42,48 @@ thead {
   font-size: 30px;
   text-shadow: 0px 0px 15px black,0px 0px 10px black,0px 0px 2px black;
   font-weight: 600;
+}
+
+.crop {
+  max-height: 290px;
+  overflow: hidden;
+}
+
+.crop-events{
+  max-height: 304px;
+  overflow: hidden;
+}
+
+.personal_score {
+  color: #198754;
+}
+
+@media (max-width: 768px) {
+  table, thead, tbody, th, td, tr {
+      display: block;
+  }
+  
+  thead {
+      display: none;
+  }
+
+  tr {
+      margin-bottom: opx;
+      border: 1px solid #000;
+      padding: 0px;
+  }
+
+  td {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      border-bottom: 1px solid #000;
+  }
+
+  td::before {
+      content: attr(data-label);
+      font-weight: bold;
+      text-transform: uppercase;
+  }
 }
 

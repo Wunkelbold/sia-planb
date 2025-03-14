@@ -31,3 +31,16 @@ thead {
   background-color: grey;
 }
 
+.slidertext p {
+  color: white;
+  font-size: 20px;
+  text-shadow: 0px 0px 15px black, 0px 0px 10px black, 0px 0px 2px black;
+  font-weight: 600;
+}
+
+.slidertext h4{
+  font-size: 30px;
+  text-shadow: 0px 0px 15px black,0px 0px 10px black,0px 0px 2px black;
+  font-weight: 600;
+}
+

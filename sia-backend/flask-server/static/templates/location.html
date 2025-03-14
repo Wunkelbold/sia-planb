@@ -7,21 +7,21 @@
     {% endblock %}
 
     {% block content %}
-    
-    <div style="  display: flex; margin: 20px; justify-content: center; align-items: center;flex-direction: column;">
-      <h1 style="text-shadow: 0px 0px 3px rgb(102, 102, 102);" >Plan B &#128205;</h1>
-      <h1 style="text-shadow: 0px 0px 3px rgb(102, 102, 102);" >Der Dreh- und Angelpunkt des Vereins</h1>
-    </div>
-    <div style="  display: flex; margin: 20px; justify-content: center; align-items: center;"><a href="{{url_for('contact')}}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="true">Location mieten</a></div>
-    <!-- Gallery -->
-    <div class="row " style="max-width: 1920px; margin: 20px;">
+
+<section class="white_224">
+  <div style="  display: flex; margin: 20px; justify-content: center; align-items: center;flex-direction: column;">
+    <h1 style="text-shadow: 0px 0px 3px rgb(102, 102, 102);" >Plan B &#128205;</h1>
+    <h1 style="text-shadow: 0px 0px 3px rgb(102, 102, 102);" >Der Dreh- und Angelpunkt des Vereins</h1>
+  </div>
+  <div style="  display: flex; margin: 20px; justify-content: center; align-items: center;"><a href="{{url_for('contact')}}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="true">Location mieten</a></div>
+  <!-- Gallery -->
+  <div class="row " style="max-width: 1920px; margin: 20px;">
     <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
       <img
       src="/static/images/location/lernraum.jpg"
         class="w-100 shadow-1-strong rounded mb-4"
         alt=""
       />
-
       <img
       src="/static/images/location/eingang.jpg"
         class="w-100 shadow-1-strong rounded mb-4"
@@ -32,17 +32,13 @@
         class="w-100 shadow-1-strong rounded mb-4"
         alt=""
       />
-
     </div>
-  
     <div class="col-lg-4 mb-4 mb-lg-0">
       <img
         src="/static/images/location/kinoabend.jpg"
         class="w-100 shadow-1-strong rounded mb-4"
         alt=""
       />
-
-
       <img
       src="/static/images/location/barbereich.jpg"
       class="w-100 shadow-1-strong rounded mb-4"
@@ -52,7 +48,7 @@
     src="/static/images/location/liveband.jpg"
     class="w-100 shadow-1-strong rounded mb-4"
     alt=""
-  />
+    />
     </div>
   
     <div class="col-lg-4 mb-4 mb-lg-0">
@@ -76,5 +72,6 @@
       />
     </div>
   </div>
+</section>
   <!-- Gallery -->
     {% endblock %}

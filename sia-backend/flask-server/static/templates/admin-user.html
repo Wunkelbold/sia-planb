@@ -31,14 +31,14 @@
                             <td class="hide-on-mobile" {{ ('style="color:green;"' if user.email_confirmed else '') | safe }}>{{user.email}}</td>
                             {% if false %}
                             <td>{{user.surname}}</td>
-                            <td class="hide-on-mobile" >{{user.lastname}}</td>
+                            <td>{{user.lastname}}</td>
                             <td>{{user.street}}</td>
                             <td>{{user.street_no}}</td>
                             <td>{{user.city}}</td>
                             <td>{{user.postalcode}}</td>
                             {% else %}
                             <td>{{user.surname}}</td>
-                            <td class="hide-on-mobile">{{user.lastname}}</td>
+                            <td>{{user.lastname}}</td>
                             <td class="hide-on-mobile">****</td>
                             <td class="hide-on-mobile">****</td>
                             <td class="hide-on-mobile">****</td>

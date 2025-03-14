@@ -10,6 +10,7 @@ from zoneinfo import ZoneInfo
 
 local_tz = ZoneInfo("Europe/Berlin")
 locale.setlocale(locale.LC_ALL, 'de_DE.utf8')
+from sqlalchemy import func
 
 app = Flask(__name__, template_folder='static/templates', static_folder='static')
 app.config.from_object(Config)

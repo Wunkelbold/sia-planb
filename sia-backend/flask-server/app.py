@@ -215,6 +215,12 @@ def admin():
             .with_entities(Tables.User.username) 
             .scalar()
         )
+        shift_filled_count = (
+            db.session.query(func.count(func.distinct(Tables.Shift.id)))
+            .join(Tables.Duty)
+            .filter(Tables.Shift.event == event.id)
+            .scalar()
+        )
         duty_count = db.session.query(Tables.Duty).join(Tables.Shift).filter(Tables.Shift.event == event.id).count()
         shift_count = Tables.Shift.query.filter_by(event=event.id).count()        
         events.append({
@@ -229,7 +235,8 @@ def admin():
             "end":format_datetime_hr(event.end),
             "description":event.description,
             "duty_count": duty_count,
-            "shift_count": shift_count
+            "shift_count": shift_count,
+            "shift_filled_count":shift_filled_count
         })
     
     '''

@@ -19,11 +19,11 @@
                     {% for contact in contacts %}
                         <tr data-uid="{{ contact.uid }}">
                             <td class="hide-on-mobile">{{ contact.category }}</td>
-                            <td>{{ contact.surname }}</td>
-                            <td>{{ contact.lastname }}</td>
-                            <td>{{ contact.email }}</td>
+                            <td data-label="Vorname">{{ contact.surname }}</td>
+                            <td data-label="Nachname">{{ contact.lastname }}</td>
+                            <td data-label="Email">{{ contact.email }}</td>
                             <td>{{ contact.message }}</td>     
-                            <td>{{ contact.creation }}</td>  
+                            <td data-label="Datum">{{ contact.creation }}</td>  
                             <td>
                                 <div class="card-body">
                                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-uid="{{ contact.uid }}">

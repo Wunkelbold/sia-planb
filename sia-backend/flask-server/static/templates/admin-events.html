@@ -334,11 +334,11 @@
                         const row = document.createElement("tr");
                         const usernames = item.users.length ? item.users.join(", ") : "-";
                         row.innerHTML = `
-                            <td data-label="" class="name">${item.type} </td>
-                            <td data-label="Start:">${item.start ?? "-"}</td>
-                            <td data-label="Ende:">${item.end ?? "-"}</td>
-                            <td data-label="Helfer:">${usernames ?? "-"}</td>
-                            <td data-label="Löschen">
+                            <td class="name">${item.type} </td>
+                            <td class="hide-on-mobile">${item.start ?? "-"}</td>
+                            <td data-label="${item.start ?? "-"}">${item.end ?? "-"}</td>
+                            <td class="hide-on-mobile">${usernames ?? "-"}</td>
+                            <td data-label="${usernames ?? "-"}">
                                 <button class="delete-btn btn btn-danger" data-id="${item.id}" data-event-id="${eventId}">X</button>
                             </td>
                         `;

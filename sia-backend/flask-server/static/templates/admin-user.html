@@ -25,8 +25,8 @@
                     {% for user in users %}
                         <tr>
                             <td class="hide-on-mobile">{{user.id}}</td>
-                            <td data-label="Username">{{user.username}}</td>
-                            <td data-label="Rolle">{{user.role}}</td>
+                            <td class="hide-on-mobile">{{user.username}}</td>
+                            <td data-label="{{user.username}}">{{user.role}}</td>
                             <td class="hide-on-mobile" {{ ('style="color:green;"' if user.hs_email_confirmed else '') | safe }}>{{user.hs_email}}</td>
                             <td class="hide-on-mobile" {{ ('style="color:green;"' if user.email_confirmed else '') | safe }}>{{user.email}}</td>
                             {% if false %}
@@ -37,8 +37,8 @@
                             <td>{{user.city}}</td>
                             <td>{{user.postalcode}}</td>
                             {% else %}
-                            <td data-label="Vorname">{{user.surname}}</td>
-                            <td data-label="Nachname">{{user.lastname}}</td>
+                            <td class="hide-on-mobile" >{{user.surname}}</td>
+                            <td data-label="{{user.surname}}">{{user.lastname}}</td>
                             <td class="hide-on-mobile">****</td>
                             <td class="hide-on-mobile">****</td>
                             <td class="hide-on-mobile">****</td>

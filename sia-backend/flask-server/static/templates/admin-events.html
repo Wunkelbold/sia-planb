@@ -40,12 +40,12 @@
                       <tr data-uid="{{ event.uid }}">
                           <td class="hide-on-mobile">{{ event.id }}</td>
                           <td class="name">{{ event.name }}</td>
-                          <td data-label="Ort">{{ event.place }}</td>
-                          <td data-label="Start">{{ event.date }}</td>
-                          <td data-label="Ende">{{ event.end }}</td>     
+                          <td data-label="Ort:">{{ event.place }}</td>
+                          <td class="hide-on-mobile">{{ event.date }}</td>
+                          <td data-label="{{ event.date }}">{{ event.end }}</td>     
                           <td>{{ event.description }}</td> 
                           <td class="hide-on-mobile" >{{ event.username }}</td> <!-- Aus SQL JOIN-->
-                          <td data-label="Sichtbarkeit">
+                          <td data-label="{{ event.shift_filled_count }} | {{ event.shift_count }}">
                             {% if event.visibility == "private" %} 
                               <svg
                                   width="25px"
@@ -151,7 +151,7 @@
                             </svg>
                           {% endif %}
                           </td> 
-                          <td data-label="Helfer / Schichten">{{ event.shift_filled_count }} | {{ event.shift_count }}</td>
+                          <td data-label="Helfer / Schichten" class="hide-on-mobile">{{ event.shift_filled_count }} | {{ event.shift_count }}</td>
                           <td>
                               <div class="card-body">                                  
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editEventModal" data-uid="{{ event.id }}"> <!-- HIER ID Aufgrund bestehender Infastruktur von MOPSKATER-->

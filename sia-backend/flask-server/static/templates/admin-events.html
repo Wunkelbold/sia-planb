@@ -742,7 +742,7 @@ document.addEventListener("DOMContentLoaded", () => {
             data.forEach((item) => {
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td data-label="${item.name}" class="name"></td>
+                    <td class="name">${item.name}</td>
                     <td data-label="&#128065;">${item.visibility ?? "-"}</td>
                     <td data-label="Anmeldemodus:">${item.accept ?? "-"}</td>
                     <td data-label="Anmeldestart:">${item.start_hr ?? "-"}</td>

@@ -1,12 +1,24 @@
 {
     "public":{
-        "Gast":[""],
-        "Student":[""],
-        "Sia-Alumni":[""]
+        "Gast":[    "events.public",
+                    "events.register.public"],
+        "Student":[ "events.student",
+                    "events.public",
+                    "events.register.student",
+                    "events.register.public"],
+        "Sia-Alumni":[  "events.public",
+                        "events.register.public"]
     },
     "private":{
-        "Mitglied": ["/api/events/event/getshifts/*","events.help","events.member","events.register.member"],
+        "Mitglied": [   "/api/events/event/getshifts/*",
+                        "events.help",
+                        "events.member",
+                        "events.public",
+                        "events.student",
+                        "events.register.member",
+                        "events.register.student",
+                        "events.register.public"],
         "Moderator":[""],
-        "Admin":["*"]
+        "Admin":["*","events.*","/api/events/*"]
     }
 }

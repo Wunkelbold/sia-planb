@@ -95,7 +95,7 @@ def verify_email(current_user):
                 recipients=[f"{current_user.hs_email}"],
                 html = f'<p> Hallo {current_user.username}, <br><br> verifiziere jetzt deine E-Mail Adresse bei uns. <br> Erst danach kannst du: <ul><li>Dein Passwort zurücksetzen</li><li>Newsletter erhalten (wenn du möchtest)</li></ul></p> <a href="{domain}/verify_hs_mail/{current_user.uid}/{current_user.hs_email_confirm_token}">Jetzt Verfizieren</a><br><br>Alle deine perösnlichen Daten kannst auf der Profilseite verwalten oder löschen wenn du möchtest.'
             )
-            thread = threading.Thread(target=send_mail, args=(current_app._get_current_object(), email_msg))
+            thread = threading.Thread(target=send_mail, args=(current_app._get_current_object(), hs_email_msg))
             thread.start()
             flash(f"Eine Email zur Verifizierung von {current_user.hs_email} wird versendet! {datetime.now().astimezone(local_tz).strftime('%H:%M')}")
         else:

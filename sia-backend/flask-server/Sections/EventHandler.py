@@ -1,4 +1,4 @@
-from flask_login import current_user
+from flask_login import current_user, login_required
 from globals import app
 from flask import Response, json, render_template, jsonify, request, abort
 from permissions import require_permissions, hasPermissions
@@ -328,6 +328,7 @@ def apiUpdateRM(eventid: int,rmID: int):
             rm.end = form.RegistrationEnd.data,
             rm.visibility = form.RegistrationVisibility.data,
             rm.accept = form.RegistrationAccept.data
+            rm.deny = form.RegistrationDeny.data
             db.session.commit()
             return jsonify({'success': True, 'error' : 'Daten angepasst'})
         else:
@@ -410,18 +411,21 @@ def check_time_span(registerManager: Tables.RegisterManager) -> bool:
 
 
 @app.route("/api/events/event/<int:eventid>/unregister/<int:rmID>", methods=['POST'])
-@require_permissions("events.unregister")
+@login_required
 def apiUnregisterEvent(eventid: int, rmID: int):
     registerManager = Tables.RegisterManager.query.filter_by(eventFK=eventid, id=rmID).first()
 
     if not registerManager:
         return jsonify({'success': False, 'errors': ["Die Abmeldung war nicht möglich, da keine Registrierung (mehr) für das Event existiert!"]}), 404
     
+    if registerManager.deny == "verbieten":
+        return jsonify({'success': False, 'errors': ["Die Abmeldung war nicht möglich, da sie abgeschlaten ist!"]}), 404
+
     existing_registration = Tables.Registration.query.filter_by(rmFK=registerManager.id, userFK=current_user.id).first()
     if not existing_registration:
         return jsonify({'success': False, 'errors': [f"Du warst nie angemeldet!"]})
     
-    if existing_registration:
+    if existing_registration and registerManager.deny == "erlaubt":
         db.session.delete(existing_registration)
         db.session.commit()
 

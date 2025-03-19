@@ -622,6 +622,7 @@
                                 </svg>
                             </th>
                             <th>Anmeldung</th>
+                            <th>Abmeldung</th>
                             <th>möglich ab</th>
                             <th>möglich bis</th>
                         </tr>
@@ -630,7 +631,7 @@
                 <form class="row g-2" method="POST" action="/api/events/event/<int:eventid>/newRM" id="id-registration-modal-form">
                     {{ form.hidden_tag() }}
                     <input type="hidden" name="id" id="id-registration-modal-form-event-id" value="">
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                     {{ form_new_registration.RegistrationName }}
                     </div>
                     <div class="col-md-2">
@@ -644,6 +645,9 @@
                     </div>
                     <div class="col-md-2">
                         {{ form_new_registration.RegistrationAccept }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ form_new_registration.RegistrationDeny }}
                     </div>
                     <div class="col-md-12">
                         {{ form_new_registration.RegistrationSubmit }}
@@ -674,6 +678,7 @@ document.addEventListener("DOMContentLoaded", () => {
         RegistrationEnd: document.querySelector('input[name="RegistrationEnd"]'),
         RegistrationVisibility: document.querySelector('select[name="RegistrationVisibility"]'),
         RegistrationAccept: document.querySelector('select[name="RegistrationAccept"]'),
+        RegistrationDeny: document.querySelector('select[name="RegistrationDeny"]'),
     };
 
     function displayFlashMessages(messages) {
@@ -722,6 +727,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         </svg>    
                     </th>
                     <th class="hide-on-mobile">Anmeldung</th>
+                    <th class="hide-on-mobile">Abmeldung</th>
                     <th class="hide-on-mobile">möglich ab</th>
                     <th class="hide-on-mobile">möglich bis</th>
                     <th class="hide-on-mobile">Usernames</th>
@@ -745,6 +751,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td class="name">${item.name}</td>
                     <td data-label="&#128065;">${item.visibility ?? "-"}</td>
                     <td data-label="Anmeldemodus:">${item.accept ?? "-"}</td>
+                    <td data-label="Abmeldemodus">${item.deny ?? "-"}</td>
                     <td data-label="Anmeldestart:">${item.start_hr ?? "-"}</td>
                     <td data-label="Anmeldeschluss:">${item.end_hr ?? "-"}</td>
                     <td data-label="Angmeldet:">${item.users.length ? item.users.join(", ") : "-"}</td>
@@ -866,14 +873,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 formRegistrationsFields.RegistrationStart.value = data.start || '';
                 formRegistrationsFields.RegistrationEnd.value = data.end || '';
                 formRegistrationsFields.RegistrationAccept.value = data.accept || '';
+                formRegistrationsFields.RegistrationDeny.value = data.deny || '';
 
                 const visibility = formRegistrationsFields.RegistrationVisibility;
                 const accept = formRegistrationsFields.RegistrationAccept;
+                const deny = formRegistrationsFields.RegistrationDeny;
                 if (visibility) {
                     visibility.value = data.visibility;
                 }
                 if (accept) {
                     accept.value = data.accept;
+                }
+                if (deny) {
+                    deny.value = data.deny;
                 }
             } catch (error) {
                 console.error("Fetch error:", error);

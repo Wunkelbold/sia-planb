@@ -68,6 +68,8 @@ def getAllEvents() -> list[Tables.Event]:
                     show_register_button = True
                 if rm_vis.visibility == "member" and hasPermissions("events.member"):
                     show_register_button = True
+                if rm_vis.visibility == "student" and hasPermissions("events.student"):
+                    show_register_button = True
                 if rm_vis.visibility == "public":
                     show_register_button = True
 
@@ -112,6 +114,10 @@ def getAllEvents() -> list[Tables.Event]:
             event_append(shift_filled_count,event_data,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,show_register_button,personal_registration,registration_count)
         if event.visibility=="private" and hasPermissions("events.private"):
             event_append(shift_filled_count,event_data,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,show_register_button,personal_registration,registration_count)
+        if event.visibility=="student" and hasPermissions("events.student"):
+            event_append(shift_filled_count,event_data,event,duty_count,shift_count,individuals_count,personal_count,registrationManager,show_register_button,personal_registration,registration_count)
+
+
     return event_data
 
 '''
@@ -279,6 +285,7 @@ def apiGetRmSingle(eventid: int,rmID: int):
 
 @app.route("/api/events/event/<int:eventid>/getRM", methods=['GET'])
 def apiGetRmall(eventid: int):
+    # Permission will be checked at the end of
     registerManager = Tables.RegisterManager.query.filter_by(eventFK=eventid).all()
     rmList = []
     if registerManager:
@@ -300,6 +307,7 @@ def apiGetRmall(eventid: int):
             if (
                 rmDict["visibility"] == "public" or
                 (rmDict["visibility"] == "private" and hasPermissions("events.register.private")) or
+                (rmDict["visibility"] == "student" and hasPermissions("events.register.student")) or
                 (rmDict["visibility"] == "member" and hasPermissions("events.register.member"))
             ):
                 rmList.append(rmDict)
@@ -370,6 +378,8 @@ def check_register_perm(eventid: int, rmID: int, vis: str):
     if vis == "member" and hasPermissions("events.register.member"):
         return process_registration(eventid,rmID)
     if vis == "private" and hasPermissions("events.register.private"):
+        return process_registration(eventid,rmID)
+    if vis == "student" and hasPermissions("events.register.student"):
         return process_registration(eventid,rmID)
     if vis == "public":
         return process_registration(eventid,rmID) 

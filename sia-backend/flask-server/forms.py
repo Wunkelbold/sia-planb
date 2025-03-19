@@ -456,7 +456,7 @@ class Forms:
                     message="Beschreibung darf maximal 50 Zeichen lang sein.")])
         visibility = SelectField(
             label="Sichtbarkeit",
-            choices=[("public","public"),("member","member"),("private","private")], 
+            choices=[("public","public"),("student","student"),("member","member"),("private","private")], 
             coerce=str, 
             render_kw={ "id": "visibility"})
         place = StringField(
@@ -505,7 +505,7 @@ class Forms:
                     message="Beschreibung darf maximal 50 Zeichen lang sein.")])
         visibility = SelectField(
             label="Sichtbarkeit",
-            choices=[("public","public"),("member","member"),("private","private")], 
+            choices=[("public","public"),("student","student"),("member","member"),("private","private")], 
             coerce=str, 
             render_kw={ "id": "visibility"})
         place = StringField(
@@ -574,7 +574,7 @@ class Forms:
         RegistrationVisibility = SelectField(
             validators=[InputRequired()],
             label="Sichtbarkeit",
-            choices=[("public","public"),("member","member"),("private","private")], 
+            choices=[("public","public"),("student","student"),("member","member"),("private","private")], 
             coerce=str, 
             render_kw={ "id": "RegistrationVisibility"})
         RegistrationAccept = SelectField(

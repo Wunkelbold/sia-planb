@@ -146,6 +146,7 @@ class Tables:
         name = db.Column(db.String(30))
         visibility = db.Column(db.String(10))
         accept = db.Column(db.String(12))
+        deny = db.Column(db.String(12))
         start = db.Column(db.DateTime)
         end = db.Column(db.DateTime)
         eventFK = db.Column(db.Integer, db.ForeignKey("events.id", ondelete="CASCADE"))
@@ -157,6 +158,7 @@ class Tables:
                 "name": self.name,
                 "visibility": self.visibility,
                 "accept": self.accept,
+                "deny":self.deny,
                 "start": format_datetime2(self.start),
                 "end": format_datetime2(self.end),
                 "start_hr": format_datetime_hr(self.start),

@@ -579,10 +579,16 @@ class Forms:
             render_kw={ "id": "RegistrationVisibility"})
         RegistrationAccept = SelectField(
             validators=[InputRequired()],
-            label="Sichtbarkeit",
+            label="Anmeldemodus",
             choices=[("geöffnet","geöffnet"),("Zeitraum","Zeitraum"),("geschlossen","geschlossen")], 
             coerce=str, 
             render_kw={ "id": "RegistrationAccept"})
+        RegistrationDeny = SelectField(
+            validators=[InputRequired()],
+            label="Abmeldemodus",
+            choices=[("erlaubt","erlaubt"),("verboten","verboten")], 
+            coerce=str, 
+            render_kw={ "id": "RegistrationDeny"})
         RegistrationSubmit = SubmitField("Neue Anmeldung")
         
 

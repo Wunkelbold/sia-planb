@@ -7,6 +7,8 @@ from http import HTTPStatus
 import os
 from datetime import datetime, timezone
 from functools import wraps
+import json
+from io import BytesIO
 
 #-----FILES-----
 from database import Tables, init_database, init_roles, init_default_role
@@ -157,6 +159,54 @@ def logout():
 
 #----------ROUTES---------
 
+
+@app.route("/scanner", methods=['GET','POST'])
+@login_required
+def scanner():
+    if hasPermissions("scanner.how"): 
+        if request.method == "POST":
+            if request.data.userid:
+                userid = request.data.userid
+                user = Tables.User.query.filter_by(id=userid).first()
+                if user:
+                    registrations = Tables.Registration.query.filter_by(userFK=user.id).all()
+                    if registrations:
+                        return render_template('scanner.html', title='Sia-Scanner', registrations=registrations)
+                    else:
+                       return jsonify({'success': False, 'error': "User ist nirgends angemeldet."}) 
+                else:
+                   return jsonify({'success': False, 'error': "Kein User zur ID gefunden"}) 
+            else:
+                return jsonify({'success': False, 'error': "User ID wurde nicht gesendet"})
+        return render_template('scanner.html', title='Sia-Scanner')
+    
+
+@app.route("/tickets", methods=['GET'])
+@login_required
+def tickets():
+    user = Tables.User.query.filter_by(id=current_user.id).first()
+    registrations = Tables.Registration.query.filter_by(userFK=current_user.id).all()
+    registrationList = []
+    for rm in registrations:
+        rm
+
+    user_data = {
+        "id": user.id,
+        "username": user.username,
+        "surname":user.surname ,
+        "lastname":user.lastname ,
+        "role":user.role ,
+        "hs_email_confirmed":user.hs_email_confirmed,
+        "uid":user.uid,
+    }
+    json_data = json.dumps(user_data)
+
+    return render_template('scanner.html', title='Tickets', registrations=registrationList, qrcode_strin=json_data)
+
+    
+
+
+
 @app.route("/admin", methods=['GET', 'POST'])
 @require_permissions("adminpanel.show")
 def admin():
@@ -250,9 +300,6 @@ def admin():
     form_new_shift = Forms.newShiftForm()
     form_edit_user.role.choices = [(role.name, role.name) for role in roles] 
     return render_template('admin.html', title='Sia-PlanB.de', events=events, users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(), form_edit_user=form_edit_user, form_edit_event=form_edit_event, form_new_shift=form_new_shift,form_new_registration=form_new_registration)
-
-
-
 
 
 @app.route("/slider/<name>")

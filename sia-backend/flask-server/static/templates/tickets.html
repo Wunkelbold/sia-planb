@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block additionalstyle %}
+{% endblock %}
+
+{% block additionaljavascript %}
+{% endblock %}
+
+{% block content %}
+    <section>
+        <img src="{{ qrcode( {{ qrcode_string }} ) }}">
+    </section>
+    <section style="padding:20px">
+        {% if registrations%}
+            {% for rm in registrations %}
+                
+            {% endfor%}
+        {% endif %}
+    </section>
+{% endblock %}

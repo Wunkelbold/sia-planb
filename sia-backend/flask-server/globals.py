@@ -7,6 +7,9 @@ from flask_mail import Mail, Message
 from flask_migrate import Migrate, upgrade, migrate
 import locale
 from zoneinfo import ZoneInfo
+from flask_qrcode import QRcode
+# [...]
+
 
 local_tz = ZoneInfo("Europe/Berlin")
 locale.setlocale(locale.LC_ALL, 'de_DE.utf8')
@@ -21,3 +24,4 @@ bcrypt = Bcrypt(app)
 SIMPLE_CAPTCHA = CAPTCHA(config=CONFIG_CAPTCHA)
 app = SIMPLE_CAPTCHA.init_app(app)
 mail = Mail(app)
+QRcode(app)

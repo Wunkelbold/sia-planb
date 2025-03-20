@@ -282,7 +282,7 @@ def apiGetRmSingle(eventid: int,rmID: int):
         return jsonify({'success': False, 'error' : 'Keine Registrierungsmöglichkeiten gefunden.'})
     else:
         return jsonify({'success': False, 'error': "Dir fehlt die Berechtigung!"})
-
+    
 @app.route("/api/events/event/<int:eventid>/getRM", methods=['GET'])
 def apiGetRmall(eventid: int):
     # Permission will be checked at the end of

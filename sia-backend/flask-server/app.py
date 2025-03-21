@@ -188,8 +188,8 @@ def tickets():
     registrations = Tables.Registration.query.filter_by(userFK=current_user.id).all()
     registrationList = []
     for rm in registrations:
-        rm
-
+        rm.getDict()
+        registrationList.append(rm)
     user_data = {
         "id": user.id,
         "username": user.username,

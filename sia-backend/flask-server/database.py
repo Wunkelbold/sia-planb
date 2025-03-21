@@ -150,7 +150,7 @@ class Tables:
         start = db.Column(db.DateTime)
         end = db.Column(db.DateTime)
         eventFK = db.Column(db.Integer, db.ForeignKey("events.id", ondelete="CASCADE"))
-        registration_rel = db.relationship("Registration", cascade="all,delete", backref="RegisterManaer", lazy="joined")
+        registration_rel = db.relationship("Registration", cascade="all,delete", backref="RegisterManager", lazy="joined")
 
         def getDict(self):
             return {
@@ -174,7 +174,7 @@ class Tables:
         rmFK = db.Column(db.Integer, db.ForeignKey("registermanager.id", ondelete="CASCADE"))
         teamname = db.Column(db.String(30))
         user_obj = db.relationship("User", backref="registration", lazy="joined")
-        registermanager = db.relationship("RegisterManager", back_populates="registration_rel", lazy="joined")
+        rm_obj = db.relationship("RegisterManager", back_populates="registration_rel", lazy="joined")
 
         def getDict(self):
             return {
@@ -183,7 +183,7 @@ class Tables:
                 "rmFK": self.rmFK,
                 "teamname": self.teamname,
                 "users": [registration.user_obj.username for registration in self.registration_rel if registration.user_obj],
-                "rm_obj": self.rm_obj.name,
+                "rm_name": self.rm_obj.name,
             }
 
     class HowTo(db.Model):

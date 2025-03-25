@@ -1,11 +1,13 @@
 from globals import *
-from flask import flash, url_for, redirect, jsonify
+from flask import flash, url_for, redirect, jsonify,request
 from datetime import datetime
 #-----FILES-----
 from database import Tables
 from forms import Forms
 from permissions import *
 from Sections.EmailHandler import verify_email
+
+import json
 
 
 
@@ -68,6 +70,26 @@ def update_user(uid):
             errors.append(f"{error}")
 
     return jsonify({'success': False, 'errors': errors})  # JSON-Antwort mit Fehlern
+
+
+@app.route("/api/user/get/scanner", methods=["POST"])
+@require_permissions("/api/user/get/scanner/")
+def get_user_scanner():
+    qr_data = request.json.get("qr_data")
+    if not qr_data:
+        return jsonify({"error": "No QR data received"})
+    
+    data = qr_data
+    if "uid" not in data:
+        return jsonify({"error": "Invalid QR code format"})
+
+    user = db.session.query(Tables.User).filter_by(uid=data["uid"]).first()
+    if user:
+        registrations = Tables.Registration.query.filter_by(userFK=user.id).all()
+        registrationList = [rm.getDict() for rm in registrations]  # Convert registrations to dictionary format
+        return jsonify(registrationList)
+    else:
+        return jsonify({"error": "User not found"}), 404
 
 @app.route("/api/user/get/<uid>", methods=["POST"])
 @require_permissions("adminpanel.user.get")

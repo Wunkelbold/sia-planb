@@ -9,7 +9,7 @@ import logging
 from globals import *
 import uuid
 import secrets
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, MONEY
 from datetime import datetime, timezone
 
 
@@ -152,6 +152,7 @@ class Tables:
         eventFK = db.Column(db.Integer, db.ForeignKey("events.id", ondelete="CASCADE"))
         registration_rel = db.relationship("Registration", cascade="all,delete", backref="RegisterManager", lazy="joined")
 
+
         def getDict(self):
             return {
                 "rmID": self.id,
@@ -173,8 +174,10 @@ class Tables:
         userFK = db.Column(db.Integer, db.ForeignKey("user.id", ondelete="CASCADE"))
         rmFK = db.Column(db.Integer, db.ForeignKey("registermanager.id", ondelete="CASCADE"))
         teamname = db.Column(db.String(30))
+        price = db.Column(Numeric(10, 2))
+        paid = db.Column(db.Boolean, default=False)
+        valid = db.Column(db.Boolean, default=False) # Ticket eingeloest / entwertet
         user_obj = db.relationship("User", backref="registration", lazy="joined")
-        rm_obj = db.relationship("RegisterManager", back_populates="registration_rel", lazy="joined")
 
         def getDict(self):
             return {
@@ -182,8 +185,11 @@ class Tables:
                 "userFK": self.userFK,
                 "rmFK": self.rmFK,
                 "teamname": self.teamname,
-                "users": [registration.user_obj.username for registration in self.registration_rel if registration.user_obj],
-                "rm_name": self.rm_obj.name,
+                "users": self.user_obj.username,
+                "rm_name": self.RegisterManager.name,
+                "price" : self.price,
+                "paid": self.paid,
+                "valid": self.valid, #TODO Logik dahinter noch einbinden
             }
 
     class HowTo(db.Model):

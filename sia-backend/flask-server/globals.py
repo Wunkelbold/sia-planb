@@ -13,7 +13,7 @@ from flask_qrcode import QRcode
 
 local_tz = ZoneInfo("Europe/Berlin")
 locale.setlocale(locale.LC_ALL, 'de_DE.utf8')
-from sqlalchemy import func
+from sqlalchemy import func, Numeric
 
 app = Flask(__name__, template_folder='static/templates', static_folder='static')
 app.config.from_object(Config)

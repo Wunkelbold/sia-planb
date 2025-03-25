@@ -161,9 +161,9 @@ def logout():
 
 
 @app.route("/scanner", methods=['GET','POST'])
-@login_required
+@require_permissions("scanner.show")
 def scanner():
-    if hasPermissions("scanner.how"): 
+    if hasPermissions("scanner.show"): 
         if request.method == "POST":
             if request.data.userid:
                 userid = request.data.userid
@@ -179,6 +179,9 @@ def scanner():
             else:
                 return jsonify({'success': False, 'error': "User ID wurde nicht gesendet"})
         return render_template('scanner.html', title='Sia-Scanner')
+    else:
+        return Response(status=403)
+
     
 
 @app.route("/tickets", methods=['GET'])
@@ -187,21 +190,25 @@ def tickets():
     user = Tables.User.query.filter_by(id=current_user.id).first()
     registrations = Tables.Registration.query.filter_by(userFK=current_user.id).all()
     registrationList = []
-    for rm in registrations:
-        rm.getDict()
-        registrationList.append(rm)
-    user_data = {
-        "id": user.id,
-        "username": user.username,
-        "surname":user.surname ,
-        "lastname":user.lastname ,
-        "role":user.role ,
-        "hs_email_confirmed":user.hs_email_confirmed,
-        "uid":user.uid,
-    }
-    json_data = json.dumps(user_data)
+    if registrations:
+        for rm in registrations:
+            registrationList.append(rm.getDict())
+    if user:
+        user_data = {
+            "id": user.id,
+            "username": user.username,
+            "surname":user.surname ,
+            "lastname":user.lastname ,
+            "role":user.role ,
+            "hs_email_confirmed":user.hs_email_confirmed,
+            "uid":str(user.uid),
+        }
+        json_data = json.dumps(user_data)
+        return render_template('tickets.html', title='Tickets', registrations=registrationList, qrcode_string=json_data)
+    else:
+        flash("Serverfehler")
+        return render_template('tickets.html', title='Tickets',messages=get_flashed_messages)
 
-    return render_template('scanner.html', title='Tickets', registrations=registrationList, qrcode_strin=json_data)
 
     
 

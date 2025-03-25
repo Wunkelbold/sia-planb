@@ -603,7 +603,7 @@
 <!-- Registration Modal -->
 
 <div class="modal fade" id="RegistrationModal" tabindex="-1" aria-labelledby="RegistrationModal" aria-hidden="true" data-bs-theme="dark" style="color:white;">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-dialog modal-dialog-scrollable" style="max-width: 1500px;">
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5" id="RegistrationModalH1">Anmeldungen für Event verwalten</h1>
@@ -640,14 +640,17 @@
                     <div class="col-md-2">
                         {{ form_new_registration.RegistrationEnd }}
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-1">
                         {{ form_new_registration.RegistrationVisibility }}
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-1">
                         {{ form_new_registration.RegistrationAccept }}
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-1">
                         {{ form_new_registration.RegistrationDeny }}
+                    </div>
+                    <div class="col-md-2">
+                        Preis
                     </div>
                     <div class="col-md-12">
                         {{ form_new_registration.RegistrationSubmit }}

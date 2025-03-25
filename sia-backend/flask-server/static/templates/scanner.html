@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+    {% block additionalstyle %}
+    <style>
+    html5-qrcode-scanner select {
+        width: 100%; /* or any desired width */
+        padding: .375rem .75rem; /* Add padding to make it match Bootstrap's input */
+        border-radius: .25rem; /* Border radius for Bootstrap-style appearance */
+        border: 1px solid #ced4da; /* Border color from Bootstrap */
+        background-color: #fff; /* Background color from Bootstrap */
+        font-size: 1rem; /* Ensure font size matches Bootstrap */
+    }
+    </style>
+
+    {% endblock %}
+
+    {% block additionaljavascript %}
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    {% endblock %}
+
+    {% block content %}
+
+        <div style="display: flex; margin: 20px; justify-content: center; align-items: center; text-align: center;">
+            <div class="card" style="font-size: 20px; background-color: #747474; box-shadow: 0px 0px 8px rgba(83,83,83,.5);">
+                <div class="card-body white_224"> 
+                    <div id="reader" style="width: 300px;"></div>
+                </div>
+            </div>
+        </div>
+        <div style="display: flex; margin: 20px; justify-content: center; align-items: center; text-align: center;">
+            <div class="card" style="width: 1000px; font-size: 20px; background-color: #747474; box-shadow: 0px 0px 8px rgba(83,83,83,.5);">
+                <div id="registration-container" style="width: 100%; text-align: center;">
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>Registrierung</th>
+                            <th>Preis</th>
+                            <th>Bezahlt</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function sendToBackend(qrData) {
+                // Sending the request to backend to get user and registration details
+                fetch(`/api/user/get/scanner`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json',
+                                "X-CSRF-Token": "{{ csrf_token() }}",
+                     },
+
+                    body: JSON.stringify({ qr_data: qrData })
+                }).then(response => response.json())
+                  .then(data => {
+                      console.log("Backend Response:", data);
+                      if (data.error) {
+                          // Show error message if no registrations or user found
+                          document.getElementById("registration-container").innerHTML = "<div class='card-body white_224' style='margin: 10px;'>Du besitzt keine Tickets.</div>";
+                      } else {
+                          // Dynamically render the registrations into the page
+                          renderRegistrations(data);
+                      }
+                  })
+                  .catch(error => console.error("Error:", error));
+            }
+        
+            function renderRegistrations(registrations) {
+                let container = document.getElementById("registration-container");
+                container.innerHTML = ""; // Clear existing content
+        
+                // Check if registrations are available
+                if (registrations && registrations.length > 0) {
+                    let registrationHTML = `
+                        <div class="card-body white_224" style="margin: 10px;">Nutzer Anmeldungen</div>
+                        <div class="card-body white_224" style="margin: 10px;">
+                            <table style="width: 100%;">
+                                <tr>
+                                    <th>Registrierung</th>
+                                    <th>Preis</th>
+                                    <th>Bezahlt</th>
+                                </tr>`;
+        
+                    // Loop through each registration and create a row in the table
+                    registrations.forEach(function(rm) {
+                        registrationHTML += `
+                            <tr>
+                                <td>${rm.rm_name}</td>
+                                <td>${rm.price ? rm.price : '-'}</td>
+                                <td>${rm.paid ? rm.paid : '-'}</td>
+                            </tr>`;
+                    });
+        
+                    registrationHTML += `</table></div>`;
+        
+                    container.innerHTML = registrationHTML;  // Add new content to the container
+                } else {
+                    // If no registrations, display message
+                    container.innerHTML = "<div class='card-body white_224' style='margin: 10px;'>Du besitzt keine Tickets.</div>";
+                }
+            }
+        
+            function onScanSuccess(decodedText) {
+                // Parse decodedText from JSON
+                let qrData = JSON.parse(decodedText); // Assuming the QR code contains a JSON string
+                sendToBackend(qrData);
+            }
+        
+            // Initialize the QR code scanner
+            new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 })
+                .render(onScanSuccess);
+        </script>
+    {% endblock %}

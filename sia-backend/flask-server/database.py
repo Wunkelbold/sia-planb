@@ -9,7 +9,7 @@ import logging
 from globals import *
 import uuid
 import secrets
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, MONEY
 from datetime import datetime, timezone
 
 
@@ -150,7 +150,8 @@ class Tables:
         start = db.Column(db.DateTime)
         end = db.Column(db.DateTime)
         eventFK = db.Column(db.Integer, db.ForeignKey("events.id", ondelete="CASCADE"))
-        registration_rel = db.relationship("Registration", cascade="all,delete", backref="RegisterManaer", lazy="joined")
+        registration_rel = db.relationship("Registration", cascade="all,delete", backref="RegisterManager", lazy="joined")
+
 
         def getDict(self):
             return {
@@ -173,7 +174,33 @@ class Tables:
         userFK = db.Column(db.Integer, db.ForeignKey("user.id", ondelete="CASCADE"))
         rmFK = db.Column(db.Integer, db.ForeignKey("registermanager.id", ondelete="CASCADE"))
         teamname = db.Column(db.String(30))
+        price = db.Column(Numeric(10, 2))
+        paid = db.Column(db.Boolean, default=False)
+        valid = db.Column(db.Boolean, default=False) # Ticket eingeloest / entwertet
         user_obj = db.relationship("User", backref="registration", lazy="joined")
+
+        def getDict(self):
+            return {
+                "id": self.id,
+                "userFK": self.userFK,
+                "rmFK": self.rmFK,
+                "teamname": self.teamname,
+                "users": self.user_obj.username,
+                "rm_name": self.RegisterManager.name,
+                "price" : self.price,
+                "paid": self.paid,
+                "valid": self.valid, #TODO Logik dahinter noch einbinden
+            }
+
+    class HowTo(db.Model):
+        __tablename__ = 'howto'
+        id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+        userFK = db.Column(db.Integer, db.ForeignKey("user.id"))
+        header = db.Column(db.TEXT)
+        body = db.Column(db.TEXT)
+        created = db.Column(db.DateTime)
+        last_changed = db.Column(db.DateTime)
+        visibility = db.Column(db.String(10))
 
 
 

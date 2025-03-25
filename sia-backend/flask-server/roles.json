@@ -17,8 +17,9 @@
                         "events.student",
                         "events.register.member",
                         "events.register.student",
-                        "events.register.public"],
+                        "events.register.public",
+                        "howto.show"],
         "Moderator":[""],
-        "Admin":["*","events.*","/api/events/*"]
+        "Admin":["*","events.*","/api/events/*","howto.show"]
     }
 }

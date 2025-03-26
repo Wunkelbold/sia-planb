@@ -149,6 +149,7 @@ class Tables:
         deny = db.Column(db.String(12))
         start = db.Column(db.DateTime)
         end = db.Column(db.DateTime)
+        price = db.Column(Numeric(10, 2))
         eventFK = db.Column(db.Integer, db.ForeignKey("events.id", ondelete="CASCADE"))
         registration_rel = db.relationship("Registration", cascade="all,delete", backref="RegisterManager", lazy="joined")
 
@@ -164,6 +165,7 @@ class Tables:
                 "end": format_datetime2(self.end),
                 "start_hr": format_datetime_hr(self.start),
                 "end_hr": format_datetime_hr(self.end),
+                "price": self.price,
                 "eventFK": self.eventFK,
                 "users": [registration.user_obj.username for registration in self.registration_rel if registration.user_obj]
             }
@@ -183,13 +185,15 @@ class Tables:
             return {
                 "id": self.id,
                 "userFK": self.userFK,
+                "userUID": self.user_obj.uid,
                 "rmFK": self.rmFK,
                 "teamname": self.teamname,
                 "users": self.user_obj.username,
                 "rm_name": self.RegisterManager.name,
                 "price" : self.price,
                 "paid": self.paid,
-                "valid": self.valid, #TODO Logik dahinter noch einbinden
+                "valid": self.valid, 
+
             }
 
     class HowTo(db.Model):
@@ -206,7 +210,7 @@ class Tables:
 
     
 def init_database():
-    if os.getenv("DROP_AND_CREATE_DATABASE")=="true": #TODO für dev einmalig mit if os.getenv("DROP_AND_CREATE_DATABASE","true")=="true": ausführen
+    if os.getenv("DROP_AND_CREATE_DATABASE")=="true":
         db.drop_all()
         db.create_all()
         print("--- DROP_AND_CREATE_DATABASE \t true ---")

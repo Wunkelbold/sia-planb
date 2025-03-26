@@ -35,6 +35,7 @@
                             <th>Registrierung</th>
                             <th>Preis</th>
                             <th>Bezahlt</th>
+                            <th>Validiert</th>
                         </tr>
                     </table>
                 </div>
@@ -42,72 +43,212 @@
         </div>
 
         <script>
-            function sendToBackend(qrData) {
-                // Sending the request to backend to get user and registration details
-                fetch(`/api/user/get/scanner`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json',
-                                "X-CSRF-Token": "{{ csrf_token() }}",
-                     },
 
-                    body: JSON.stringify({ qr_data: qrData })
-                }).then(response => response.json())
-                  .then(data => {
-                      console.log("Backend Response:", data);
-                      if (data.error) {
-                          // Show error message if no registrations or user found
-                          document.getElementById("registration-container").innerHTML = "<div class='card-body white_224' style='margin: 10px;'>Du besitzt keine Tickets.</div>";
-                      } else {
-                          // Dynamically render the registrations into the page
-                          renderRegistrations(data);
-                      }
-                  })
-                  .catch(error => console.error("Error:", error));
-            }
-        
-            function renderRegistrations(registrations) {
-                let container = document.getElementById("registration-container");
-                container.innerHTML = ""; // Clear existing content
-        
-                // Check if registrations are available
-                if (registrations && registrations.length > 0) {
-                    let registrationHTML = `
-                        <div class="card-body white_224" style="margin: 10px;">Nutzer Anmeldungen</div>
-                        <div class="card-body white_224" style="margin: 10px;">
-                            <table style="width: 100%;">
-                                <tr>
-                                    <th>Registrierung</th>
-                                    <th>Preis</th>
-                                    <th>Bezahlt</th>
-                                </tr>`;
-        
-                    // Loop through each registration and create a row in the table
-                    registrations.forEach(function(rm) {
-                        registrationHTML += `
-                            <tr>
-                                <td>${rm.rm_name}</td>
-                                <td>${rm.price ? rm.price : '-'}</td>
-                                <td>${rm.paid ? rm.paid : '-'}</td>
-                            </tr>`;
-                    });
-        
-                    registrationHTML += `</table></div>`;
-        
-                    container.innerHTML = registrationHTML;  // Add new content to the container
-                } else {
-                    // If no registrations, display message
-                    container.innerHTML = "<div class='card-body white_224' style='margin: 10px;'>Du besitzt keine Tickets.</div>";
+            document.addEventListener("DOMContentLoaded", () => {
+
+                document.addEventListener("click", async function (event) {
+                    if (event.target.classList.contains("validate-btn")) {
+                        const rmID = event.target.getAttribute("data-id");
+                        const UserUID = event.target.getAttribute("data-user-uid");
+                        await validate(rmID, UserUID);
+                    }
+                    if (event.target.classList.contains("paid-btn")) {
+                        const rmID = event.target.getAttribute("data-id");
+                        const UserUID = event.target.getAttribute("data-user-uid");
+                        await paid(rmID, UserUID);
+                    }
+                    if (event.target.classList.contains("punch-btn")) {
+                        const rmID = event.target.getAttribute("data-id");
+                        const UserUID = event.target.getAttribute("data-user-uid");
+                        await punch(rmID, UserUID);
+                    }
+                    if (event.target.classList.contains("unpaid-btn")) {
+                        const rmID = event.target.getAttribute("data-id");
+                        const UserUID = event.target.getAttribute("data-user-uid");
+                        await unpaid(rmID, UserUID);
+                    }
+                });
+
+                function sendToBackend(qr_uid) {
+                    // Sending the request to backend to get user and registration details
+                    fetch(`/api/user/get/scanner`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json',
+                                    "X-CSRF-Token": "{{ csrf_token() }}",
+                        },
+
+                        body: JSON.stringify({ uid: qr_uid })
+                    }).then(response => response.json())
+                    .then(data => {
+                        console.log("Backend Response:", data);
+                        if (data.error) {
+                            document.getElementById("registration-container").innerHTML = "<div class='card-body white_224' style='margin: 10px;'>Du besitzt keine Tickets.</div>";
+                        } else {
+                            renderRegistrations(data);
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
                 }
-            }
-        
-            function onScanSuccess(decodedText) {
-                // Parse decodedText from JSON
-                let qrData = JSON.parse(decodedText); // Assuming the QR code contains a JSON string
-                sendToBackend(qrData);
-            }
+
+                function onScanSuccess(decodedText) {
+                    // Parse decodedText from JSON
+                    let qrData = JSON.parse(decodedText); // Assuming the QR code contains a JSON string
+                    sendToBackend(qrData.uid);
+                }
         
             // Initialize the QR code scanner
-            new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 })
-                .render(onScanSuccess);
+                new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 })
+                    .render(onScanSuccess);
+
+
+
+
+                async function punch(rmID,UserUID) {
+                    try {
+                        const response = await fetch(`/api/events/event/registration/punch/${rmID}`, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-Token": "{{ csrf_token() }}",
+                            },
+                        });
+            
+                        if (!response.ok) {
+                            throw new Error("Failed to punch!");
+                        }
+            
+                        const data = await response.json();
+                        console.log("Punched:", data);
+            
+                        sendToBackend(UserUID);
+                    } catch (error) {
+                        console.error("Ticket Punch error:", error);
+                    }
+                }
+
+
+
+                async function validate(rmID,UserUID) {
+                    try {
+                        const response = await fetch(`/api/events/event/registration/validate/${rmID}`, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-Token": "{{ csrf_token() }}",
+                            },
+                        });
+            
+                        if (!response.ok) {
+                            throw new Error("Failed to validate!");
+                        }
+            
+                        const data = await response.json();
+                        console.log("validate:", data);
+            
+                        sendToBackend(UserUID);
+                    } catch (error) {
+                        console.error("Ticket validate error:", error);
+                    }
+                }
+
+
+
+                async function paid(rmID,UserUID) {
+                    try {
+                        const response = await fetch(`/api/events/event/registration/paid/${rmID}`, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-Token": "{{ csrf_token() }}",
+                            },
+                        });
+            
+                        if (!response.ok) {
+                            throw new Error("Failed to pay!");
+                        }
+            
+                        const data = await response.json();
+                        console.log("paid:", data);
+            
+                        sendToBackend(UserUID);
+                    } catch (error) {
+                        console.error("Ticket pay error:", error);
+                    }
+                }
+
+
+
+                async function unpaid(rmID,UserUID) {
+                    try {
+                        const response = await fetch(`/api/events/event/registration/unpaid/${rmID}`, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-Token": "{{ csrf_token() }}",
+                            },
+                        });
+            
+                        if (!response.ok) {
+                            throw new Error("Failed to unpay!");
+                        }
+            
+                        const data = await response.json();
+                        console.log("unpaid:", data);
+            
+                        sendToBackend(UserUID);
+                    } catch (error) {
+                        console.error("Ticket unpay error:", error);
+                    }
+                }
+
+                function renderRegistrations(registrations) {
+                    let container = document.getElementById("registration-container");
+                    container.innerHTML = ""; // Clear existing content
+            
+                    // Check if registrations are available
+                    if (registrations && registrations.length > 0) {
+                        let registrationHTML = `
+                            <div class="card-body white_224" style="margin: 10px;">Nutzer Anmeldungen</div>
+                            <div class="card-body white_224" style="margin: 10px;">
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <th>Registrierung</th>
+                                        <th>Preis</th>
+                                        <th>Bezahlt</th>
+                                        <th>Validiert</th>
+                                    </tr>`;
+            
+                        // Loop through each registration and create a row in the table
+                        registrations.forEach(function(rm) {
+                            registrationHTML += `
+                                <tr>
+                                    <td>
+                                        ${rm.rm_name}
+                                    </td>
+                                    <td>
+                                        ${rm.price ? rm.price : '-'}</td>
+                                    <td>
+                                        ${rm.paid ? 'Bezahlt' : 'Nicht bezahlt'} 
+                                    </td>
+                                    <td>
+                                        ${rm.valid ? 'Validiert' : 'Entwertet'} 
+                                    </td>
+                                    <td>
+                                        <button class="punch-btn btn btn-secondary" data-id="${rm.id}" data-user-uid="${rm.userUID}">Entwerten</button>
+                                        <button class="validate-btn btn btn-secondary" data-id="${rm.id}" data-user-uid="${rm.userUID}">Validieren</button>
+                                        <button class="paid-btn btn btn-secondary" data-id="${rm.id}" data-user-uid="${rm.userUID}">Bezahlt</button>
+                                        <button class="unpaid-btn btn btn-secondary" data-id="${rm.id}" data-user-uid="${rm.userUID}">Unbezahlt</button>
+                                    </tr>`;
+                        });
+            
+                        registrationHTML += `</table></div>`;
+            
+                        container.innerHTML = registrationHTML;  // Add new content to the container
+                    } else {
+                        // If no registrations, display message
+                        container.innerHTML = "<div class='card-body white_224' style='margin: 10px;'>Du besitzt keine Tickets.</div>";
+                    }
+                }
+            });
         </script>
     {% endblock %}

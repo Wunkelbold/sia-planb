@@ -75,21 +75,22 @@ def update_user(uid):
 @app.route("/api/user/get/scanner", methods=["POST"])
 @require_permissions("/api/user/get/scanner/")
 def get_user_scanner():
-    qr_data = request.json.get("qr_data")
-    if not qr_data:
-        return jsonify({"error": "No QR data received"})
-    
-    data = qr_data
-    if "uid" not in data:
-        return jsonify({"error": "Invalid QR code format"})
+    uid = request.json.get("uid")
+    if not uid:
+        return jsonify({"error": "No UID received"})
 
-    user = db.session.query(Tables.User).filter_by(uid=data["uid"]).first()
+    user = db.session.query(Tables.User).filter_by(uid=uid).first()
     if user:
         registrations = Tables.Registration.query.filter_by(userFK=user.id).all()
-        registrationList = [rm.getDict() for rm in registrations]  # Convert registrations to dictionary format
+        registrationList = []
+        for rm in registrations:
+            rm_dict = rm.getDict()
+            rm_dict["price"] = rm.RegisterManager.price
+            registrationList.append(rm_dict)
         return jsonify(registrationList)
     else:
         return jsonify({"error": "User not found"}), 404
+    
 
 @app.route("/api/user/get/<uid>", methods=["POST"])
 @require_permissions("adminpanel.user.get")

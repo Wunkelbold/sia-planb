@@ -29,7 +29,7 @@
     <div style="display: flex; margin: 20px; justify-content: center; align-items: center; text-align: center;">
         <div class="card" style="font-size: 20px; background-color: #747474; box-shadow: 0px 0px 8px rgba(83,83,83,.5);">
             <div class="card-body white_224"> 
-                E-Ticket
+                CheckIn
             </div>
             <div class="card-body" style="margin: auto;">
                 <section style="display: inline-block; margin:auto;">
@@ -42,33 +42,35 @@
     <div style="display: flex; margin: 20px; justify-content: center; align-items: center; text-align: center;">
         <div class="card" style="width: 1000px; font-size: 20px; background-color: #747474; box-shadow: 0px 0px 8px rgba(83,83,83,.5);">
             {% if registrations %} 
-                {% for rm in registrations %}
                 <div class="card-body white_224" style="margin: 10px;"> 
-                    Deine Anmeldungen
+                    Deine Anmeldungen:
                 </div>
                 <div class="card-body white_224" style="margin: 10px;">
                     <table style="width: 100%;">
                         <tr>
-                            <th>Registrierung</th>
+                            <th>Anmeldung</th>
                             <th>Preis</th>
                             <th>Bezahlt</th>
                         </tr>
+                {% for rm in registrations %}
                         <tr>
                             <td>{{ rm.rm_name }}</td>
                             {% if rm.price %}
                                 <td>{{ rm.price }}</td>
-                                <td>{{ rm.paid }}</td>
+                                {% if rm.paid %}
+                                <td>Bezahlt</td>
+                                {% else %}
+                                <td>Nicht bezahlt</td>
+                                {% endif %}
                             {% else %}  
                                 <td>-</td>
                                 <td>-</td>
                             {% endif %}
-
-
                         </tr>
-                    </table>
-                </div>
-                    
+
                 {% endfor %}
+                        </table>
+                    </div>
             {% else %}  
                 <div class="card-body white_224" style="margin: 10px;">
                     Du besitzt keine Tickets.

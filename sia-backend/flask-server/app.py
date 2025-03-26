@@ -21,7 +21,7 @@ import Sections.EventHandler as _
 from Sections.EventHandler import getAllEvents
 import Sections.UserManager as _
 import Sections.ContactManager as _
-import Sections.EventManager as _
+import Sections.RegistrationHandler as _
 from Sections.EmailHandler import *
 
 csrf = CSRFProtect(app)
@@ -192,7 +192,9 @@ def tickets():
     registrationList = []
     if registrations:
         for rm in registrations:
-            registrationList.append(rm.getDict())
+            rm_dict = rm.getDict()
+            rm_dict["price"] = rm.RegisterManager.price
+            registrationList.append(rm_dict)
     if user:
         user_data = {
             "id": user.id,

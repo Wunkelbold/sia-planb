@@ -625,6 +625,8 @@
                             <th>Abmeldung</th>
                             <th>möglich ab</th>
                             <th>möglich bis</th>
+                            <th>Preis</th>
+                            <th>Usernames</th>
                         </tr>
                     </tbody>
                 </table>
@@ -650,7 +652,7 @@
                         {{ form_new_registration.RegistrationDeny }}
                     </div>
                     <div class="col-md-2">
-                        Preis
+                        {{ form_new_registration.RegistrationPrice }}
                     </div>
                     <div class="col-md-12">
                         {{ form_new_registration.RegistrationSubmit }}
@@ -682,6 +684,7 @@ document.addEventListener("DOMContentLoaded", () => {
         RegistrationVisibility: document.querySelector('select[name="RegistrationVisibility"]'),
         RegistrationAccept: document.querySelector('select[name="RegistrationAccept"]'),
         RegistrationDeny: document.querySelector('select[name="RegistrationDeny"]'),
+        RegistrationPrice: document.querySelector('select[name="RegistrationPrice"]'),
     };
 
     function displayFlashMessages(messages) {
@@ -733,6 +736,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <th class="hide-on-mobile">Abmeldung</th>
                     <th class="hide-on-mobile">möglich ab</th>
                     <th class="hide-on-mobile">möglich bis</th>
+                    <th class="hide-on-mobile">Preis</th>
                     <th class="hide-on-mobile">Usernames</th>
                     <th class="hide-on-mobile">Verwaltung</th>
                 </tr>
@@ -757,6 +761,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td data-label="Abmeldemodus">${item.deny ?? "-"}</td>
                     <td data-label="Anmeldestart:">${item.start_hr ?? "-"}</td>
                     <td data-label="Anmeldeschluss:">${item.end_hr ?? "-"}</td>
+                    <td data-label="Anmeldeschluss:">${item.price ?? "-"}</td>
                     <td data-label="Angmeldet:">${item.users.length ? item.users.join(", ") : "-"}</td>
                     <td>
                         <button class="update-register-btn btn btn-primary" data-id="${item.rmID}" data-event-id="${eventId}">
@@ -877,6 +882,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 formRegistrationsFields.RegistrationEnd.value = data.end || '';
                 formRegistrationsFields.RegistrationAccept.value = data.accept || '';
                 formRegistrationsFields.RegistrationDeny.value = data.deny || '';
+                formRegistrationsFields.RegistrationPrice.value = data.price || '';
 
                 const visibility = formRegistrationsFields.RegistrationVisibility;
                 const accept = formRegistrationsFields.RegistrationAccept;

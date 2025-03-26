@@ -1,4 +1,4 @@
-from wtforms import StringField, PasswordField, SubmitField, EmailField, IntegerField, SelectField, TextAreaField, DateField, HiddenField, DateTimeLocalField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, EmailField, IntegerField, SelectField, TextAreaField, DateField, HiddenField, DateTimeLocalField, BooleanField, DecimalField
 from wtforms.validators import InputRequired, Length, ValidationError, EqualTo, Email, Optional, Regexp, DataRequired, StopValidation
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileSize
@@ -589,6 +589,7 @@ class Forms:
             choices=[("erlaubt","erlaubt"),("verboten","verboten")], 
             coerce=str, 
             render_kw={ "id": "RegistrationDeny"})
+        RegistrationPrice = DecimalField(places=2,validators=[Optional()])
         RegistrationSubmit = SubmitField("Neue Anmeldung")
         
 

@@ -377,7 +377,7 @@
         
                     const data = await response.json();
                     console.log("Shift left:", data);
-                    rowElement.remove(); 
+                    //rowElement.remove(); 
         
                     await fetchShifts(eventId); 
                 } catch (error) {
@@ -425,6 +425,7 @@
                         <th>möglich ab</th>
                         <th>möglich bis</th>
                         <th>#</th>
+                        <th>Preis</th>
                         <th>Nutzernamen</th>
                         <th></th>
                     </tr>
@@ -468,6 +469,7 @@
                             <th class="hide-on-mobile">Anmeldestart</th>
                             <th class="hide-on-mobile">Anmeldeschluss</th>
                             <th class="hide-on-mobile">#</th>
+                            <th class="hide-on-mobile">Preis</th>
                             <th class="hide-on-mobile">Angemeldet</th>
                             <th class="hide-on-mobile"></th>
                         </tr>
@@ -495,6 +497,7 @@
                                 <td data-label="Anmeldestart:">${item.start_hr ?? "-"}</td>
                                 <td data-label="Anmeldeschluss:">${item.end_hr ?? "-"}</td>
                                 <td class="hide-on-mobile" data-label="#">${item.registration_count ?? "-"}</td>
+                                <td class="hide-on-mobile" data-label="#">${item.price ?? "-"}</td>
                                 <td>${usernames ?? "-"}</td>
                                 <td>
                                     <button class="register-btn btn btn-success ${item.join_button_active === false ? 'disabled' : ''}" data-id="${item.rmID}" data-event-id="${eventId}"><svg width="20px" height="20px" viewBox="0 0 24 24" id="_24x24_On_Light_Session-Join" data-name="24x24/On Light/Session-Join" xmlns="http://www.w3.org/2000/svg"><rect id="view-box" width="24" height="24" fill="none"/><path id="Shape" d="M5.75,17.5a.75.75,0,0,1,0-1.5h8.8A1.363,1.363,0,0,0,16,14.75v-12A1.363,1.363,0,0,0,14.55,1.5H5.75a.75.75,0,0,1,0-1.5h8.8A2.853,2.853,0,0,1,17.5,2.75v12A2.853,2.853,0,0,1,14.55,17.5ZM7.22,13.28a.75.75,0,0,1,0-1.061L9.939,9.5H.75A.75.75,0,0,1,.75,8H9.94L7.22,5.28A.75.75,0,0,1,8.28,4.22l4,4,.013.013.005.006.007.008.007.008,0,.005.008.009,0,0,.008.01,0,0,.008.011,0,0,.008.011,0,0,.008.011,0,0,.007.011,0,.005.006.01,0,.007,0,.008,0,.009,0,.006.006.011,0,0,.008.015h0a.751.751,0,0,1-.157.878L8.28,13.28a.75.75,0,0,1-1.06,0Z" transform="translate(3.25 3.25)" fill="#FFF"/></svg></button>
@@ -507,7 +510,9 @@
                                             <path d="M28 17C28 19.21 26.21 21 24 21C21.79 21 20 19.21 20 17C20 14.79 21.79 13 24 13C26.21 13 28 14.79 28 17Z" fill="#FFF"/>
                                             <path d="M25 30.3333C25 26.7867 31.6625 25 35 25C38.3375 25 45 26.7867 45 30.3333V35H25V30.3333Z" fill="#FFF"/>
                                             <path fill-rule="evenodd" clip-rule="evenodd" d="M28.7508 24.185C28.4839 24.2831 28.2206 24.3873 27.9625 24.4975C26.7914 24.998 25.6088 25.6741 24.69 26.5785C24.444 26.8208 24.2105 27.0864 24 27.375C23.7895 27.0864 23.556 26.8208 23.3099 26.5785C22.3912 25.6741 21.2085 24.998 20.0374 24.4975C19.7794 24.3873 19.5161 24.2831 19.2491 24.185C20.7717 23.3961 22.7298 23 24 23C25.2701 23 27.2282 23.3961 28.7508 24.185Z" fill="#FFF"/>
-                                        </svg>    
+                                        </svg>
+                                        &nbsp;${item.price == true ? "  " + item.price+"€" : '' }
+
                                     </div>
                                     <button class="unregister-btn btn btn-danger ${item.deny == "verboten" ? 'disabled' : ''}" data-id="${item.rmID}" data-event-id="${eventId}"><svg width="20px" height="20px" viewBox="0 0 24 24" id="_24x24_On_Light_Session-Leave" data-name="24x24/On Light/Session-Leave" xmlns="http://www.w3.org/2000/svg"><rect id="view-box" width="24" height="24" fill="none"/><path id="Shape" d="M2.95,17.5A2.853,2.853,0,0,1,0,14.75v-12A2.854,2.854,0,0,1,2.95,0h8.8a.75.75,0,0,1,0,1.5H2.95A1.362,1.362,0,0,0,1.5,2.75v12A1.363,1.363,0,0,0,2.95,16h8.8a.75.75,0,0,1,0,1.5Zm9.269-4.219a.751.751,0,0,1,0-1.061L14.939,9.5H5.75a.75.75,0,0,1,0-1.5h9.19L12.219,5.28A.75.75,0,1,1,13.28,4.22l4,4a.749.749,0,0,1,0,1.06l-4,4a.751.751,0,0,1-1.061,0Z" transform="translate(3.25 3.25)" fill="#FFF"/></svg></button>
                                 </td>
@@ -520,6 +525,7 @@
                                 <td class="hide-on-mobile">${item.start_hr ?? "-"}</td>
                                 <td class="hide-on-mobile">${item.end_hr ?? "-"}</td>
                                 <td class="hide-on-mobile" data-label="#">${item.registration_count ?? "-"}</td>
+                                <td class="hide-on-mobile" data-label="#">${item.price ?? "-"}</td>
                                 <td>${usernames ?? "-"}</td>
                                 <td>
                                     <button class="register-btn btn btn-success ${item.join_button_active === false ? 'disabled' : ''}" data-id="${item.rmID}" data-event-id="${eventId}"><svg width="20px" height="20px" viewBox="0 0 24 24" id="_24x24_On_Light_Session-Join" data-name="24x24/On Light/Session-Join" xmlns="http://www.w3.org/2000/svg"><rect id="view-box" width="24" height="24" fill="none"/><path id="Shape" d="M5.75,17.5a.75.75,0,0,1,0-1.5h8.8A1.363,1.363,0,0,0,16,14.75v-12A1.363,1.363,0,0,0,14.55,1.5H5.75a.75.75,0,0,1,0-1.5h8.8A2.853,2.853,0,0,1,17.5,2.75v12A2.853,2.853,0,0,1,14.55,17.5ZM7.22,13.28a.75.75,0,0,1,0-1.061L9.939,9.5H.75A.75.75,0,0,1,.75,8H9.94L7.22,5.28A.75.75,0,0,1,8.28,4.22l4,4,.013.013.005.006.007.008.007.008,0,.005.008.009,0,0,.008.01,0,0,.008.011,0,0,.008.011,0,0,.008.011,0,0,.007.011,0,.005.006.01,0,.007,0,.008,0,.009,0,.006.006.011,0,0,.008.015h0a.751.751,0,0,1-.157.878L8.28,13.28a.75.75,0,0,1-1.06,0Z" transform="translate(3.25 3.25)" fill="#FFF"/></svg></button>
@@ -532,7 +538,8 @@
                                             <path d="M28 17C28 19.21 26.21 21 24 21C21.79 21 20 19.21 20 17C20 14.79 21.79 13 24 13C26.21 13 28 14.79 28 17Z" fill="#FFF"/>
                                             <path d="M25 30.3333C25 26.7867 31.6625 25 35 25C38.3375 25 45 26.7867 45 30.3333V35H25V30.3333Z" fill="#FFF"/>
                                             <path fill-rule="evenodd" clip-rule="evenodd" d="M28.7508 24.185C28.4839 24.2831 28.2206 24.3873 27.9625 24.4975C26.7914 24.998 25.6088 25.6741 24.69 26.5785C24.444 26.8208 24.2105 27.0864 24 27.375C23.7895 27.0864 23.556 26.8208 23.3099 26.5785C22.3912 25.6741 21.2085 24.998 20.0374 24.4975C19.7794 24.3873 19.5161 24.2831 19.2491 24.185C20.7717 23.3961 22.7298 23 24 23C25.2701 23 27.2282 23.3961 28.7508 24.185Z" fill="#FFF"/>
-                                        </svg>    
+                                        </svg>
+                                        &nbsp;${item.price == true ? "  " + item.price+"€" : '' }
                                     </div>
                                     <button class="unregister-btn btn btn-danger ${item.deny == "verboten" ? 'disabled' : ''}" data-id="${item.rmID}" data-event-id="${eventId}"><svg width="20px" height="20px" viewBox="0 0 24 24" id="_24x24_On_Light_Session-Leave" data-name="24x24/On Light/Session-Leave" xmlns="http://www.w3.org/2000/svg"><rect id="view-box" width="24" height="24" fill="none"/><path id="Shape" d="M2.95,17.5A2.853,2.853,0,0,1,0,14.75v-12A2.854,2.854,0,0,1,2.95,0h8.8a.75.75,0,0,1,0,1.5H2.95A1.362,1.362,0,0,0,1.5,2.75v12A1.363,1.363,0,0,0,2.95,16h8.8a.75.75,0,0,1,0,1.5Zm9.269-4.219a.751.751,0,0,1,0-1.061L14.939,9.5H5.75a.75.75,0,0,1,0-1.5h9.19L12.219,5.28A.75.75,0,1,1,13.28,4.22l4,4a.749.749,0,0,1,0,1.06l-4,4a.751.751,0,0,1-1.061,0Z" transform="translate(3.25 3.25)" fill="#FFF"/></svg></button>
                                 </td>
@@ -578,7 +585,7 @@
         
                     const data = await response.json();
                     console.log("Registered:", data);
-                    rowElement.remove(); 
+                    //rowElement.remove(); unnötig?
         
                     await fetchRM(eventId); 
                 } catch (error) {
@@ -601,7 +608,7 @@
         
                     const data = await response.json();
                     console.log("Unregistered:", data);
-                    rowElement.remove(); 
+                    //rowElement.remove();  unnötig?
         
                     await fetchRM(eventId); 
                 } catch (error) {

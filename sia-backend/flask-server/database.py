@@ -167,12 +167,18 @@ class Tables:
                 "end_hr": format_datetime_hr(self.end),
                 "price": self.price,
                 "eventFK": self.eventFK,
-                "users": [registration.user_obj.username for registration in self.registration_rel if registration.user_obj]
+                "users": [
+                            registration.user_obj.username
+                            for registration in sorted(
+                                self.registration_rel, key=lambda r: r.timestamp
+                            ) if registration.user_obj
+                        ]
             }
 
     class Registration(db.Model):
         __tablename__ = 'registration'
         id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+        timestamp = db.Column(db.DateTime)
         userFK = db.Column(db.Integer, db.ForeignKey("user.id", ondelete="CASCADE"))
         rmFK = db.Column(db.Integer, db.ForeignKey("registermanager.id", ondelete="CASCADE"))
         teamname = db.Column(db.String(30))

@@ -27,7 +27,7 @@
 {% block content %}
 
     <div style="display: flex; margin: 20px; justify-content: center; align-items: center; text-align: center;">
-        <div class="card" style="font-size: 20px; background-color: #747474; box-shadow: 0px 0px 8px rgba(83,83,83,.5);">
+        <div class="card" style="font-size: 20px; background-color: #848484; box-shadow: 0px 0px 8px rgba(83,83,83,.5);">
             <div class="card-body white_224"> 
                 CheckIn
             </div>
@@ -40,7 +40,7 @@
     </div>
 
     <div style="display: flex; margin: 20px; justify-content: center; align-items: center; text-align: center;">
-        <div class="card" style="width: 1000px; font-size: 20px; background-color: #747474; box-shadow: 0px 0px 8px rgba(83,83,83,.5);">
+        <div class="card" style="width: 1000px; font-size: 20px; background-color: #212529; box-shadow: 0px 0px 8px rgba(83,83,83,.5);">
             {% if registrations %} 
                 <div class="card-body white_224" style="margin: 10px;"> 
                     Deine Anmeldungen:
@@ -51,20 +51,31 @@
                             <th>Anmeldung</th>
                             <th>Preis</th>
                             <th>Bezahlt</th>
+                            <th>Gültig</th>
                         </tr>
                 {% for rm in registrations %}
                         <tr>
                             <td>{{ rm.rm_name }}</td>
                             {% if rm.price %}
-                                <td>{{ rm.price }}</td>
+                                <td data-label="Preis">{{ rm.price }}</td>
                                 {% if rm.paid %}
-                                <td>Bezahlt</td>
+                                <td style="color:green;">Bezahlt</td>
                                 {% else %}
-                                <td>Nicht bezahlt</td>
+                                <td style="color:red;">Nicht bezahlt</td>
+                                {% endif %}
+                                {% if rm.valid %}
+                                <td style="color:green;">Gültig</td>
+                                {% else %}
+                                <td style="color:red;">Entwertet</td>
                                 {% endif %}
                             {% else %}  
                                 <td>-</td>
                                 <td>-</td>
+                                {% if rm.valid %}
+                                <td style="color:green;">Gültig</td>
+                                {% else %}
+                                <td style="color:red;">Entwertet</td>
+                                {% endif %}
                             {% endif %}
                         </tr>
 

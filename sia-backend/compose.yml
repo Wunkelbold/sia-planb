@@ -28,13 +28,13 @@ services:
       - DATABASE_USER=${DATABASE_USER}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - DATABASE_URI=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}/${DATABASE_NAME}
-      - DROP_AND_CREATE_DATABASE=false
-      - CREATE_ADMIN=false
+      - DROP_AND_CREATE_DATABASE=true
+      - CREATE_ADMIN=true
       - Debug=false
       - HOSTNAME=${HOSTNAME}
       - hostname=${hostname}
       - UPDATE_MAIL_USER=true
-      - RUN_MIGRATIONS=true
+      - RUN_MIGRATIONS=false
     volumes:
       - eventposter:/opt/flask-backend/static/images/eventposter
       - ./mail-server/docker-data/dms/config/postfix-accounts.cf:/app/postfix-accounts.cf

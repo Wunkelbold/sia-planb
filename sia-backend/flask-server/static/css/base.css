@@ -100,4 +100,8 @@ thead {
       display: none;
   }
 }
+/*Makes SVG invisible to click events, if the svg gets clicked the button is not triggered without this setting*/
+button svg {
+  pointer-events: none;
+}
 

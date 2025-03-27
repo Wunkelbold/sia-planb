@@ -17,12 +17,60 @@
     <h1 style="text-shadow: 0px 0px 3px rgb(102, 102, 102); text-align: center;" >Plan B &#128205;</h1>
     <h1 style="text-shadow: 0px 0px 3px rgb(102, 102, 102); text-align: center;" >Der Dreh- und Angelpunkt des Vereins</h1>
   </div>
-  <div style="  display: flex; margin: 20px; justify-content: center; align-items: center;"><a href="{{url_for('contact')}}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="true">Location mieten</a></div>
-  <div class="glbcontainer">
+    <div class="glbcontainer">
       <div id="overlay">
           <button id="loadModelBtn" class="btn btn-secondary btn-lg active">3D Ansicht</button>
-          <div id="loadingIndicator" class="">Navigation:<br>W A S D + Maus</div>
+          <div>
+            <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill="none" d="M6 10H6.01M12 14H12.01M8 14H8.01M10 10H10.01M14 10H14.01M16 14H16.01M18 10H18.01M5.2 18H18.8C19.9201 18 20.4802 18 20.908 17.782C21.2843 17.5903 21.5903 17.2843 21.782 16.908C22 16.4802 22 15.9201 22 14.8V9.2C22 8.0799 22 7.51984 21.782 7.09202C21.5903 6.71569 21.2843 6.40973 20.908 6.21799C20.4802 6 19.9201 6 18.8 6H5.2C4.07989 6 3.51984 6 3.09202 6.21799C2.71569 6.40973 2.40973 6.71569 2.21799 7.09202C2 7.51984 2 8.07989 2 9.2V14.8C2 15.9201 2 16.4802 2.21799 16.908C2.40973 17.2843 2.71569 17.5903 3.09202 17.782C3.51984 18 4.0799 18 5.2 18Z" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg> + 
+            <svg width="20px" height="20px" viewBox="0 0 24 24" fill="#FFF" xmlns="http://www.w3.org/2000/svg">
+              <path style="fill:#FFFFFF;" d="M12 3V9M12 3C15.3137 3 18 5.68629 18 9M12 3C8.68629 3 6 5.68629 6 9M6 9H18M6 9V15C6 18.3137 8.68629 21 12 21C15.3137 21 18 18.3137 18 15V9" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <br>
+            oder 
+            <svg height="25px" width="25px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+              viewBox="0 0 512 512" xml:space="preserve">
+                <g transform="translate(1 1)">
+                    <g>
+                        <path style="fill:#FFF;" d="M251.587,511H36.547C16.067,511-1,493.933-1,473.453V36.547C-1,16.067,16.067-1,36.547-1h215.04
+                            c20.48,0,37.547,17.067,37.547,37.547v436.907C289.133,493.933,272.067,511,251.587,511z M36.547,16.067
+                            c-11.093,0-20.48,9.387-20.48,20.48v436.907c0,11.093,9.387,20.48,20.48,20.48h215.04c11.093,0,20.48-9.387,20.48-20.48V36.547
+                            c0-11.093-9.387-20.48-20.48-20.48H36.547z"/>
+                        <path style="fill:#FFF;" d="M144.067,485.4c-18.773,0-34.133-15.36-34.133-34.133s15.36-34.133,34.133-34.133
+                            s34.133,15.36,34.133,34.133S162.84,485.4,144.067,485.4z M144.067,434.2c-9.387,0-17.067,7.68-17.067,17.067
+                            s7.68,17.067,17.067,17.067c9.387,0,17.067-7.68,17.067-17.067S153.453,434.2,144.067,434.2z"/>
+                        <path style="fill:#FFF;" d="M280.6,408.6H7.533c-5.12,0-8.533-3.413-8.533-8.533c0-5.12,3.413-8.533,8.533-8.533H280.6
+                            c5.12,0,8.533,3.413,8.533,8.533C289.133,405.187,285.72,408.6,280.6,408.6z"/>
+                        <path style="fill:#FFF;" d="M280.6,67.267H7.533C2.413,67.267-1,63.853-1,58.733S2.413,50.2,7.533,50.2H280.6
+                            c5.12,0,8.533,3.413,8.533,8.533S285.72,67.267,280.6,67.267z"/>
+                        <path style="fill:#FFF;" d="M144.067,41.667h-34.133c-5.12,0-8.533-3.413-8.533-8.533s3.413-8.533,8.533-8.533h34.133
+                            c5.12,0,8.533,3.413,8.533,8.533S149.187,41.667,144.067,41.667z"/>
+                        <path style="fill:#FFF;" d="M178.2,41.667h-8.533c-5.12,0-8.533-3.413-8.533-8.533s3.413-8.533,8.533-8.533h8.533
+                            c5.12,0,8.533,3.413,8.533,8.533S183.32,41.667,178.2,41.667z"/>
+                        <path style="fill:#FFF;" d="M451.267,493.933c-5.12,0-8.533-3.413-8.533-8.533V263.533c0-5.12,3.413-8.533,8.533-8.533
+                            s8.533,3.413,8.533,8.533V485.4C459.8,490.52,456.387,493.933,451.267,493.933z"/>
+                        <path style="fill:#FFF;" d="M473.453,511H251.587c-5.12,0-8.533-3.413-8.533-8.533s3.413-8.533,8.533-8.533
+                            c11.093,0,20.48-9.387,20.48-20.48v-235.52c0-5.12,3.413-8.533,8.533-8.533h192.853c20.48,0,37.547,17.067,37.547,37.547v206.507
+                            C511,493.933,493.933,511,473.453,511z M283.16,493.933h190.293c11.093,0,20.48-9.387,20.48-20.48V266.947
+                            c0-11.093-9.387-20.48-20.48-20.48h-184.32v226.987C289.133,481.133,286.573,487.96,283.16,493.933z"/>
+                        <path style="fill:#FFF;" d="M442.733,135.533c-5.12,0-8.533-3.413-8.533-8.533c0-52.053-41.813-93.867-93.867-93.867
+                            c-5.12,0-8.533-3.413-8.533-8.533s3.413-8.533,8.533-8.533c61.44,0,110.933,49.493,110.933,110.933
+                            C451.267,132.12,447.853,135.533,442.733,135.533z"/>
+                        <path style="fill:#FFF;" d="M442.733,178.2c-2.56,0-4.267-0.853-5.973-2.56l-51.2-51.2c-3.413-3.413-3.413-8.533,0-11.947
+                            c3.413-3.413,8.533-3.413,11.947,0l51.2,51.2c3.413,3.413,3.413,8.533,0,11.947C447,177.347,445.293,178.2,442.733,178.2z"/>
+                        <path style="fill:#FFF;" d="M442.733,178.2c-2.56,0-4.267-0.853-5.973-2.56c-3.413-3.413-3.413-8.533,0-11.947l51.2-51.2
+                            c3.413-3.413,8.533-3.413,11.947,0c3.413,3.413,3.413,8.533,0,11.947l-51.2,51.2C447,177.347,445.293,178.2,442.733,178.2z"/>
+                        <path style="fill:#FFF;" d="M442.733,178.2c-5.12,0-8.533-3.413-8.533-8.533V127c0-5.12,3.413-8.533,8.533-8.533
+                            c5.12,0,8.533,3.413,8.533,8.533v42.667C451.267,174.787,447.853,178.2,442.733,178.2z"/>
+                    </g>
+                </g>
+            </svg>
+
+          </div>
+          <div id="loadingIndicator" class="">Lade ...</div>
       </div>
+
       
       <a-scene id="scene" background="color: rgba(83,83,83,.5)" 
           renderer="colorManagement: true"     
@@ -45,6 +93,8 @@
       </a-scene>
   </div>
   
+  <div style="  display: flex; margin: 20px; justify-content: center; align-items: center;"><a href="{{url_for('contact')}}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="true">Location mieten</a></div>
+  <br>
   <!-- Gallery -->
   <div class="row " style="max-width: 1920px; margin: 20px;">
     <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
@@ -163,6 +213,26 @@
       padding: 25px;
       position: relative;
   }
+  @media (max-width: 768px) {
+    .glbcontainer{
+      max-width: 98vw;    /* Maximum width of the container is 100% of the viewport width */
+      max-height: 98vh;   /* Maximum height of the container is 100% of the viewport height */
+      padding: 5px;
+      padding-left: 25px;
+    }
+    .a-enter-vr{
+      position: absolute;
+      top: 10;
+      right: 10;
+    }
+  }
+  @media (min-width: 768px) {
+    .glbcontainer{
+      max-width: 70vw;    
+      max-height: 70vh;   
+    }
+  }
+
   canvas{
       width: 100%!important; 
       height: 100%!important; 
@@ -178,7 +248,7 @@
       padding: 20px;
       border-radius: 10px;
       text-align: center;
-      z-index: 9999;
+      z-index: 10;
   }
 
   #loadModelBtn {

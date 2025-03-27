@@ -158,12 +158,6 @@ def logout():
 
 
 #----------ROUTES---------
-
-@app.route("/glb", methods=['GET'])
-def glb():
-    return render_template('glb.html')
-
-
 @app.route("/scanner", methods=['GET','POST'])
 @require_permissions("scanner.show")
 def scanner():

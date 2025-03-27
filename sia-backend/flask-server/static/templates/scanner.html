@@ -1,17 +1,6 @@
 {% extends "base.html" %}
 
     {% block additionalstyle %}
-    <style>
-    html5-qrcode-scanner select {
-        width: 100%; /* or any desired width */
-        padding: .375rem .75rem; /* Add padding to make it match Bootstrap's input */
-        border-radius: .25rem; /* Border radius for Bootstrap-style appearance */
-        border: 1px solid #ced4da; /* Border color from Bootstrap */
-        background-color: #fff; /* Background color from Bootstrap */
-        font-size: 1rem; /* Ensure font size matches Bootstrap */
-    }
-    </style>
-
     {% endblock %}
 
     {% block additionaljavascript %}
@@ -20,22 +9,24 @@
 
     {% block content %}
 
+
         <div style="display: flex; margin: 20px; justify-content: center; align-items: center; text-align: center;">
-            <div class="card" style="font-size: 20px; background-color: #747474; box-shadow: 0px 0px 8px rgba(83,83,83,.5);">
+            <div class="card" style="font-size: 20px; background-color: #212529; box-shadow: 0px 0px 8px rgba(83,83,83,.5);">
                 <div class="card-body white_224"> 
-                    <div id="reader" style="width: 300px;"></div>
+                    <div id="reader" style="width: 100%; max-width: 300px;" class="reader"></div>
                 </div>
             </div>
         </div>
         <div style="display: flex; margin: 20px; justify-content: center; align-items: center; text-align: center;">
-            <div class="card" style="width: 1000px; font-size: 20px; background-color: #747474; box-shadow: 0px 0px 8px rgba(83,83,83,.5);">
-                <div id="registration-container" style="width: 100%; text-align: center;">
-                    <table style="width: 100%;">
+            <div class="card" style="width: 1000px; font-size: 20px; background-color: #212529; box-shadow: 0px 0px 8px rgba(83,83,83,.5);">
+                <div id="registration-container" style="width: 100%; text-align: center; min-height: 100px;">
+                    <table class="table table-dark table-striped sortable" style="width: 100%;">
                         <tr>
                             <th>Registrierung</th>
                             <th>Preis</th>
                             <th>Bezahlt</th>
                             <th>Validiert</th>
+                            <th></th>
                         </tr>
                     </table>
                 </div>
@@ -91,12 +82,12 @@
                 }
 
                 function onScanSuccess(decodedText) {
-                    // Parse decodedText from JSON
-                    let qrData = JSON.parse(decodedText); // Assuming the QR code contains a JSON string
+
+                    let qrData = JSON.parse(decodedText); 
                     sendToBackend(qrData.uid);
                 }
         
-            // Initialize the QR code scanner
+
                 new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 })
                     .render(onScanSuccess);
 
@@ -210,12 +201,13 @@
                         let registrationHTML = `
                             <div class="card-body white_224" style="margin: 10px;">Nutzer Anmeldungen</div>
                             <div class="card-body white_224" style="margin: 10px;">
-                                <table style="width: 100%;">
+                                <table class="table table-dark table-striped sortable" style="width: 100%;">
                                     <tr>
-                                        <th>Registrierung</th>
-                                        <th>Preis</th>
-                                        <th>Bezahlt</th>
-                                        <th>Validiert</th>
+                                        <th class="hide-on-mobile">Registrierung</th>
+                                        <th class="hide-on-mobile">Preis</th>
+                                        <th class="hide-on-mobile">Bezahlt</th>
+                                        <th class="hide-on-mobile">Validiert</th>
+                                        <th class="hide-on-mobile"></th>
                                     </tr>`;
             
                         // Loop through each registration and create a row in the table
@@ -226,18 +218,24 @@
                                         ${rm.rm_name}
                                     </td>
                                     <td>
-                                        ${rm.price ? rm.price : '-'}</td>
-                                    <td>
-                                        ${rm.paid ? 'Bezahlt' : 'Nicht bezahlt'} 
+                                        ${rm.price ? rm.price : '-'}
                                     </td>
-                                    <td>
-                                        ${rm.valid ? 'Validiert' : 'Entwertet'} 
-                                    </td>
+                                    ${rm.paid ? '<td style="color:green;">Bezahlt</td>' : '<td style="color:red;">Nicht bezahlt</td>'} 
+                                    ${rm.valid ? '<td style="color:green;">Validiert</td>' : '<td style="color:red;">Entwertet</td>'} 
+
                                     <td>
                                         <button class="punch-btn btn btn-secondary" data-id="${rm.id}" data-user-uid="${rm.userUID}">Entwerten</button>
-                                        <button class="validate-btn btn btn-secondary" data-id="${rm.id}" data-user-uid="${rm.userUID}">Validieren</button>
+                                        <button class="validate-btn btn btn-secondary" data-id="${rm.id}" data-user-uid="${rm.userUID}">
+                                            <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M4 7H14C17.3137 7 20 9.68629 20 13C20 16.3137 17.3137 19 14 19H4M4 7L8 3M4 7L8 11" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>    
+                                        </button>
                                         <button class="paid-btn btn btn-secondary" data-id="${rm.id}" data-user-uid="${rm.userUID}">Bezahlt</button>
-                                        <button class="unpaid-btn btn btn-secondary" data-id="${rm.id}" data-user-uid="${rm.userUID}">Unbezahlt</button>
+                                        <button class="unpaid-btn btn btn-secondary" data-id="${rm.id}" data-user-uid="${rm.userUID}">
+                                            <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M4 7H14C17.3137 7 20 9.68629 20 13C20 16.3137 17.3137 19 14 19H4M4 7L8 3M4 7L8 11" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>  
+                                        </button>
                                     </tr>`;
                         });
             
@@ -251,4 +249,23 @@
                 }
             });
         </script>
+        <style>
+
+            .html5-qrcode-element {
+                width: 100%; 
+                padding: .375rem .75rem; 
+                border-radius: .25rem; 
+                border: 1px solid #000000; 
+                background-color: #444444; 
+                font-size: 1rem; 
+            }
+            .reader button{
+                padding: 2px;
+                color: rgba(255, 255, 255, 0.795);
+            }
+            .reader select{
+                padding: 2px;
+                color: rgba(255, 255, 255, 0.795);
+            }
+        </style>
     {% endblock %}

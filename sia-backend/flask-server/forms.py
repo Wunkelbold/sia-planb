@@ -589,7 +589,11 @@ class Forms:
             choices=[("erlaubt","erlaubt"),("verboten","verboten")], 
             coerce=str, 
             render_kw={ "id": "RegistrationDeny"})
-        RegistrationPrice = DecimalField(places=2,validators=[Optional()])
+        RegistrationPrice = DecimalField(
+            render_kw={"placeholder": "0,00"},
+            places=2,
+            validators=[
+                Optional()])
         RegistrationSubmit = SubmitField("Neue Anmeldung")
         
 

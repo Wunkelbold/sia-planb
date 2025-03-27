@@ -81,7 +81,7 @@ def apiGetRmSingle(eventid: int,rmID: int):
         return jsonify({'success': False, 'error': "Dir fehlt die Berechtigung!"})
     
 @app.route("/api/events/event/<int:eventid>/getRM", methods=['GET'])
-@require_permissions("events.rm.get.all")
+@login_required
 def apiGetRmall(eventid: int):
     # Permission will be checked at the end of
     registerManager = Tables.RegisterManager.query.filter_by(eventFK=eventid).all()
@@ -169,7 +169,7 @@ def apiRegisterEvent(eventid: int, rmID: int):
     return jsonify({'success': False, 'error': [f"Something went wrong"]})
         
 def process_registration(eventid,rmID):
-    new_registration = Tables.Registration(rmFK=rmID, userFK=current_user.id)
+    new_registration = Tables.Registration(rmFK=rmID, userFK=current_user.id,timestamp=datetime.now(timezone.utc))
     db.session.add(new_registration)
     db.session.commit()
     return jsonify({'success': True, 'error': "Du wurdest erfolgreich für das Event angemeldet"})

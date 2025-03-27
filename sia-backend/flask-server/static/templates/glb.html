@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+    {% block additionalstyle %}
+    {% endblock %}
+
+    {% block additionaljavascript %}
+    {% endblock %}
+
+    {% block content %}
+        <script src="{{ url_for('static', filename='js/aframe.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/aframe-teleport-controls.min.js') }}"></script>
+        <script type="module" src="{{ url_for('static', filename='js/drone-controls-mode2.js') }}"></script>
+        <script type="module" src="{{ url_for('static', filename='js/mc-controls.js') }}"></script>
+        
+        <script type="module">
+            document.getElementById("loadModelBtn").addEventListener("click", async () => {
+                const overlay = document.getElementById("overlay");
+                const loadingIndicator = document.getElementById("loadingIndicator");
+
+                loadingIndicator.style.display = "block";
+
+                const asset = document.createElement("a-asset-item");
+                asset.setAttribute("id", "base");
+                asset.setAttribute("src", "{{ url_for('static', filename='assets/Plan_B_3D_Scan.glb') }}");
+
+                document.getElementById("assets").appendChild(asset);
+
+                const modelEntity = document.createElement("a-entity");
+                modelEntity.setAttribute("id", "modelEntity");
+                modelEntity.setAttribute("gltf-model", "#base");
+                modelEntity.setAttribute("position", "0.8 0 1.1");
+                modelEntity.setAttribute("scale", "1 1 1");
+
+                document.getElementById("scene").appendChild(modelEntity);
+
+                modelEntity.addEventListener("model-loaded", () => {
+                    console.log("Model fully loaded");
+                    overlay.classList.add("hidden");
+            });
+        });
+
+        </script>
+        
+        
+        <div class="glbcontainer">
+            <div id="overlay">
+                <button id="loadModelBtn" class="btn btn-secondary btn-lg active">3D Ansicht</button>
+                <div id="loadingIndicator" class="">Navigation:<br>W A S D + Maus</div>
+            </div>
+            
+            <a-scene id="scene" background="color: rgba(83,83,83,.5)" 
+                renderer="colorManagement: true"     
+                vr-mode-ui="enabled: true" 
+                device-orientation-permission-ui="enabled: true"
+                renderer="antialias: true">
+
+                <a-assets xtimeout="10000" id="assets">
+                    <a-asset-item id="base" src="{{ url_for('static', filename='assets/Plan_B_3D_Scan.glb') }}"></a-asset-item>
+                </a-assets>
+            
+                <a-entity light="type: ambient; color: #FFF"></a-entity>
+            
+                <a-entity id="cameraRig" position="0 0 0">
+                    <a-entity id="head" camera position="0 1.7 0" mc-controls look-controls></a-entity>
+                    <a-entity id="leftHand" hand-tracking-controls="hand: left;"></a-entity>
+                    <a-entity id="rightHand" hand-tracking-controls="hand: right;"></a-entity>
+                    <a-entity id="camera" camera wasd-controls look-controls position="0 0 0"></a-entity>
+                </a-entity>
+            </a-scene>
+        </div>
+
+    <style>
+        .glbcontainer{
+            max-width: 1000px; 
+            max-height: 1000px;
+            margin:auto; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            flex-direction: column;
+            padding: 25px;
+        }
+        canvas{
+            width: 100%!important; 
+            height: 100%!important; 
+            border: 1px solid #ccc;
+        }
+
+        #overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 9999;
+        }
+
+        #loadModelBtn {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #loadingIndicator {
+            font-size: 14px;
+            color: white;
+            margin-top: 10px;
+            display: none;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        .hidden {
+            animation: fadeOut 1s forwards;
+        }
+    </style>
+    {% endblock %}

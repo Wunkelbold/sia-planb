@@ -21,26 +21,26 @@
         </div>
         <div class="carousel-inner slider" >
         <div class="carousel-item active" style="z-index: 2;">
-            <video class="img-fluid w-100" autoplay loop muted>
+            <video class="img-fluid w-100" autoplay loop muted playsinline preload="auto">
                 <source src="{{ url_for('static', filename='images/slider/kamerafahrt.mp4') }}" type="video/mp4" />
             </video>
         </div>
         <div class="carousel-item slider" >
-            <img src="{{ url_for('static', filename='images/slider/slider1.png') }}" class="d-block w-100" alt="...">
+            <img src="{{ url_for('static', filename='images/slider/slider1.avif') }}" class="d-block w-100" alt="...">
             <div class="carousel-caption d-none d-md-block slidertext">
                 <h4>Das Plan B</h4>
                 <p>Poststraße 6, 72458 Albstadt. Hier befindet sich unsere Bar und Vereinsräumlichkeit!</p>
             </div>
         </div>
         <div class="carousel-item slider">
-            <img src="{{ url_for('static', filename='images/slider/slider4.png') }}" class="d-block w-100" alt="...">
+            <img src="{{ url_for('static', filename='images/slider/slider4.avif') }}" class="d-block w-100" alt="...">
             <div class="carousel-caption d-none d-md-block slidertext">
                 <h4>Spaß haben!</h4>
                 <p>Das Studium besteht nicht nur aus lernen, das Leben bietet mehr!</p>
             </div>
         </div>
         <div class="carousel-item slider">
-            <img src="{{ url_for('static', filename='images/slider/slider3.png') }}" class="d-block w-100" alt="...">
+            <img src="{{ url_for('static', filename='images/slider/slider3.avif') }}" class="d-block w-100" alt="...">
             <div class="carousel-caption d-none d-md-block slidertext">
                 <h4>Durch dick und dünn!</h4>
                 <p>In der Prüfungsphase kann man hier auch lernen!</p>
@@ -137,12 +137,12 @@
             opacity: 0; 
             transition: opacity 0.3s ease-in-out;
         }
+
         .slidertext p {
             font-size: 20px;
             text-shadow: 0px 0px 15px black, 0px 0px 10px black, 0px 0px 2px black;
             font-weight: 600;
         }
-
 
         .slidertext h4{
             font-size: 30px;
@@ -155,7 +155,6 @@
             opacity: 1;
             transition: opacity 0.3s ease-in-out;
         }
-
 
         .carousel-control-prev, .carousel-control-next {
             top: 50%;
@@ -201,8 +200,6 @@
     </style>
 <div style="  display: flex; margin: 20px; justify-content: center; align-items: center;"><a href="{{url_for('events')}}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="true">Alle kommenden Events!</a></div>
 {% if events %}
-
-    <!-- Desktop Carousel (4 per slide) -->
     <div id="carouselDesktop" class="carousel slide section d-none d-md-block"  data-bs-touch="true" style="padding:15px">
         <div class="carousel-inner" data-bs-theme="dark">
         {% for event_group in events|batch(4, ' ') %}
@@ -241,8 +238,6 @@
             <span class="visually-hidden">Next</span>
         </button>
     </div>
-    
-    <!-- Mobile Carousel (1 per slide) -->
     <div id="carouselMobile" class="carousel slide d-block d-md-none section"  data-bs-touch="true" style="padding:15px">
         <div class="carousel-inner" data-bs-theme="dark">
         {% for event in events %}
@@ -277,8 +272,6 @@
             <span class="visually-hidden">Next</span>
         </button>
     </div>
-
-
     <script>
           document.addEventListener('DOMContentLoaded', function () {
                 const myCarousel = document.querySelector('#carouselMobile');
@@ -295,9 +288,5 @@
                 });
             });
     </script>
-
-    
-    
-
 {% endif %}
 {% endblock %}

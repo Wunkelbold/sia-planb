@@ -93,24 +93,22 @@
   z-index: 1;
 }
 
-@media screen and (max-width: 768px) {
-  #rotate-warning {
-    display: block;
-  }
-}
+        @media screen and (max-width: 500px) {
+        #rotate-warning {
+            display: block;
+        }
+        }
         
-                /* Limit the carousel's display size */
         #carouselExampleCaptions {
-            max-width: 1920px;  /* Set max width */
-            max-height: 70vh; /* Set max height */
-            margin: auto;      /* Center carousel on the page */
+            max-width: 1920px;  
+            max-height: 70vh; 
+            margin: auto;      
         }
 
-        /* Ensure images do not exceed the container size */
         #carouselExampleCaptions .carousel-item img {
-            width: 100%;       /* Scale to fit container width */
-            height: auto;      /* Maintain aspect ratio */
-             /* Limit image height */
+            width: 100%;       
+            height: auto;      
+
         }
 
         .carousel-item video {
@@ -279,6 +277,24 @@
             <span class="visually-hidden">Next</span>
         </button>
     </div>
+
+
+    <script>
+          document.addEventListener('DOMContentLoaded', function () {
+                const myCarousel = document.querySelector('#carouselMobile');
+                new bootstrap.Carousel(myCarousel, {
+                touch: true,
+                interval: false
+                });
+            });
+            document.addEventListener('DOMContentLoaded', function () {
+                const myCarousel = document.querySelector('#carouselExampleCaptions');
+                new bootstrap.Carousel(myCarousel, {
+                touch: true,
+                interval: false
+                });
+            });
+    </script>
 
     
     

@@ -19,27 +19,27 @@
         <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
         <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="3" aria-label="Slide 4"></button>
         </div>
-        <div class="carousel-inner">
+        <div class="carousel-inner slider" >
         <div class="carousel-item active" style="z-index: 2;">
             <video class="img-fluid w-100" autoplay loop muted>
                 <source src="{{ url_for('static', filename='images/slider/kamerafahrt.mp4') }}" type="video/mp4" />
             </video>
         </div>
-        <div class="carousel-item">
+        <div class="carousel-item slider" >
             <img src="{{ url_for('static', filename='images/slider/slider1.png') }}" class="d-block w-100" alt="...">
             <div class="carousel-caption d-none d-md-block slidertext">
                 <h4>Das Plan B</h4>
                 <p>Poststraße 6, 72458 Albstadt. Hier befindet sich unsere Bar und Vereinsräumlichkeit!</p>
             </div>
         </div>
-        <div class="carousel-item">
+        <div class="carousel-item slider">
             <img src="{{ url_for('static', filename='images/slider/slider4.png') }}" class="d-block w-100" alt="...">
             <div class="carousel-caption d-none d-md-block slidertext">
                 <h4>Spaß haben!</h4>
                 <p>Das Studium besteht nicht nur aus lernen, das Leben bietet mehr!</p>
             </div>
         </div>
-        <div class="carousel-item">
+        <div class="carousel-item slider">
             <img src="{{ url_for('static', filename='images/slider/slider3.png') }}" class="d-block w-100" alt="...">
             <div class="carousel-caption d-none d-md-block slidertext">
                 <h4>Durch dick und dünn!</h4>
@@ -49,12 +49,12 @@
         <!-- MOBILE-->
         </div>
         <button class="carousel-control-prev" style="z-index: 3;" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon"  aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
+            <span class="carousel-control-prev-icon"  aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
         </button>
         <button class="carousel-control-next" style="z-index: 3;" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
-        <span class="carousel-control-next-icon"  aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span> 
+            <span class="carousel-control-next-icon"  aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span> 
         </button>
 
         
@@ -129,7 +129,6 @@
             justify-content: center;
             align-items: center;
             transition: transform 0.3s ease-in-out; 
-            height: 70vh; 
         }
         
         .carousel-item {
@@ -189,7 +188,7 @@
         }
 
         @media (max-width: 768px) {
-            .carousel-item {
+            .carousel-item .slider{
                 height: 70vh;
                 object-fit: cover;
                 opacity: 0; 
@@ -201,54 +200,88 @@
             }
         }
 
-
-
     </style>
 <div style="  display: flex; margin: 20px; justify-content: center; align-items: center;"><a href="{{url_for('events')}}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="true">Alle kommenden Events!</a></div>
 {% if events %}
-    
-    <div id="cardCarousel" class="carousel slide section" data-bs-theme="dark" data-bs-touch="true" style="padding:15px">
-        <div class="carousel-inner">
-            {% if events %}
-                {% for event_group in events|batch(4, ' ') %}
-                    <div class="carousel-item  {% if loop.first %}active{% endif %}">
-                        <div class="row " style="justify-content: center;">
-                            {% for event in event_group %}
-                                {% if event != ' ' %}
-                                    <div class="col-md-2 card-group">
-                                        <div class="card h-20" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
-                                            <div class="crop">
-                                                <img src="{{ url_for('static', filename='images/eventposter/' + event.uid|string ) }}" class="card-img-top" alt="...">
-                                            </div>
-                                                    
-                                                <div class="card-body">
-                                                    <h5 class="card-title">{{ event.name }}</h5>
-                                                    <p class="card-text">{{ event.description | safe }}</p>
-                                                  </div>
-                                                  <ul class="list-group list-group-flush">
-                                                    <li class="list-group-item">{{ event.place }}</li>
-                                                    <li class="list-group-item">{{ event.date }}</li>
-                                                  </ul>
-                                        </div>
+
+    <!-- Desktop Carousel (4 per slide) -->
+    <div id="carouselDesktop" class="carousel slide section d-none d-md-block"  data-bs-touch="true" style="padding:15px">
+        <div class="carousel-inner" data-bs-theme="dark">
+        {% for event_group in events|batch(4, ' ') %}
+            <div class="carousel-item {% if loop.first %}active{% endif %}">
+            <div class="row justify-content-center">
+                {% for event in event_group %}
+                    {% if event != ' ' %}
+                        <div class="col-md-2 card-group">
+                            <div class="card h-20" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                                <div class="crop">
+                                    <img src="{{ url_for('static', filename='images/eventposter/' + event.uid|string ) }}" class="card-img-top" alt="...">
+                                </div>
+                                        
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ event.name }}</h5>
+                                        <p class="card-text">{{ event.description | safe }}</p>
                                     </div>
-                                {% endif %}
-                            {% endfor %}
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">{{ event.place }}</li>
+                                        <li class="list-group-item">{{ event.date }}</li>
+                                    </ul>
+                            </div>
                         </div>
-                    </div>
+                    {% endif %}
                 {% endfor %}
-            {% else %}
-                <p>No events available</p>
-            {% endif %}
+            </div>
+            </div>
+        {% endfor %}
         </div>
-        <!-- Controls for vertical scroll -->
-        <button class="carousel-control-prev" type="button" data-bs-target="#cardCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselDesktop" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true" data-bs-theme=light></span>
             <span class="visually-hidden">Previous</span>
         </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#cardCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselDesktop" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true" data-bs-theme=light></span>
             <span class="visually-hidden">Next</span>
         </button>
     </div>
+    
+    <!-- Mobile Carousel (1 per slide) -->
+    <div id="carouselMobile" class="carousel slide d-block d-md-none section"  data-bs-touch="true" style="padding:15px">
+        <div class="carousel-inner" data-bs-theme="dark">
+        {% for event in events %}
+            <div class="carousel-item {% if loop.first %}active{% endif %}">
+            <div class="row justify-content-center">
+                <div class="col-md-2 card-group">
+                    <div class="card h-20" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                        <div class="crop">
+                            <img src="{{ url_for('static', filename='images/eventposter/' + event.uid|string ) }}" class="card-img-top" alt="...">
+                        </div>
+                                
+                            <div class="card-body">
+                                <h5 class="card-title">{{ event.name }}</h5>
+                                <p class="card-text">{{ event.description | safe }}</p>
+                              </div>
+                              <ul class="list-group list-group-flush">
+                                <li class="list-group-item">{{ event.place }}</li>
+                                <li class="list-group-item">{{ event.date }}</li>
+                              </ul>
+                    </div>
+                </div>
+            </div>
+            </div>
+        {% endfor %}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselMobile" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon white-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselMobile" data-bs-slide="next">
+            <span class="carousel-control-next-icon white-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+
+    
+    
+
 {% endif %}
 {% endblock %}

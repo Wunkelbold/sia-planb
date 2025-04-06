@@ -135,7 +135,7 @@ body {
   height: 0;
   background-size: 100% 100%;
   animation-name: fill;
-  background-image: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/1526092/beer.png');
+  background-image: url("{{ url_for('static', filename='images/sonstige/beer.webp') }}");
   /* Had to use an image for the gradient because css linear gradients don't create a smooth enough ramp between stops for my liking. */
 }
 
@@ -210,7 +210,7 @@ body {
   bottom: 10%;
   padding-bottom: 200%;
   background-size: 100% auto;
-  background-image: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/1526092/bubbles.png');
+  background-image: url("{{ url_for('static', filename='images/sonstige/bubbles.avif') }}");
   background-repeat: repeat-y;
   -webkit-mask-image: linear-gradient(to top, transparent 20%, black 100%);
   animation-name: bubbly;

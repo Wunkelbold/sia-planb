@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (typeof jQuery === "undefined") {
         console.error("Error: jQuery is not loaded before Bootstrap!");
     } else {
-        console.log("jQuery is loaded, Bootstrap will work.");
+        console.log("jQuery is loaded!");
     }
 });
 

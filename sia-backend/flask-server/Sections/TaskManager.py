@@ -47,7 +47,10 @@ def apiTaskGetEvent(eventID: int):
 @app.route("/api/task/new/<int:eventID>", methods=['POST'])
 @require_permissions("task.new")
 def apiTaskNewEvent(eventID: int):
+    event = Tables.Event.query.filter_by(id=eventID).first()
     form = Forms.newTask()
+    if event:
+        deadline = form.TaskDeadline.data if form.TaskDeadline.data else event.date
     newTask = Tables.Task(
         eventFK = eventID,
         authorFK = current_user.id,
@@ -56,7 +59,7 @@ def apiTaskNewEvent(eventID: int):
         status = form.TaskStatus.data,
         priority = form.TaskPriority.data,
         visibility = form.TaskVisibility.data,
-        deadline = form.TaskDeadline.data,
+        deadline = deadline,
         created = datetime.now(),
         timeframe_start = form.TaskStart.data,
         timeframe_end = form.TaskEnd.data,

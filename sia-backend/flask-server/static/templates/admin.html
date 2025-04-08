@@ -23,6 +23,9 @@
             <a class="nav-link" href="{{ url_for('admin', all=true) }}#hotlink_event_list">Events-alle</a>
           </li>
           <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin', all=true) }}#hotlink_task_list">Aufgaben</a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link" href="#hotlink_event_create">Event erstellen</a>
           </li>
         </ul>
@@ -97,6 +100,7 @@
   {% include 'admin-user.html' %}
   {% include 'admin-contacts.html' %}
   {% include 'admin-events.html' %}
+  {% include 'admin-tasks.html' %}
     
 
 
@@ -152,12 +156,20 @@ function onPageReady() {
   new Tablesort(document.getElementById('event-table'));
   new Tablesort(document.getElementById('user-table'));
   new Tablesort(document.getElementById('contact-table'));
+  new Tablesort(document.getElementById('task-table'));
 }
 
 // Run the above function when the page is loaded & ready
 document.addEventListener('DOMContentLoaded', onPageReady, false);
 
 </script>
+
+
+  
+
+
+
+
 {% endblock %}
 
 

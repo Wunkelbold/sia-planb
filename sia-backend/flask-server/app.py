@@ -293,7 +293,7 @@ def admin():
         duty_count = db.session.query(Tables.Duty).join(Tables.Shift).filter(Tables.Shift.event == event.id).count()
         shift_count = Tables.Shift.query.filter_by(event=event.id).count()
         task_count = Tables.Task.query.filter_by(eventFK=event.id).count()   
-        rm_count = Tables.RegisterManager.query.filter_by(id=event.id).count()      
+        rm_count = Tables.RegisterManager.query.filter_by(eventFK=event.id).count()      
         events.append({
             "id": event.id,
             "name":event.name,
@@ -319,9 +319,10 @@ def admin():
         .order_by(Tables.Event.created.desc()).all()
     '''
     roles = Tables.Role.query.all()
-    form_edit_user=Forms.AdminChangeData()
+    form_edit_user = Forms.AdminChangeData()
+    tasks = [task.getDict() for task in Tables.Task.query.filter(Tables.Task.deadline >= today).order_by(Tables.Task.deadline.asc()).all()]
     form_edit_user.role.choices = [(role.name, role.name) for role in roles] 
-    return render_template('admin.html', title='Sia-PlanB.de', events=events, users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(), form_edit_user=form_edit_user, form_edit_event=Forms.ChangeEventForm(), form_new_shift=Forms.newShiftForm(), form_new_registration=Forms.newRegistration(),form_new_task=Forms.newTask() )
+    return render_template('admin.html', title='Sia-PlanB.de', tasks=tasks, events=events, users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(), form_edit_user=form_edit_user, form_edit_event=Forms.ChangeEventForm(), form_new_shift=Forms.newShiftForm(), form_new_registration=Forms.newRegistration(),form_new_task=Forms.newTask() )
 
 
 @app.route("/slider/<name>")

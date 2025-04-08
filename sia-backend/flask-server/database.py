@@ -19,7 +19,7 @@ def format_datetime(dt):
 def format_datetime_hr(dt):
     local_tz = ZoneInfo("Europe/Berlin")
     locale.setlocale(locale.LC_ALL, 'de_DE.utf8')
-    return dt.replace(tzinfo=local_tz).strftime('%a, %d/%m/%y %H:%M') if dt else None
+    return dt.replace(tzinfo=local_tz).strftime('%a, %d.%m.%y %H:%M') if dt else None
 
 def format_datetime2(dt):
     return dt.strftime('%Y-%m-%dT%H:%M') if dt else None
@@ -61,7 +61,7 @@ class Tables:
         __tablename__ = 'events'
         id = db.Column(db.Integer, primary_key=True)
         uid = db.Column(UUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False)  # Add UUID
-        author = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+        author = db.Column(db.Integer, db.ForeignKey("user.id",ondelete='SET DEFAULT'), nullable=False, default=1)
         name = db.Column(db.String(50), nullable=False)
         visibility = db.Column(db.String(10))
         place = db.Column(db.String(50))
@@ -71,6 +71,7 @@ class Tables:
         description = db.Column(db.String(300))
         postername = db.Column(db.String(50))
         shift_rel = db.relationship("Shift", cascade="all,delete", backref="Event", lazy="joined")
+        task_rel = db.relationship("Task", cascade="all,delete", backref="Event", lazy="joined")
 
         def toJSON(self):
             def format_datetime(dt):
@@ -113,7 +114,7 @@ class Tables:
         __tablename__ = 'duty'
         id = db.Column(db.Integer, primary_key=True)
         shift = db.Column(db.Integer, db.ForeignKey("shifts.id", ondelete="CASCADE"), nullable=False)
-        user = db.Column(db.Integer, db.ForeignKey("user.id"))
+        user = db.Column(db.Integer, db.ForeignKey("user.id",ondelete="CASCADE"))
         user_obj = db.relationship("User", backref="duties", lazy="joined")
 
     class Contact(db.Model):
@@ -199,18 +200,64 @@ class Tables:
                 "price" : self.price,
                 "paid": self.paid,
                 "valid": self.valid, 
-
             }
+        
+    class Task(db.Model):
+        __tablename__ = 'task'
+        id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+        eventFK = db.Column(db.Integer, db.ForeignKey("events.id",ondelete="CASCADE"))
+        authorFK = db.Column(db.Integer, db.ForeignKey("user.id",ondelete='SET DEFAULT'),default=1)
+        name = db.Column(db.String(50))
+        description = db.Column(db.String(500))
+        status = db.Column(db.String(30))
+        priority = db.Column(db.String(20))
+        visibility = db.Column(db.String(10))
+        deadline = db.Column(db.DateTime)
+        created = db.Column(db.DateTime)
+        timeframe_start = db.Column(db.DateTime)
+        timeframe_end = db.Column(db.DateTime) 
+        assistant_obj = db.relationship("Assistant", backref="task", lazy="joined")
+
+        def getDict(self):
+            return {
+                "id": self.id,
+                "eventFK": self.eventFK,
+                "name": self.name,
+                "authorFK": self.authorFK,
+                "description": self.description,
+                "status": self.status,
+                "priority": self.priority,
+                "visibility": self.visibility,
+                "deadline" : format_datetime2(self.deadline),
+                "deadline_hr" : format_datetime_hr(self.deadline),
+                "created": format_datetime_hr(self.created),
+                "timeframe_start": format_datetime2(self.timeframe_start),
+                "timeframe_end": format_datetime2(self.timeframe_end),
+                "timeframe_start_hr": format_datetime_hr(self.timeframe_start),
+                "timeframe_end_hr": format_datetime_hr(self.timeframe_end),
+            }
+
+    class Assistant(db.Model): #Helfer die Aufgaben erledigen
+        __tablename__ = 'assistant'
+        id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+        userFK = db.Column(db.Integer, db.ForeignKey("user.id",ondelete="CASCADE"))
+        taskFK = db.Column(db.Integer, db.ForeignKey("task.id",ondelete="CASCADE"))
+        joined_timestamp = db.Column(db.DateTime)
+        role = db.Column(db.String(30))
 
     class HowTo(db.Model):
         __tablename__ = 'howto'
         id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-        userFK = db.Column(db.Integer, db.ForeignKey("user.id"))
+        userFK = db.Column(db.Integer, db.ForeignKey("user.id",ondelete="SET DEFAULT"),default=1)
         header = db.Column(db.TEXT)
         body = db.Column(db.TEXT)
         created = db.Column(db.DateTime)
         last_changed = db.Column(db.DateTime)
         visibility = db.Column(db.String(10))
+
+
+
+
 
 
 

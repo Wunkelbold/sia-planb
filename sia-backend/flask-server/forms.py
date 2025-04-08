@@ -595,6 +595,79 @@ class Forms:
             validators=[
                 Optional()])
         RegistrationSubmit = SubmitField("Neue Anmeldung")
+
+
+    class newTask(FlaskForm):
+        TaskName = StringField(
+            render_kw={"placeholder": "Aufgabe"}, 
+            validators=[
+                InputRequired(), 
+                Length(
+                    max=50,
+                    message="Beschreibung darf maximal 50 Zeichen lang sein.")])
+        TaskDescription = TextAreaField(
+            render_kw={"placeholder": "Beschreibung"}, 
+            validators=[
+                Optional(), 
+                Length(
+                    max=500,
+                    message="Beschreibung darf maximal 500 Zeichen lang sein.")])
+        TaskStatus = SelectField(
+            validators=[
+                Optional()
+                ],
+            label="Anmeldemodus",
+            choices=[("TakeOverTask","TakeOverTask"),
+                     ("OnHold","OnHold"),
+                     ("InProgress","InProgress"),
+                     ("Ready","Ready"),
+                     ("Finished","Finished"),
+                     ("delete","delete")
+                     ], 
+            coerce=str, 
+            render_kw={ "id": "TaskPriority"})
+        TaskPriority = SelectField(
+            validators=[
+                Optional()
+                ],
+            label="Anmeldemodus",
+            choices=[("niedrig","niedrig"),("mittel","mittel"),("hoch","hoch")], 
+            coerce=str, 
+            render_kw={ "id": "TaskPriority"})
+        TaskVisibility = SelectField(
+            validators=[
+                InputRequired()
+                ],
+            label="Sichtbarkeit",
+            choices=[
+                ("public","public"),
+                ("student","student"),
+                ("member","member"),
+                ("private","private")
+                ], 
+            coerce=str, 
+            render_kw={ 
+                "id": "TaskVisibility"}
+                )
+        TaskDeadline = DateTimeLocalField(
+            render_kw={
+                "placeholder": "Deadline", 
+                "id": "TaskDeadline"}, 
+            validators=[
+                Optional()
+            ])
+        TaskStart = DateTimeLocalField(
+            render_kw={"placeholder": "Start", "id": "TaskStart"}, 
+            validators=[
+                Optional()
+            ])
+        TaskEnd = DateTimeLocalField(
+            render_kw={"placeholder": "Ende", "id": "TaskEnd"}, 
+            validators=[
+                Optional()
+            ])
+        TaskSubmit = SubmitField("Neue Aufgabe")
+
         
 
 

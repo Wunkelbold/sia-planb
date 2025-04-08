@@ -22,6 +22,7 @@ from Sections.EventHandler import getAllEvents
 import Sections.UserManager as _
 import Sections.ContactManager as _
 import Sections.RegistrationHandler as _
+import Sections.TaskManager as _
 from Sections.EmailHandler import *
 
 csrf = CSRFProtect(app)
@@ -219,7 +220,6 @@ def tickets():
 def admin():
     submitted=False
     form = Forms.EventForm()
-    form_new_registration = Forms.newRegistration()
 
     if form.is_submitted():
         if not hasPermissions("events.create"):
@@ -278,8 +278,22 @@ def admin():
             .filter(Tables.Shift.event == event.id)
             .scalar()
         )
+        individuals_count = (
+            db.session.query(func.count(func.distinct(Tables.Duty.user)))
+            .join(Tables.Shift)
+            .filter(Tables.Shift.event == event.id)
+            .scalar()
+        )
+        registration_count = (
+            db.session.query(func.count(func.distinct(Tables.Registration.userFK)))
+            .join(Tables.RegisterManager)
+            .filter(Tables.RegisterManager.eventFK == event.id)
+            .scalar()
+        )
         duty_count = db.session.query(Tables.Duty).join(Tables.Shift).filter(Tables.Shift.event == event.id).count()
-        shift_count = Tables.Shift.query.filter_by(event=event.id).count()        
+        shift_count = Tables.Shift.query.filter_by(event=event.id).count()
+        task_count = Tables.Task.query.filter_by(eventFK=event.id).count()   
+        rm_count = Tables.RegisterManager.query.filter_by(id=event.id).count()      
         events.append({
             "id": event.id,
             "name":event.name,
@@ -293,7 +307,10 @@ def admin():
             "description":event.description,
             "duty_count": duty_count,
             "shift_count": shift_count,
-            "shift_filled_count":shift_filled_count
+            "shift_filled_count":shift_filled_count,
+            "task_count":task_count,
+            "individuals_count":individuals_count,
+            "rm_count":rm_count
         })
     
     '''
@@ -303,10 +320,8 @@ def admin():
     '''
     roles = Tables.Role.query.all()
     form_edit_user=Forms.AdminChangeData()
-    form_edit_event=Forms.ChangeEventForm()
-    form_new_shift = Forms.newShiftForm()
     form_edit_user.role.choices = [(role.name, role.name) for role in roles] 
-    return render_template('admin.html', title='Sia-PlanB.de', events=events, users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(), form_edit_user=form_edit_user, form_edit_event=form_edit_event, form_new_shift=form_new_shift,form_new_registration=form_new_registration)
+    return render_template('admin.html', title='Sia-PlanB.de', events=events, users=users, contacts=contacts, submitted=submitted, form=Forms.EventForm(), form_edit_user=form_edit_user, form_edit_event=Forms.ChangeEventForm(), form_new_shift=Forms.newShiftForm(), form_new_registration=Forms.newRegistration(),form_new_task=Forms.newTask() )
 
 
 @app.route("/slider/<name>")

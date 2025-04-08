@@ -5,7 +5,8 @@
         "Student":[ "events.student",
                     "events.public",
                     "events.register.student",
-                    "events.register.public"],
+                    "events.register.public",
+                    "task.help.student"],
         "Sia-Alumni":[  "events.public",
                         "events.register.public"]
     },
@@ -18,8 +19,9 @@
                         "events.register.member",
                         "events.register.student",
                         "events.register.public",
-                        "howto.show"],
+                        "howto.show",
+                        "task.help.member"],
         "Moderator":[""],
-        "Admin":["*","events.*","/api/events/*","howto.show"]
+        "Admin":["*","events.*","/api/events/*","howto.show","task.help.private"]
     }
 }

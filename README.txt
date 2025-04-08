@@ -17,4 +17,8 @@ oder
 localeset package:
 ~$ locale-gen de_DE.UTF-8
 
+ALTER TABLE events ALTER COLUMN author SET DEFAULT 1;
+ALTER TABLE task ALTER COLUMN authorFK SET DEFAULT 1;
+
+
 

@@ -36,7 +36,7 @@ def apiNewRM(eventid: int):
         )
         db.session.add(new_RM)
         db.session.commit()
-        return jsonify({'success': True, 'error' : 'Neue Registrierungsmöglichkeit angelegt.'})
+        return jsonify({'success': True, 'message' : { "Erfolg":['Neue Registrierungsmöglichkeit angelegt.']}})
 
     if hasPermissions(f"/api/events/event/{eventid}/newRM"):
         form = Forms.newRegistration()
@@ -51,7 +51,7 @@ def apiNewRM(eventid: int):
             else:
                 return jsonify({
                             'success': False,
-                            'error': {'Form': ["Für 'Zeitraum' musst du Start und Ende angeben"]}
+                            'error': {'Form': ["Für 'Zeitraum' musst du Start und Ende angeben."]}
                         })
         else:
             errors=form.errors
@@ -76,9 +76,9 @@ def apiGetRmSingle(eventid: int,rmID: int):
             if registerManager.accept == "geschlossen":
                 register_data["join_button_active"] = False
             return jsonify(registerManager.getDict())
-        return jsonify({'success': False, 'error' : 'Keine Registrierungsmöglichkeiten gefunden.'})
+        return jsonify({'success': False, 'message' : {'Erfolg': ['Keine Registrierungsmöglichkeiten gefunden.']}})
     else:
-        return jsonify({'success': False, 'error': "Dir fehlt die Berechtigung!"})
+        return jsonify({'success': False, 'error': {'Fehler': ["Dir fehlt die Berechtigung!"]}})
     
 @app.route("/api/events/event/<int:eventid>/getRM", methods=['GET'])
 @login_required
@@ -112,12 +112,11 @@ def apiGetRmall(eventid: int):
 
         return jsonify(rmList)
     else:
-        return jsonify({'success': False, 'error': "Es gibt keine Registrierungsmöglichkeit für dieses Event."})
+        return jsonify({'success': False, 'error': { "Fehler":["Es gibt keine Registrierungsmöglichkeit für dieses Event."]}})
 
 @app.route("/api/events/event/<int:eventid>/updateRM/<int:rmID>", methods=['POST'])
-@require_permissions("events.rm.update")
 def apiUpdateRM(eventid: int,rmID: int):
-    if hasPermissions(f"/api/events/event/{eventid}/updateRM/{rmID}"):
+    if hasPermissions("events.rm.update"):
         form = Forms.newRegistration()
         rm=Tables.RegisterManager.query.filter_by(eventFK=eventid,id=rmID).first()
         if form.validate_on_submit() and rm:
@@ -128,12 +127,12 @@ def apiUpdateRM(eventid: int,rmID: int):
             rm.accept = form.RegistrationAccept.data
             rm.deny = form.RegistrationDeny.data
             db.session.commit()
-            return jsonify({'success': True, 'error' : 'Daten angepasst'})
+            return jsonify({'success': True, 'message' : { "Erfolg":['Daten angepasst']}})
         else:
             error=form.errors
             return jsonify({'success': False, 'error' : error})
     else:
-        return jsonify({'success': False, 'error': "Dir fehlt die Berechtigung!"})
+        return jsonify({'success': False, 'error': { "Fehler":["Dir fehlt die Berechtigung 'events.rm.update'!"]}})
 
 @app.route("/api/events/event/<int:eventid>/deleteRM/<int:rmID>", methods=['POST'])
 @require_permissions("events.rm.delete")
@@ -141,9 +140,9 @@ def apiDeleteRM(eventid: int,rmID: int):
     if hasPermissions(f"/api/events/event/{eventid}/deleteRM/{rmID}"):
         Tables.RegisterManager.query.filter_by(eventFK=eventid,id=rmID).delete()
         db.session.commit()
-        return jsonify({'success': True, 'error' : 'Registrierungsmöglichkeit wurde gelöscht'})
+        return jsonify({'success': True, 'message' : { "Erfolg":['Registrierungsmöglichkeit wurde gelöscht']}})
     else:
-        return jsonify({'success': False, 'error': "Dir fehlt die Berechtigung!"})
+        return jsonify({'success': False, 'error': { "Fehler":["Dir fehlt die Berechtigung 'events.rm.delete'!"]}})
 
 @app.route("/api/events/event/<int:eventid>/register/<int:rmID>", methods=['POST'])
 @login_required
@@ -153,26 +152,26 @@ def apiRegisterEvent(eventid: int, rmID: int):
         vis = registerManager.visibility
         rmID = registerManager.id
         if not registerManager:
-                return jsonify({'success': False, 'errors': ["Keine Registrierung vorgesehen!"]}), 404
+                return jsonify({'success': False, 'error': { "Fehler":["Keine Registrierung vorgesehen!"]}}), 404
         existing_registration = Tables.Registration.query.filter_by(rmFK=registerManager.id, userFK=current_user.id).first()
         if existing_registration:
-            return jsonify({'success': False, 'errors': [f"Bereits angemeldet!"]})
+            return jsonify({'success': False, 'error': { "Fehler":[f"Bereits angemeldet!"]}})
         if registerManager.accept == "Zeitraum":
             if check_time_span(registerManager):
                 return check_register_perm(eventid,rmID,vis)
             else:
-                return jsonify({'success': False, 'error': [f"Die Anmeldephase hat noch nicht begonnen oder ist schon vorbei:"]})
+                return jsonify({'success': False, 'error': { "Fehler":[f"Die Anmeldephase hat noch nicht begonnen oder ist schon vorbei:"]}})
         elif registerManager.accept == "geschlossen":
-            return jsonify({'success': False, 'error': [f"Anmeldungen sind manuell geschlossen."]})
+            return jsonify({'success': False, 'error': { "Fehler":[f"Anmeldungen sind manuell geschlossen."]}})
         elif registerManager.accept == "geöffnet":
             return check_register_perm(eventid,rmID,vis)
-    return jsonify({'success': False, 'error': [f"Something went wrong"]})
+    return jsonify({'success': False, 'error': { "Fehler":[f"Die Registrierung konnte nicht gefunden werden :/"]}})
         
 def process_registration(eventid,rmID):
     new_registration = Tables.Registration(rmFK=rmID, userFK=current_user.id,timestamp=datetime.now(timezone.utc))
     db.session.add(new_registration)
     db.session.commit()
-    return jsonify({'success': True, 'error': "Du wurdest erfolgreich für das Event angemeldet"})
+    return jsonify({'success': True, 'message': { "Erfolg":["Du wurdest erfolgreich für das Event angemeldet"]}})
 
 def check_register_perm(eventid: int, rmID: int, vis: str):
     if vis == "member" and hasPermissions("events.register.member"):
@@ -183,7 +182,7 @@ def check_register_perm(eventid: int, rmID: int, vis: str):
         return process_registration(eventid,rmID)
     if vis == "public":
         return process_registration(eventid,rmID) 
-    return jsonify({'success': False, 'errors': ["Keine Berechtigung."]})
+    return jsonify({'success': False, 'error': { "Fehler":["Dir Fehlt die Berechtigung dich für die Events anzumelden."]}})
 
 def check_time_span(registerManager: Tables.RegisterManager) -> bool:
     inBetween = True
@@ -207,20 +206,20 @@ def apiUnregisterEvent(eventid: int, rmID: int):
     registerManager = Tables.RegisterManager.query.filter_by(eventFK=eventid, id=rmID).first()
 
     if not registerManager:
-        return jsonify({'success': False, 'errors': ["Die Abmeldung war nicht möglich, da keine Registrierung (mehr) für das Event existiert!"]}), 404
+        return jsonify({'success': False, 'error': { "Fehler":["Die Abmeldung war nicht möglich, da keine Registrierung (mehr) für das Event existiert!"]}}), 404
     
     if registerManager.deny == "verbieten":
-        return jsonify({'success': False, 'errors': ["Die Abmeldung war nicht möglich, da sie abgeschlaten ist!"]}), 404
+        return jsonify({'success': False, 'error': { "Fehler":["Die Abmeldung war nicht möglich, da sie abgeschlaten ist!"]}}), 404
 
     existing_registration = Tables.Registration.query.filter_by(rmFK=registerManager.id, userFK=current_user.id).first()
     if not existing_registration:
-        return jsonify({'success': False, 'errors': [f"Du warst nie angemeldet!"]})
+        return jsonify({'success': False, 'error': { "Fehler":[f"Du warst nie angemeldet!"]}})
     
     if existing_registration and registerManager.deny == "erlaubt":
         db.session.delete(existing_registration)
         db.session.commit()
 
-    return jsonify({'success': True, 'error': "Du wurdest erfolgreich für das Event angemeldet"})
+    return jsonify({'success': True, 'message': { "Erfolg":["Du wurdest erfolgreich für das Event angemeldet"]}})
 
 
 @app.route("/api/events/event/registration/punch/<regID>", methods=['POST'])
@@ -230,14 +229,14 @@ def apiPunchRM(regID: int):
         registration = Tables.Registration.query.filter_by(id=regID).first()
         if registration:
             if not registration.valid:
-                return jsonify({"success": False, "message": f"'{registration.RegisterManager.name}' - Ist schon entwertet!"})
+                return jsonify({"success": False, "message": { "Fehler":[f"'{registration.RegisterManager.name}' - Ist schon entwertet!"]}})
             registration.valid = False
             db.session.commit()
-            return jsonify({'success': True, "message": f"'{registration.RegisterManager.name}' wurde entwertet!"})
+            return jsonify({'success': True, "message": { "Erfolg":[f"'{registration.RegisterManager.name}' wurde entwertet!"]}})
         else:
-            return jsonify({"success":False, "error": "Keine Registrierung gefunden!"})
+            return jsonify({"success":False, "error": { "Fehler":["Keine Registrierung gefunden!"]}})
     else:
-        return jsonify({"success":False, "error":"Missing Privilige 'events.rm.punch'!"})
+        return jsonify({"success":False, "error": { "Fehler":["Missing Privilige 'events.rm.punch'!"]}})
     
 @app.route("/api/events/event/registration/validate/<regID>", methods=['POST'])
 @login_required
@@ -246,14 +245,14 @@ def apiValidateRM(regID: int):
         registration = Tables.Registration.query.filter_by(id=regID).first()
         if registration:
             if registration.valid:
-                return jsonify({"success":False, "message": f"'{registration.RegisterManager.name}' - Ist schon validiert!"})
+                return jsonify({"success":False, "message": { "Fehler":[f"'{registration.RegisterManager.name}' - Ist schon validiert!"]}})
             registration.valid = True
             db.session.commit()
-            return jsonify({'success': True, "message":f"'{registration.RegisterManager.name}' wurde validiert!"})
+            return jsonify({'success': True, "message": { "Erfolg":[f"'{registration.RegisterManager.name}' wurde validiert!"]}})
         else:
-            return jsonify({"success":False, "error":"Keine Registrierung gefunden!"})
+            return jsonify({"success":False, "error":{ "Fehler":["Keine Registrierung gefunden!"]}})
     else:
-        return jsonify({"success":False, "error":"Missing Privilige 'events.rm.validate'!"})
+        return jsonify({"success":False, "error": { "Fehler":["Missing Privilige 'events.rm.validate'!"]}})
     
 @app.route("/api/events/event/registration/unpaid/<regID>", methods=['POST'])
 @login_required
@@ -262,14 +261,14 @@ def apiUnpaidRM(regID: int):
         registration = Tables.Registration.query.filter_by(id=regID).first()
         if registration:
             if not registration.paid:
-                return jsonify({"success":False, "message": f"'{registration.RegisterManager.name}' - Status ist bereits auf unbezahlt!"})
+                return jsonify({"success":False, "message": { "Fehler":[f"'{registration.RegisterManager.name}' - Status ist bereits auf unbezahlt!"]}})
             registration.paid = False
             db.session.commit()
-            return jsonify({'success': True, "message":f"'{registration.RegisterManager.name}' - Status wurde auf 'unbezahlt' gesetzt!"})
+            return jsonify({'success': True, "message": { "Erfolg":[f"'{registration.RegisterManager.name}' - Status wurde auf 'unbezahlt' gesetzt!"]}})
         else:
-            return jsonify({"success":False, "error":"Keine Registrierung gefunden!"})
+            return jsonify({"success":False, "error": { "Fehler":["Keine Registrierung gefunden!"]}})
     else:
-        return jsonify({"success":False, "error":"Missing Privilige 'events.rm.unpaid'!"})
+        return jsonify({"success":False, "error": { "Fehler":["Missing Privilige 'events.rm.unpaid'!"]}})
 
 @app.route("/api/events/event/registration/paid/<regID>", methods=['POST'])
 @login_required
@@ -278,14 +277,14 @@ def apiPaidRM(regID: int):
         registration = Tables.Registration.query.filter_by(id=regID).first()
         if registration:
             if registration.paid:
-                return jsonify({"success":False, "message": f"'{registration.RegisterManager.name}' - Status ist bereits auf bezahlt!"})
+                return jsonify({"success":False, "message": { "Fehler":[f"'{registration.RegisterManager.name}' - Status ist bereits auf bezahlt!"]}})
             registration.paid = True
             db.session.commit()
-            return jsonify({'success': True, "message":f"'{registration.RegisterManager.name}' - Status wurde auf 'bezahlt' gesetzt!"})
+            return jsonify({'success': True, "message": { "Erfolg":[f"'{registration.RegisterManager.name}' - Status wurde auf 'bezahlt' gesetzt!"]}})
         else:
-            return jsonify({"success":False, "error":"Keine Registrierung gefunden!"})
+            return jsonify({"success":False, "error": { "Fehler":["Keine Registrierung gefunden!"]}})
     else:
-        return jsonify({"success":False, "error":"Missing Privilige 'events.rm.paid'!"})
+        return jsonify({"success":False, "error": { "Fehler":["Missing Privilige 'events.rm.paid'!"]}})
     
 
 

@@ -625,7 +625,7 @@ class Forms:
                      ("delete","delete")
                      ], 
             coerce=str, 
-            render_kw={ "id": "TaskPriority"})
+            render_kw={ "id": "TaskStatus"})
         TaskPriority = SelectField(
             validators=[
                 Optional()
@@ -640,10 +640,10 @@ class Forms:
                 ],
             label="Sichtbarkeit",
             choices=[
-                ("public","public"),
-                ("student","student"),
+                ("private","private"),
                 ("member","member"),
-                ("private","private")
+                ("student","student"),
+                ("public","public")
                 ], 
             coerce=str, 
             render_kw={ 

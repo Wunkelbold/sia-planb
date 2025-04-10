@@ -1115,7 +1115,7 @@
                                     <svg width="20px" height="20px" viewBox="0 0 24 24" fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="m3.99 16.854-1.314 3.504a.75.75 0 0 0 .966.965l3.503-1.314a3 3 0 0 0 1.068-.687L18.36 9.175s-.354-1.061-1.414-2.122c-1.06-1.06-2.122-1.414-2.122-1.414L4.677 15.786a3 3 0 0 0-.687 1.068zm12.249-12.63 1.383-1.383c.248-.248.579-.406.925-.348.487.08 1.232.322 1.934 1.025.703.703.945 1.447 1.025 1.934.058.346-.1.677-.348.925L19.774 7.76s-.353-1.06-1.414-2.12c-1.06-1.062-2.121-1.415-2.121-1.415z" fill="#FFFFFF"/></svg>
                                 </div>    
                             </button>
-                            <button class="delete-task-btn btn btn-danger" data-id="${item.id}" data-event-id="${eventId}">
+                            <button class="modal-delete-task-btn btn btn-danger" data-id="${item.id}" data-event-id="${eventId}">
                                 <div style="display:flex; align-items: center;">
                                     <svg fill="#FFFFFF" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
                                             width="20px" height="20px" viewBox="0 0 490.646 490.646"
@@ -1216,6 +1216,7 @@
                 form.action = `/api/task/edit/${taskID}`;
                 submitButton.value = "Daten ändern!";
 
+
                 try {
                     const response = await fetch(`/api/task/get/single/${taskID}`, {
                         method: "GET",
@@ -1253,11 +1254,15 @@
                 }
             }
 
-            if (button.classList.contains("delete-task-btn")) {
+            if (button.classList.contains("modal-delete-task-btn")) {
                 if (confirm("Are you sure you want to delete this task?")) {
                     await deleteTask(taskID, eventId);
                 }
             }
         });
     });
+
+// Ab hier Logik für Task Tabelle
+
+
 </script>

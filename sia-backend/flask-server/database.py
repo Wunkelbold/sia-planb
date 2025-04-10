@@ -236,6 +236,7 @@ class Tables:
                 "timeframe_start_hr": format_datetime_hr(self.timeframe_start),
                 "timeframe_end_hr": format_datetime_hr(self.timeframe_end),
                 "event_name": self.Event.name if self.Event else " - ",
+                "eventFK": self.Event.id if self.Event else " - ",
             }
 
     class Assistant(db.Model): #Helfer die Aufgaben erledigen

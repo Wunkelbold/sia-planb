@@ -948,24 +948,6 @@
             <div class="modal-body">
                 <table class="table table-dark table-striped sortable" >
                     <tbody id="id-task-modal-table">
-                    <tr class="hide-on-mobile">
-                        <th>Aufgabe</th>
-                        <th>Status</th>
-                        <th>Priorität</th>
-                        <th>
-                            <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M15.0007 12C15.0007 13.6569 13.6576 15 12.0007 15C10.3439 15 9.00073 13.6569 9.00073 12C9.00073 10.3431 10.3439 9 12.0007 9C13.6576 9 15.0007 10.3431 15.0007 12Z" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M12.0012 5C7.52354 5 3.73326 7.94288 2.45898 12C3.73324 16.0571 7.52354 19 12.0012 19C16.4788 19 20.2691 16.0571 21.5434 12C20.2691 7.94291 16.4788 5 12.0012 5Z" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </th>
-                        <th>Deadline</th>
-                        <th>Umsetzung Start</th>
-                        <th>Umsetzung Ende</th>
-                        <th>Beschreibung</th>
-                        <th>Helfer</th>
-                        <th>Verwaltung</th>
-
-                    </tr>
                     </tbody>
                 </table>
                 <form class="row g-2" method="POST" action="/api/task/new/<int:eventID>" id="id-task-modal-form">
@@ -1115,7 +1097,7 @@
                                     <svg width="20px" height="20px" viewBox="0 0 24 24" fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="m3.99 16.854-1.314 3.504a.75.75 0 0 0 .966.965l3.503-1.314a3 3 0 0 0 1.068-.687L18.36 9.175s-.354-1.061-1.414-2.122c-1.06-1.06-2.122-1.414-2.122-1.414L4.677 15.786a3 3 0 0 0-.687 1.068zm12.249-12.63 1.383-1.383c.248-.248.579-.406.925-.348.487.08 1.232.322 1.934 1.025.703.703.945 1.447 1.025 1.934.058.346-.1.677-.348.925L19.774 7.76s-.353-1.06-1.414-2.12c-1.06-1.062-2.121-1.415-2.121-1.415z" fill="#FFFFFF"/></svg>
                                 </div>    
                             </button>
-                            <button class="delete-task-btn btn btn-danger" data-id="${item.id}" data-event-id="${eventId}">
+                            <button class="modal-delete-task-btn btn btn-danger" data-id="${item.id}" data-event-id="${eventId}">
                                 <div style="display:flex; align-items: center;">
                                     <svg fill="#FFFFFF" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
                                             width="20px" height="20px" viewBox="0 0 490.646 490.646"
@@ -1216,6 +1198,7 @@
                 form.action = `/api/task/edit/${taskID}`;
                 submitButton.value = "Daten ändern!";
 
+
                 try {
                     const response = await fetch(`/api/task/get/single/${taskID}`, {
                         method: "GET",
@@ -1253,11 +1236,15 @@
                 }
             }
 
-            if (button.classList.contains("delete-task-btn")) {
+            if (button.classList.contains("modal-delete-task-btn")) {
                 if (confirm("Are you sure you want to delete this task?")) {
                     await deleteTask(taskID, eventId);
                 }
             }
         });
     });
+
+// Ab hier Logik für Task Tabelle
+
+
 </script>

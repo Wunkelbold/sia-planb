@@ -106,6 +106,9 @@ def register():
                                 new_user.last_login = now #TODO ungewöhnlicher Fall aber register != login
                                 db.session.add(new_user)
                                 db.session.commit()
+                                # Generate calendar URL for new user
+                                from Sections.EventHandler import ensure_user_calendar_url
+                                ensure_user_calendar_url(new_user)
                                 login_user(new_user)
                                 try:
                                     verify_email(new_user)
@@ -390,6 +393,10 @@ def newsletter():
 @app.route("/profile",methods=['GET','POST'])
 @login_required
 def profile():
+    # Ensure user has a calendar URL
+    from Sections.EventHandler import ensure_user_calendar_url
+    ensure_user_calendar_url(current_user)
+
     form = Forms.ChangeData()
     public_roles = Tables.Role.query.filter_by(selectable_on_register="yes").all()
     user_role = Tables.Role.query.filter_by(name=current_user.role).first()
@@ -455,7 +462,7 @@ def profile():
         if current_user.postalcode: form.postalcode.data=current_user.postalcode 
         role=current_user.role if current_user.role else ""
     messages=form.errors
-    return render_template('profile.html', title='Sia-PlanB.de', form=form, role=role, messages=messages)
+    return render_template('profile.html', title='Sia-PlanB.de', form=form, role=role, messages=messages, calendar_url=current_user.calendar_url)
 
 @app.route("/verein",methods=['GET'])
 def verein():

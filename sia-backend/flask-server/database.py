@@ -49,6 +49,7 @@ class Tables:
         last_login = db.Column(db.TEXT)
         role = db.Column(db.TEXT, db.ForeignKey("roles.name"), nullable=False)
         permissions = db.Column(db.ARRAY(db.TEXT), nullable=False)
+        calendar_url = db.Column(db.String(64), unique=True)  # Random ID for personal calendar
         last_updated = db.Column(db.TEXT)
 
     class Role(db.Model):

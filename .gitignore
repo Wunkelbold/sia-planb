@@ -6,3 +6,4 @@ __pycache__
 .env
 
 
+sia-backend/flask-server/migrations/versions/*

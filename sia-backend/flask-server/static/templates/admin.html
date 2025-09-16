@@ -82,6 +82,23 @@
         padding: 10px;
         text-align: left;
     }
+
+    /* Admin tabs styling */
+    .nav-tabs .nav-link {
+        color: #000 !important;
+        border-color: #dee2e6 #dee2e6 #fff;
+    }
+    .nav-tabs .nav-link.active {
+        color: #fff !important;
+        background-color: #000 !important;
+        border-color: #dee2e6 #dee2e6 #fff;
+    }
+    .nav-tabs .nav-link:hover {
+        color: #000 !important;
+        background-color: #f8f9fa !important;
+        border-color: #dee2e6 #dee2e6 #fff;
+    }
+
     @media screen and (max-width: 768px) {
         .hide-on-mobile {
           display: none;
@@ -96,55 +113,94 @@
 
 
 <!-- Admin Section -->
-<section id="admin" style="margin-top: 59px;" >
-  {% include 'admin-user.html' %}
-  {% include 'admin-contacts.html' %}
-  {% include 'admin-events.html' %}
-  {% include 'admin-tasks.html' %}
-    
+<section id="admin" style="margin-top: 59px;" data-bs-theme="dark">
+  <div class="container-fluid">
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" id="adminTabs" role="tablist" style="margin-bottom: 20px;">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab" aria-controls="users" aria-selected="true">
+          <i class="fas fa-users"></i> Benutzer
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="contacts-tab" data-bs-toggle="tab" data-bs-target="#contacts" type="button" role="tab" aria-controls="contacts" aria-selected="false">
+          <i class="fas fa-envelope"></i> Anfragen
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab" aria-controls="events" aria-selected="false">
+          <i class="fas fa-calendar"></i> Events
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tasks-tab" data-bs-toggle="tab" data-bs-target="#tasks" type="button" role="tab" aria-controls="tasks" aria-selected="false">
+          <i class="fas fa-tasks"></i> Aufgaben
+        </button>
+      </li>
+    </ul>
 
+    <!-- Tab content -->
+    <div class="tab-content" id="adminTabContent">
+      <!-- Users Tab -->
+      <div class="tab-pane fade show active" id="users" role="tabpanel" aria-labelledby="users-tab">
+        {% include 'admin-user.html' %}
+      </div>
 
-   
+      <!-- Contacts Tab -->
+      <div class="tab-pane fade" id="contacts" role="tabpanel" aria-labelledby="contacts-tab">
+        {% include 'admin-contacts.html' %}
+      </div>
 
+      <!-- Events Tab -->
+      <div class="tab-pane fade" id="events" role="tabpanel" aria-labelledby="events-tab">
+        {% include 'admin-events.html' %}
 
-<!-- CREATE EVENT FORM -->
-  <div style="display: flex; justify-content: center; align-items: center;" data-bs-theme="dark" style="color:white;">
-    <div class="card" style="width: 100%; margin: 30px; padding: 15px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" data-bs-theme="dark">
-      <div class="card" id="teleport_event">
-          <h3 id="hotlink_event_create">Event erstellen</h3>
-          <form class="row g-2" method="POST" enctype="multipart/form-data">
-              {{ form.hidden_tag() }}
-              <div class="col-md-4">
-                {{ form.name() }}
-              </div>
-              <div class="col-md-4">
-                {{ form.place() }}
-              </div>
-              <div class="col-md-2">
-                {{ form.date() }}
-              </div>
-              <div class="col-md-2">
-                {{ form.event_end() }}
-              </div>
-              <div class="col-md-2">
-                {{ form.visibility() }}
-              </div>
-              <div class="col-md-2">
-                {{ form.file() }}
-              </div>
-              <div class="col-md-10">
-                {{ form.description() }}
-              </div>
+        <!-- CREATE EVENT FORM -->
+        <div style="display: flex; justify-content: center; align-items: center;" data-bs-theme="dark" style="color:white; margin-top: 30px;">
+          <div class="card" style="width: 100%; margin: 30px; padding: 15px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" data-bs-theme="dark">
+            <div class="card" id="teleport_event">
+                <h3 id="hotlink_event_create">Event erstellen</h3>
+                <form class="row g-2" method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    <div class="col-md-4">
+                      {{ form.name() }}
+                    </div>
+                    <div class="col-md-4">
+                      {{ form.place() }}
+                    </div>
+                    <div class="col-md-2">
+                      {{ form.date() }}
+                    </div>
+                    <div class="col-md-2">
+                      {{ form.event_end() }}
+                    </div>
+                    <div class="col-md-2">
+                      {{ form.visibility() }}
+                    </div>
+                    <div class="col-md-2">
+                      {{ form.file() }}
+                    </div>
+                    <div class="col-md-10">
+                      {{ form.description() }}
+                    </div>
 
-              <div class="col-md-10">
-                {{ form.submit() }}
-              </div>
-              {% if submitted %}
-                <div>
-                    Event wurde erstellt
-                </div>
-              {% endif %}
-          </form>
+                    <div class="col-md-10">
+                      {{ form.submit() }}
+                    </div>
+                    {% if submitted %}
+                      <div>
+                          Event wurde erstellt
+                      </div>
+                    {% endif %}
+                </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tasks Tab -->
+      <div class="tab-pane fade" id="tasks" role="tabpanel" aria-labelledby="tasks-tab">
+        {% include 'admin-tasks.html' %}
       </div>
     </div>
   </div>
@@ -171,5 +227,3 @@ document.addEventListener('DOMContentLoaded', onPageReady, false);
 
 
 {% endblock %}
-
-

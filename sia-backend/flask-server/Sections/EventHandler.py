@@ -10,6 +10,9 @@ from sqlalchemy import func
 from zoneinfo import ZoneInfo
 from globals import *
 from flask import flash, url_for, redirect, jsonify
+from icalendar import Calendar, Event
+import secrets
+import base64
 
 def format_datetime(dt):
     return dt.strftime('%Y-%m-%d %H:%M') if dt else None
@@ -45,6 +48,16 @@ def event_append(task_count,shift_filled_count,events,event,duty_count,shift_cou
         "task_count":task_count
     })
     return events
+
+def ensure_user_calendar_url(user):
+    """Generate a calendar URL for user if they don't have one"""
+    if not user.calendar_url:
+        # Generate a random 32-character URL-safe string
+        random_bytes = secrets.token_bytes(24)  # 24 bytes = 32 chars in base64
+        calendar_url = base64.urlsafe_b64encode(random_bytes).decode('ascii').rstrip('=')
+        user.calendar_url = calendar_url
+        db.session.commit()
+    return user.calendar_url
 
 def getAllEvents() -> list[Tables.Event]:
     td12 = timedelta(hours=12)
@@ -136,6 +149,142 @@ def getAllEvents() -> list[Tables.Event]:
 @app.route("/events", methods=['GET'])
 def events():
     return render_template('events.html', title='Sia-PlanB.de', events=getAllEvents(), hasPermissions=hasPermissions)
+
+@app.route("/events.ics", methods=['GET'])
+def events_ical():
+    # Get all public events from now onwards
+    td12 = timedelta(hours=12)
+    today = datetime.now(timezone.utc)
+    today -= td12
+    public_events = Tables.Event.query.filter(
+        Tables.Event.date >= today,
+        Tables.Event.visibility == "public"
+    ).order_by(Tables.Event.date.asc()).all()
+
+    # Create calendar
+    cal = Calendar()
+    cal.add('prodid', '-//Sia-PlanB Events//')
+    cal.add('version', '2.0')
+    cal.add('name', 'Sia-PlanB Public Events')
+    cal.add('x-wr-calname', 'Sia-PlanB Public Events')
+
+    for event in public_events:
+        ical_event = Event()
+        ical_event.add('summary', event.name)
+        ical_event.add('dtstart', event.date)
+        if event.end:
+            ical_event.add('dtend', event.end)
+        else:
+            # Assume 1 hour duration if no end time specified
+            ical_event.add('dtend', event.date + timedelta(hours=1))
+        if event.place:
+            ical_event.add('location', event.place)
+        if event.description:
+            ical_event.add('description', event.description)
+        cal.add_component(ical_event)
+
+    # Return as .ics file
+    response = Response(cal.to_ical(), mimetype='text/calendar')
+    response.headers['Content-Disposition'] = 'attachment; filename=events.ics'
+    return response
+
+@app.route("/calendar/<calendar_id>.ics", methods=['GET'])
+def user_calendar_ical(calendar_id: str):
+    # Find user by calendar URL
+    user = Tables.User.query.filter_by(calendar_url=calendar_id).first()
+    if not user:
+        return Response(status=404)
+
+    # Get user's role permissions
+    user_role = Tables.Role.query.filter_by(name=user.role).first()
+    if not user_role:
+        return Response(status=404)
+
+    user_permissions = set(user_role.permissions) if user_role.permissions else set()
+
+    # Get events based on permissions
+    td12 = timedelta(hours=12)
+    today = datetime.now(timezone.utc)
+    today -= td12
+
+    # Build query based on permissions
+    event_query = Tables.Event.query.filter(Tables.Event.date >= today)
+
+    # Include events based on visibility permissions
+    visibility_filters = []
+    if "events.public" in user_permissions:
+        visibility_filters.append(Tables.Event.visibility == "public")
+    if "events.member" in user_permissions:
+        visibility_filters.append(Tables.Event.visibility == "member")
+    if "events.student" in user_permissions:
+        visibility_filters.append(Tables.Event.visibility == "student")
+    if "events.private" in user_permissions:
+        visibility_filters.append(Tables.Event.visibility == "private")
+
+    if visibility_filters:
+        from sqlalchemy import or_
+        event_query = event_query.filter(or_(*visibility_filters))
+
+    events = event_query.order_by(Tables.Event.date.asc()).all()
+
+    # Create calendar
+    cal = Calendar()
+    cal.add('prodid', '-//Sia-PlanB Personal Calendar//')
+    cal.add('version', '2.0')
+    cal.add('name', f'Sia-PlanB Calendar - {user.username}')
+    cal.add('x-wr-calname', f'Sia-PlanB Calendar - {user.username}')
+
+    for event in events:
+        # Get user's shifts for this event
+        user_shifts = (Tables.Shift.query
+                      .join(Tables.Duty)
+                      .filter(Tables.Shift.event == event.id)
+                      .filter(Tables.Duty.user == user.id)
+                      .order_by(Tables.Shift.start.asc())
+                      .all())
+
+        ical_event = Event()
+        ical_event.add('summary', event.name)
+        ical_event.add('dtstart', event.date)
+        if event.end:
+            ical_event.add('dtend', event.end)
+        if event.place:
+            ical_event.add('location', event.place)
+
+        # Calculate shift availability for the event
+        total_shifts = Tables.Shift.query.filter_by(event=event.id).count()
+        filled_shifts = (db.session.query(func.count(func.distinct(Tables.Shift.id)))
+                        .join(Tables.Duty)
+                        .filter(Tables.Shift.event == event.id)
+                        .scalar()) or 0
+
+        # Build description with shifts
+        description = event.description or ""
+        if user_shifts:
+            shift_lines = []
+            for shift in user_shifts:
+                if shift.start:
+                    time_str = shift.start.strftime('%H:%M %d.%m')
+                    shift_lines.append(f"{shift.type} - {time_str}")
+                else:
+                    shift_lines.append(f"{shift.type} - Time TBD")
+            if shift_lines:
+                description += "\n\nDeine Schichten:\n" + "\n".join(shift_lines)
+
+        # Add shift availability info
+        if total_shifts > 0:
+            description += f"\n\nBelegte Schichten: {filled_shifts}/{total_shifts}"
+        description += "\n\n https://sia-planb.de/events"
+
+        if description:
+            ical_event.add('description', description)
+        ical_event.add('uid', str(event.uid))
+        cal.add_component(ical_event)
+
+    # Return as .ics file
+    response = Response(cal.to_ical(), mimetype='text/calendar')
+    response.headers['Content-Disposition'] = f'attachment; filename={user.username}_calendar.ics'
+    return response
 
 @app.route("/eventmanager", methods=['GET'])
 @require_permissions("eventmanager.show")
@@ -337,11 +486,3 @@ def delete_event():
         return redirect(url_for('admin'))
     else:
         return redirect(url_for('admin'))
-
-
-
-    
-
-
-
-

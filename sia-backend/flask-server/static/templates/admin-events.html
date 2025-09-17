@@ -1,5 +1,9 @@
  <!-- Eventliste -->
  <div id="hotlink_event_list">
+    <div style="margin-bottom: 20px;">
+        <a href="{{ url_for('admin') }}#hotlink_event_list" class="btn btn-secondary">Events-aktuell</a>
+        <a href="{{ url_for('admin', all=true) }}#hotlink_event_list" class="btn btn-secondary">Events-alle</a>
+    </div>
     <h3>Events</h3>
     <div class="table-container">
       <table class="table table-dark table-striped sortable" id="event-table">

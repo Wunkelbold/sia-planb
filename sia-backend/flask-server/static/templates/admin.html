@@ -5,34 +5,7 @@
 {% endblock %}
 
 
-{% block nav%}
-<nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top" data-bs-theme="dark" style="margin-top: 59px; z-index: 1029;">
-    <div class="container-fluid">
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link" href="#hotlink_user">Benutzerverwaltung</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#hotlink_contact">Anfragen</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin') }}#hotlink_event_list">Events-aktuell</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin', all=true) }}#hotlink_event_list">Events-alle</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin', all=true) }}#hotlink_task_list">Aufgaben</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#hotlink_event_create">Event erstellen</a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-{% endblock nav %}
+
 
 
 {% block content %}
@@ -83,20 +56,28 @@
         text-align: left;
     }
 
-    /* Admin tabs styling */
+    /* Admin tabs styling - minimalistic */
+    .nav-tabs {
+        border-bottom: none;
+        border-width: 0px;
+    }
     .nav-tabs .nav-link {
         color: #000 !important;
-        border-color: #dee2e6 #dee2e6 #fff;
+        border: none;
+        background: transparent;
+        padding: 4px 8px;
+        margin-right: 4px;
+        border-radius: 4px 4px 4px 4px;
     }
     .nav-tabs .nav-link.active {
         color: #fff !important;
         background-color: #000 !important;
-        border-color: #dee2e6 #dee2e6 #fff;
+        border: none;
     }
     .nav-tabs .nav-link:hover {
         color: #000 !important;
-        background-color: #f8f9fa !important;
-        border-color: #dee2e6 #dee2e6 #fff;
+        background-color: #f0f0f0 !important;
+        border: none;
     }
 
     @media screen and (max-width: 768px) {
@@ -119,7 +100,7 @@
     <ul class="nav nav-tabs" id="adminTabs" role="tablist" style="margin-bottom: 20px;">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab" aria-controls="users" aria-selected="true">
-          <i class="fas fa-users"></i> Benutzer
+          <i class="fas fa-users"></i> Users
         </button>
       </li>
       <li class="nav-item" role="presentation">
@@ -134,7 +115,7 @@
       </li>
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="tasks-tab" data-bs-toggle="tab" data-bs-target="#tasks" type="button" role="tab" aria-controls="tasks" aria-selected="false">
-          <i class="fas fa-tasks"></i> Aufgaben
+          <i class="fas fa-tasks"></i> Tasks
         </button>
       </li>
     </ul>

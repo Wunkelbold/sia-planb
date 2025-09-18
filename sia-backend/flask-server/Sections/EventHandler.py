@@ -10,7 +10,7 @@ from sqlalchemy import func
 from zoneinfo import ZoneInfo
 from globals import *
 from flask import flash, url_for, redirect, jsonify
-from icalendar import Calendar, Event, Timezone, TimezoneStandard, TimezoneDaylight
+from icalendar import Calendar, Event
 import secrets
 import base64
 
@@ -59,31 +59,7 @@ def ensure_user_calendar_url(user):
         db.session.commit()
     return user.calendar_url
 
-def add_europe_berlin_timezone(cal):
-    """Add Europe/Berlin timezone definition to calendar"""
-    tz = Timezone()
-    tz.add('tzid', 'Europe/Berlin')
-    tz.add('x-lic-location', 'Europe/Berlin')
 
-    # Standard time (CET)
-    standard = TimezoneStandard()
-    standard.add('dtstart', datetime(1970, 1, 1, 0, 0, 0))
-    standard.add('tzoffsetfrom', timedelta(hours=1))
-    standard.add('tzoffsetto', timedelta(hours=1))
-    standard.add('tzname', 'CET')
-    standard.add('rrule', 'FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU')
-    tz.add_component(standard)
-
-    # Daylight saving time (CEST)
-    daylight = TimezoneDaylight()
-    daylight.add('dtstart', datetime(1970, 1, 1, 0, 0, 0))
-    daylight.add('tzoffsetfrom', timedelta(hours=1))
-    daylight.add('tzoffsetto', timedelta(hours=2))
-    daylight.add('tzname', 'CEST')
-    daylight.add('rrule', 'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU')
-    tz.add_component(daylight)
-
-    cal.add_component(tz)
 
 def getAllEvents() -> list[Tables.Event]:
     td12 = timedelta(hours=12)
@@ -194,19 +170,16 @@ def events_ical():
     cal.add('name', 'Sia-PlanB Public Events')
     cal.add('x-wr-calname', 'Sia-PlanB Public Events')
 
-    # Add timezone definition
-    add_europe_berlin_timezone(cal)
-
     for event in public_events:
         ical_event = Event()
         ical_event.add('summary', event.name)
-        local_date = event.date.replace(tzinfo=ZoneInfo("Europe/Berlin"))
-        ical_event.add('dtstart', local_date)
+        utc_date = event.date.replace(tzinfo=ZoneInfo("Europe/Berlin")).astimezone(timezone.utc)
+        ical_event.add('dtstart', utc_date)
         if event.end:
-            ical_event.add('dtend', event.end.replace(tzinfo=ZoneInfo("Europe/Berlin")))
+            ical_event.add('dtend', event.end.replace(tzinfo=ZoneInfo("Europe/Berlin")).astimezone(timezone.utc))
         else:
             # Assume 1 hour duration if no end time specified
-            ical_event.add('dtend', local_date + timedelta(hours=1))
+            ical_event.add('dtend', utc_date + timedelta(hours=1))
         if event.place:
             ical_event.add('location', event.place)
         if event.description:
@@ -266,9 +239,6 @@ def user_calendar_ical(calendar_id: str):
     cal.add('name', f'Sia-PlanB Calendar - {user.username}')
     cal.add('x-wr-calname', f'Sia-PlanB Calendar - {user.username}')
 
-    # Add timezone definition
-    add_europe_berlin_timezone(cal)
-
     for event in events:
         # Get user's shifts for this event
         user_shifts = (Tables.Shift.query
@@ -280,10 +250,10 @@ def user_calendar_ical(calendar_id: str):
 
         ical_event = Event()
         ical_event.add('summary', event.name)
-        local_date = event.date.replace(tzinfo=ZoneInfo("Europe/Berlin"))
-        ical_event.add('dtstart', local_date)
+        utc_date = event.date.replace(tzinfo=ZoneInfo("Europe/Berlin")).astimezone(timezone.utc)
+        ical_event.add('dtstart', utc_date)
         if event.end:
-            ical_event.add('dtend', event.end.replace(tzinfo=ZoneInfo("Europe/Berlin")))
+            ical_event.add('dtend', event.end.replace(tzinfo=ZoneInfo("Europe/Berlin")).astimezone(timezone.utc))
         if event.place:
             ical_event.add('location', event.place)
 

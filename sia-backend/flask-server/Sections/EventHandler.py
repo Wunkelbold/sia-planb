@@ -150,6 +150,8 @@ def getAllEvents() -> list[Tables.Event]:
 
 @app.route("/events", methods=['GET'])
 def events():
+    if current_user.is_authenticated:
+        ensure_user_calendar_url(current_user)
     return render_template('events.html', title='Sia-PlanB.de', events=getAllEvents(), hasPermissions=hasPermissions)
 
 @app.route("/events.ics", methods=['GET'])

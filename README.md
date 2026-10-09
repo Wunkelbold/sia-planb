@@ -115,7 +115,7 @@ These commands pull and replace only the Flask application image. Targeting `fla
 
 ## Pull Requests
 
-Use a feature branch and open a pull request against `main`. A pull request should include:
+Use a feature branch and open a pull request against `main`. Configure branch protection to require the `CI / Test Code` check before merging. Images are published only after that job succeeds on `main` or a release tag. A pull request should include:
 
 - A description of the behavior change.
 - Tests for changed behavior.

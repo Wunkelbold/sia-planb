@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAMESPACE: ghcr.io/wunkelbold/sia-planb
+
+jobs:
+  test:
+    name: Test Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Prepare test environment
+        run: cp sia-backend/.env.example sia-backend/.env
+
+      - name: Run smoke tests
+        run: >-
+          docker compose
+          --project-name sia-planb-ci
+          --file sia-backend/compose.yml
+          --env-file sia-backend/.env
+          --profile test
+          up --build --abort-on-container-exit --exit-code-from test test
+
+      - name: Remove test containers and volumes
+        if: always()
+        run: >-
+          docker compose
+          --project-name sia-planb-ci
+          --file sia-backend/compose.yml
+          --env-file sia-backend/.env
+          --profile test
+          down --volumes --remove-orphans
+
+  build:
+    name: Build and publish images
+    needs: test
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate image metadata
+        id: meta-flask
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAMESPACE }}/sia-flask
+          tags: |
+            type=sha,prefix=sha-
+            type=ref,event=tag
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build Flask image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./sia-backend/flask-server
+          file: ./sia-backend/flask-server/Dockerfile
+          push: true
+          tags: ${{ steps.meta-flask.outputs.tags }}
+          labels: ${{ steps.meta-flask.outputs.labels }}
+
+      - name: Generate database image metadata
+        id: meta-database
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAMESPACE }}/sia-database
+          tags: |
+            type=sha,prefix=sha-
+            type=ref,event=tag
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build database image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./sia-backend/database-server
+          file: ./sia-backend/database-server/Dockerfile
+          push: true
+          tags: ${{ steps.meta-database.outputs.tags }}
+          labels: ${{ steps.meta-database.outputs.labels }}

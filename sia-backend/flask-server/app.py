@@ -37,20 +37,10 @@ def load_user(user_id):
 def unauthorized():
     return redirect(url_for('login'))
 
-def run_migrations():
-    with app.app_context():
-        print("--- Running migrations... ---")
-        migrate(message="Auto migration")  # Equivalent to `flask db migrate`
-        upgrade()  # Equivalent to `flask db upgrade`
-        print("--- Migrations complete.  ---")
-
 def format_datetime_hr(dt):
     local_tz = ZoneInfo("Europe/Berlin")
     locale.setlocale(locale.LC_ALL, 'de_DE.utf8')
     return dt.replace(tzinfo=local_tz).strftime('%a, %d/%m/%y %H:%M') if dt else None
-
-if os.getenv('RUN_MIGRATIONS')=="true":
-    run_migrations()
 
 
 
@@ -335,6 +325,11 @@ def slider(name):
     if not os.path.exists(file_path):
         name = "placeholder.png"  
     return send_from_directory(image_dir, name)
+
+@app.route("/logo.svg")
+def bimi_logo():
+    logo_dir = os.path.join(app.root_path, "static/images")
+    return send_from_directory(logo_dir, "logo.svg", mimetype="image/svg+xml")
 
 @app.route("/",methods=['GET'])
 def index():

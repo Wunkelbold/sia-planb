@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/bin/sh
+
+failed=""
 
 echo "Starting Tests"
 
@@ -6,8 +8,8 @@ echo "Starting Tests"
 
 echo "#1 Check index.html availability"
 statuscode="$(curl -s -o /dev/null -w "%{http_code}" http://flask)"
-echo Response: $statuscode
-if test $statuscode != "200"; then
+echo "Response: $statuscode"
+if test "$statuscode" != "200"; then
     failed="$failed #1"
 fi
 
@@ -15,8 +17,8 @@ fi
 
 echo "#2 Check if non-existent path not exists"
 statuscode="$(curl -s -o /dev/null -w "%{http_code}" http://flask/this-path-does-not-exist)"
-echo Response: $statuscode
-if test $statuscode != "404"; then
+echo "Response: $statuscode"
+if test "$statuscode" != "404"; then
     failed="$failed #2"
 fi
 
@@ -24,7 +26,7 @@ fi
 
 if test -z "$failed"; then
     echo "All tests OK"
-    exit 
+    exit 0
 fi
 
 echo "Failed at tests$failed"

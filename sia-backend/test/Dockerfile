@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1
 
-FROM ghcr.io/wunkelbold/sia-planb/sia-flask:latest
+FROM alpine:3.22
 
-COPY . .
-CMD ./test.sh
+RUN apk add --no-cache curl
+
+COPY test.sh /test.sh
+CMD ["/bin/sh", "/test.sh"]

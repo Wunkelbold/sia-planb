@@ -1,1 +1,6 @@
-Single-database configuration for Flask.
+This directory contains the Alembic configuration for the Flask application.
+
+Migration revisions in `versions/` are source files and must be reviewed and
+committed. The `000000000001` revision creates the legacy schema that existed
+before the first tracked schema delta. Existing databases should be upgraded
+from their recorded Alembic revision; do not stamp an empty database.

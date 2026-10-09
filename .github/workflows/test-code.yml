@@ -1,13 +1,10 @@
 name: Test Code
 
 on:
-  push:
-    branches-ignore:
-      - '26-container-needed'
+  workflow_call:
 
 permissions:
   contents: read
-  packages: read
 
 jobs:
   Test:
@@ -15,14 +12,22 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: 'Login'
-        run: 'docker login --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} ghcr.io'
-
-      - name: Run docker-compose
-        uses: hoverkraft-tech/compose-action@v2.0.1
-        with:
-          compose-file: "sia-backend/compose.yml"
-          compose-flags: "--profile test"
-     
-      - name: 'Logout'
-        run: 'docker logout ghcr.io'
+      - name: Prepare test environment
+        run: cp sia-backend/.env.example sia-backend/.env
+      - name: Run smoke tests
+        run: >-
+          docker compose
+          --project-name sia-planb-ci
+          --file sia-backend/compose.yml
+          --env-file sia-backend/.env
+          --profile test
+          up --build --abort-on-container-exit --exit-code-from test test
+      - name: Remove test containers and volumes
+        if: always()
+        run: >-
+          docker compose
+          --project-name sia-planb-ci
+          --file sia-backend/compose.yml
+          --env-file sia-backend/.env
+          --profile test
+          down --volumes --remove-orphans

@@ -1,5 +1,6 @@
 services:
   database:
+    image: ${DATABASE_IMAGE:-sia-planb-database:dev}
     ports:
       - "127.0.0.1:5432:5432" #TODO REMOVE ON PRODUCTION
     build: ./database-server
@@ -17,36 +18,67 @@ services:
       retries: 10
 
   flask:
+    image: ${FLASK_IMAGE:-sia-planb-flask:dev}
     build: ./flask-server 
     ports:
       - "127.0.0.1:5005:80"
       - "127.0.0.1:9191:9191"
     environment:
-      - DATABASE_HOST=${DATABASE_HOST}
-      - DATABASE_PORT=${DATABASE_PORT}
-      - DATABASE_NAME=${DATABASE_NAME}
-      - DATABASE_USER=${DATABASE_USER}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-      - DATABASE_URI=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}/${DATABASE_NAME}
-      - DROP_AND_CREATE_DATABASE=false
-      - CREATE_ADMIN=false
-      - Debug=false
-      - HOSTNAME=${HOSTNAME}
-      - hostname=${hostname}
-      - UPDATE_MAIL_USER=true
-      - RUN_MIGRATIONS=true
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_URI: postgresql+psycopg2://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}/${DATABASE_NAME}
+      DROP_AND_CREATE_DATABASE: "false"
+      CREATE_ADMIN: "false"
+      APP_ENV: ${APP_ENV:-production}
+      DEBUG: "false"
+      SECRET_KEY: ${SECRET_KEY}
+      CAPTCHA_SECRET_KEY: ${CAPTCHA_SECRET_KEY}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      HOSTNAME: ${HOSTNAME}
+      hostname: ${hostname}
+      UPDATE_MAIL_USER: ${UPDATE_MAIL_USER:-false}
     volumes:
       - eventposter:/opt/flask-backend/static/images/eventposter
-      - ./mail-server/docker-data/dms/config/postfix-accounts.cf:/app/postfix-accounts.cf
-      - ./flask-server/migrations/versions:/opt/flask-backend/migrations/versions
+      - ${MAIL_ACCOUNTS_FILE_HOST:-./mail-server/docker-data/dms/config/postfix-accounts.cf}:/app/postfix-accounts.cf
     depends_on:
       database:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     healthcheck:
       test: "curl -fs http://localhost 2>&1 > /dev/null"
       interval: 10s
       timeout: 5s
       retries: 5
+
+  migrate:
+    image: ${FLASK_IMAGE:-sia-planb-flask:dev}
+    build: ./flask-server
+    command: flask --app app db upgrade
+    environment:
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_URI: postgresql+psycopg2://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}/${DATABASE_NAME}
+      DROP_AND_CREATE_DATABASE: "false"
+      CREATE_ADMIN: "false"
+      APP_ENV: ${APP_ENV:-production}
+      DEBUG: "false"
+      HOSTNAME: ${HOSTNAME}
+      hostname: ${hostname}
+      UPDATE_MAIL_USER: "false"
+      SKIP_STARTUP_DATA: "true"
+      SECRET_KEY: ${SECRET_KEY}
+      CAPTCHA_SECRET_KEY: ${CAPTCHA_SECRET_KEY}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+    depends_on:
+      database:
+        condition: service_healthy
 
 
   test:
@@ -70,7 +102,7 @@ services:
     container_name: mailserver
     # Provide the FQDN of your mail server here (Your DNS MX record should point to this value)
     hostname: ${hostname} 
-    env_file: ./mail-server/mailserver.env
+    env_file: ${MAILSERVER_ENV_FILE:-./mail-server/mailserver.env}
     # More information about the mail-server ports:
     # https://docker-mailserver.github.io/docker-mailserver/latest/config/security/understanding-the-ports/
     ports:
@@ -80,10 +112,10 @@ services:
       - "587:587"  # ESMTP (explicit TLS => STARTTLS)
       - "993:993"  # IMAP4 (implicit TLS)
     volumes:
-      - ./mail-server/docker-data/dms/mail-data/:/var/mail/
-      - ./mail-server/docker-data/dms/mail-state/:/var/mail-state/
-      - ./mail-server/docker-data/dms/mail-logs/:/var/log/mail/
-      - ./mail-server/docker-data/dms/config/:/tmp/docker-mailserver/
+      - ${MAIL_DATA_PATH:-./mail-server/docker-data/dms/mail-data}:/var/mail/
+      - ${MAIL_STATE_PATH:-./mail-server/docker-data/dms/mail-state}:/var/mail-state/
+      - ${MAIL_LOG_PATH:-./mail-server/docker-data/dms/mail-logs}:/var/log/mail/
+      - ${MAIL_CONFIG_PATH:-./mail-server/docker-data/dms/config}:/tmp/docker-mailserver/
       - /etc/localtime:/etc/localtime:ro
       - /etc/letsencrypt/:/etc/letsencrypt/ 
       - /etc/ssl/mailserver/:/etc/ssl/mailserver/  # TODO REMOVE ON PRODUCTION

@@ -331,7 +331,8 @@ def init_default_role():
         print("--- CREATE_ADMIN \t\t false ---")
 
 
-with app.app_context():
-    init_database()
-    init_roles()
-    init_default_role()
+if os.getenv("SKIP_STARTUP_DATA") != "true":
+    with app.app_context():
+        init_database()
+        init_roles()
+        init_default_role()

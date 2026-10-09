@@ -4,6 +4,20 @@ update-containers.sh
 __pycache__
 .vscode
 .env
+.env.*
+!.env.example
 
+# Runtime logs and generated assets
+*.log
+database-schema.sql
+sia-backend/flask-server/dblog.txt
+sia-backend/flask-server/flasklog.txt
+sia-backend/flask-server/static/images/eventposter/*
+!sia-backend/flask-server/static/images/eventposter/default.jpg
 
-sia-backend/flask-server/migrations/versions/*
+# Mail state and credentials are deployment data, not source
+sia-backend/mail-server/docker-data/dms/mail-data/
+sia-backend/mail-server/docker-data/dms/mail-logs/
+sia-backend/mail-server/docker-data/dms/mail-state/
+sia-backend/mail-server/docker-data/dms/config/opendkim/
+sia-backend/mail-server/docker-data/dms/config/postfix-accounts.cf

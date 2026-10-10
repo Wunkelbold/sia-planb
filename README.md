@@ -57,9 +57,7 @@ docker exec -it mailserver setup email update noreply@example.com
 ```
 
 The command prompts for the new password without placing it in shell history.
-The refreshed Compose definition no longer mounts the mail-account file into
-Flask; remove that legacy bind mount when updating the external production
-Compose file.
+The Flask container does not mount or modify the mail-account file.
 
 For new deployments, keep persistent mail data outside the source checkout, for example:
 
@@ -71,7 +69,7 @@ MAIL_LOG_PATH=/var/lib/sia-planb/mail/mail-logs
 MAIL_CONFIG_PATH=/var/lib/sia-planb/mail/config
 ```
 
-The existing production mail data still uses its established paths under the retained server checkout. Application image deployments must leave those paths unchanged; moving mail data is a separate migration that needs its own backup and verification.
+The production DMS environment file and mail data still use their established paths under the retained server checkout. Application and image upgrades leave those paths unchanged; moving mail data is a separate migration that needs its own backup and verification.
 
 ## Database Migrations
 
@@ -99,7 +97,7 @@ Never set `DROP_AND_CREATE_DATABASE=true` against a production database.
 
 Production uses an external Compose file at `/etc/sia-planb/compose.yml` and environment file at `/etc/sia-planb/production.env`. CI builds and publishes the Flask image to GHCR with an immutable commit tag; the server pulls that image and does not need to build or pull application source. Keep production secrets in the external environment file, never in Git.
 
-The repository Compose baseline targets Python 3.14.8 with Gunicorn 26.2.0, PostgreSQL 18.6, and Docker Mailserver 16.0.1. Production currently runs Flask image `sha-765fb2e` on Python 3.11.17, PostgreSQL 17.3, and Docker Mailserver 14.0.0 until the separate runtime, database, and mail configuration upgrades are completed. Do not copy the refreshed database or mailserver settings to production as part of a routine Flask release.
+Production now runs Flask image `sha-6c7d2b8` on Python 3.14.8/Gunicorn 26.2.0, PostgreSQL 18.6, and Docker Mailserver 16.0.1. The PG17 volume is retained separately as a rollback copy; PostgreSQL 18 uses the new `sia-backend_pgdata18` volume with its version-specific data path. The DMS environment file and mail data still reside under the retained server checkout.
 
 Before a production migration, ensure a recent database backup is available. Keep `DATABASE_IMAGE` pinned to the currently deployed PostgreSQL image; change it only during a separately planned database-image update. For routine application releases, use this sequence:
 
@@ -127,9 +125,9 @@ The migration command must exit successfully before the Flask restart command is
 
 ## Full-Stack Version Upgrades
 
-The current repository baseline uses PostgreSQL 18.6 with its data volume mounted at `/var/lib/postgresql`. PostgreSQL 17 and earlier use `/var/lib/postgresql/data`; an existing PostgreSQL 17 volume must not be attached to the 18 image as though it were already upgraded. Migrate the cluster with a tested logical dump/restore or `pg_upgrade`, preserve the old volume for rollback, and cut over the database separately from Flask.
+The current PostgreSQL 18.6 image uses `/var/lib/postgresql` and a version-specific data path. PostgreSQL 17 and earlier use `/var/lib/postgresql/data`; an existing PostgreSQL 17 volume must not be attached to the 18 image as though it were already upgraded. The 2026 refresh used a logical dump/restore into a new volume and retained the old volume for rollback. Follow the same separation for future PostgreSQL major upgrades.
 
-Docker Mailserver 16.0.1 moves from Debian 12 to Debian 13 and Dovecot 2.3 to 2.4. Review its release changelog and validate the production environment and a copy of the mail data before replacing the live mailserver image. Keep the existing mail paths and account data intact during the image upgrade.
+Docker Mailserver 16.0.1 moves from Debian 12 to Debian 13 and Dovecot 2.3 to 2.4. The production update was validated against a preserved copy of the mail data before replacing the live image. For future updates, review the release changelog and test with a copy of the mail data; keep the mail paths and account data intact during the image upgrade.
 
 The full-stack cutover is a planned maintenance operation: confirm that database and mail backups can be restored, validate the refreshed stack with copied data, then upgrade PostgreSQL and mailserver in separate steps and verify database migrations, site health, SMTP delivery, IMAP login, and mailbox contents before retiring the old images or volumes.
 

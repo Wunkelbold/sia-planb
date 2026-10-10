@@ -1,0 +1,109 @@
+services:
+  database:
+    image: "${DATABASE_IMAGE:?DATABASE_IMAGE is required}"
+    ports:
+      - "127.0.0.1:5432:5432" # loopback-only database administration
+    restart: always
+    volumes:
+      - pgdata18:/var/lib/postgresql
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?DATABASE_PASSWORD is required}
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  flask:
+    image: "${FLASK_IMAGE:?FLASK_IMAGE is required}"
+    ports:
+      - "127.0.0.1:5005:80"
+    environment:
+      DATABASE_HOST: ${DATABASE_HOST:?DATABASE_HOST is required}
+      DATABASE_PORT: ${DATABASE_PORT:-5432}
+      DATABASE_NAME: ${DATABASE_NAME:?DATABASE_NAME is required}
+      DATABASE_USER: ${DATABASE_USER:?DATABASE_USER is required}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:?DATABASE_PASSWORD is required}
+      DATABASE_URI: postgresql+psycopg2://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}/${DATABASE_NAME}
+      DROP_AND_CREATE_DATABASE: "false"
+      CREATE_ADMIN: "false"
+      APP_ENV: production
+      DEBUG: "false"
+      SECRET_KEY: ${SECRET_KEY:?SECRET_KEY is required}
+      CAPTCHA_SECRET_KEY: ${CAPTCHA_SECRET_KEY:?CAPTCHA_SECRET_KEY is required}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:?MAIL_PASSWORD is required}
+      HOSTNAME: ${HOSTNAME:?HOSTNAME is required}
+      hostname: ${hostname:?hostname is required}
+    volumes:
+      - eventposter:/opt/flask-backend/static/images/eventposter
+    depends_on:
+      database:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: "curl -fs http://localhost 2>&1 > /dev/null"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    image: "${FLASK_IMAGE:?FLASK_IMAGE is required}"
+    command: flask --app app db upgrade
+    environment:
+      DATABASE_HOST: ${DATABASE_HOST:?DATABASE_HOST is required}
+      DATABASE_PORT: ${DATABASE_PORT:-5432}
+      DATABASE_NAME: ${DATABASE_NAME:?DATABASE_NAME is required}
+      DATABASE_USER: ${DATABASE_USER:?DATABASE_USER is required}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:?DATABASE_PASSWORD is required}
+      DATABASE_URI: postgresql+psycopg2://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}/${DATABASE_NAME}
+      DROP_AND_CREATE_DATABASE: "false"
+      CREATE_ADMIN: "false"
+      APP_ENV: production
+      DEBUG: "false"
+      HOSTNAME: ${HOSTNAME:?HOSTNAME is required}
+      hostname: ${hostname:?hostname is required}
+      SKIP_STARTUP_DATA: "true"
+      SECRET_KEY: ${SECRET_KEY:?SECRET_KEY is required}
+      CAPTCHA_SECRET_KEY: ${CAPTCHA_SECRET_KEY:?CAPTCHA_SECRET_KEY is required}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:?MAIL_PASSWORD is required}
+    depends_on:
+      database:
+        condition: service_healthy
+
+  mailserver:
+    image: ghcr.io/docker-mailserver/docker-mailserver:16.0.1
+    container_name: mailserver
+    hostname: ${hostname:?hostname is required}
+    env_file: ${MAILSERVER_ENV_FILE:?MAILSERVER_ENV_FILE is required}
+    ports:
+      - "25:25"
+      - "143:143"
+      - "465:465"
+      - "587:587"
+      - "993:993"
+    volumes:
+      - ${MAIL_DATA_PATH:?MAIL_DATA_PATH is required}:/var/mail/
+      - ${MAIL_STATE_PATH:?MAIL_STATE_PATH is required}:/var/mail-state/
+      - ${MAIL_LOG_PATH:?MAIL_LOG_PATH is required}:/var/log/mail/
+      - ${MAIL_CONFIG_PATH:?MAIL_CONFIG_PATH is required}:/tmp/docker-mailserver/
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/letsencrypt/:/etc/letsencrypt/
+      - /etc/ssl/mailserver/:/etc/ssl/mailserver/
+    environment:
+      SSL_TYPE: ${SSL_TYPE:?SSL_TYPE is required}
+      SSL_CERT_PATH: /etc/ssl/mailserver/mailserver.crt
+      SSL_KEY_PATH: /etc/ssl/mailserver/mailserver.key
+    restart: always
+    stop_grace_period: 1m
+    healthcheck:
+      test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
+      timeout: 3s
+      interval: 10s
+      retries: 1
+
+volumes:
+  pgdata18:
+  eventposter:

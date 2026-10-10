@@ -51,7 +51,7 @@ noreply mailbox password must be replaced with the configured `MAIL_PASSWORD`.
 Use `UPDATE_MAIL_USER=true` for one controlled mailbox provisioning step, then
 set it back to `false` for normal application starts.
 
-Production mail paths should point outside the Git checkout, for example:
+For new deployments, keep persistent mail data outside the source checkout, for example:
 
 ```text
 MAILSERVER_ENV_FILE=/etc/sia-planb/mailserver.env
@@ -61,6 +61,8 @@ MAIL_STATE_PATH=/var/lib/sia-planb/mail/mail-state
 MAIL_LOG_PATH=/var/lib/sia-planb/mail/mail-logs
 MAIL_CONFIG_PATH=/var/lib/sia-planb/mail/config
 ```
+
+The existing production mail data still uses its established paths under the retained server checkout. Application image deployments must leave those paths unchanged; moving mail data is a separate migration that needs its own backup and verification.
 
 ## Database Migrations
 
@@ -86,32 +88,31 @@ Never set `DROP_AND_CREATE_DATABASE=true` against a production database.
 
 ## Current Deployment
 
-The current production deployment is a server-side Compose build. It uses persistent PostgreSQL and mail volumes and keeps some environment and mail state outside Git.
+Production uses an external Compose file at `/etc/sia-planb/compose.yml` and environment file at `/etc/sia-planb/production.env`. CI builds and publishes the Flask image to GHCR with an immutable commit tag; the server pulls that image and does not need to build or pull application source. Keep production secrets in the external environment file, never in Git.
 
-The deployment script must always:
+Before a production migration, ensure a recent database backup is available. Keep `DATABASE_IMAGE` pinned to the currently deployed PostgreSQL image; change it only during a separately planned database-image update. For routine application releases, use this sequence:
 
-1. Create a verified database backup.
-2. Build or pull the intended application version.
-3. Run `flask db upgrade` once.
-4. Start the web service only if the migration succeeds.
-5. Verify the healthcheck and smoke tests.
+1. Set `FLASK_IMAGE` in the external environment file to the commit-tagged image published by a successful CI run.
+2. Confirm PostgreSQL is already running and healthy.
+3. Pull the Flask and migration images, then run the migration job once.
+4. Start Flask only after the migration command succeeds.
+5. Verify the application healthcheck and smoke-test the site.
 
-The planned deployment pipeline builds the complete Flask application image in CI, publishes it with an immutable commit tag, and lets the operator pull that tag manually on the server. The server will not need to clone the application source.
-
-After the image workflow has published a version, set the Flask image tag in the external production environment file. Keep `DATABASE_IMAGE` pinned to the currently deployed PostgreSQL image; change it only during a separately planned database-image update.
+`UPDATE_MAIL_USER` must remain `false` during normal deployments. PostgreSQL and the mailserver are not dependencies to restart for an application release; leave their containers and persistent data alone.
 
 ```text
 FLASK_IMAGE=ghcr.io/wunkelbold/sia-planb/sia-flask:sha-<commit>
 ```
 
-For a source-free application deployment, install a copy of `sia-backend/compose.yml` at `/etc/sia-planb/compose.yml` and maintain its production environment file and persistent-data paths there. Keep the Compose project name `sia-backend` so existing volumes and containers retain their names. Ensure the PostgreSQL service is already running, then deploy only Flask and its migration job:
+For a source-free application deployment, install a copy of `sia-backend/compose.yml` at `/etc/sia-planb/compose.yml` and maintain its production environment file and persistent-data paths there. Keep the Compose project name `sia-backend` so existing volumes and containers retain their names. Ensure the current PostgreSQL service is already running and healthy, then deploy only Flask and its migration job:
 
 ```sh
 docker compose --project-name sia-backend --file /etc/sia-planb/compose.yml --env-file /etc/sia-planb/production.env pull flask migrate
-docker compose --project-name sia-backend --file /etc/sia-planb/compose.yml --env-file /etc/sia-planb/production.env up -d --no-build flask
+docker compose --project-name sia-backend --file /etc/sia-planb/compose.yml --env-file /etc/sia-planb/production.env run --rm --no-deps migrate
+docker compose --project-name sia-backend --file /etc/sia-planb/compose.yml --env-file /etc/sia-planb/production.env up -d --no-build --no-deps flask
 ```
 
-These commands pull and replace only the Flask application image. Targeting `flask` starts its database and one-shot migration dependencies, and Flask starts only if the migration succeeds. The mailserver is not a dependency and is not pulled or restarted. Keep `DATABASE_IMAGE` pinned to the currently deployed database image so an application release does not upgrade PostgreSQL.
+The migration command must exit successfully before the Flask restart command is run. `--no-deps` prevents Compose from restarting PostgreSQL or the mailserver. Keep `DATABASE_IMAGE` pinned so an application release does not upgrade PostgreSQL.
 
 ## Pull Requests
 

@@ -30,7 +30,6 @@ class Config:
     MAIL_USERNAME = 'noreply@'+os.getenv("HOSTNAME")
     MAIL_PASSWORD = _secret("MAIL_PASSWORD", 10)
     MAIL_DEFAULT_SENDER = 'noreply@' + os.getenv("HOSTNAME")
-    MAIL_ACCOUNTS_FILE = "/app/postfix-accounts.cf"
 
 CONFIG_CAPTCHA = {
     'SECRET_CAPTCHA_KEY': _secret("CAPTCHA_SECRET_KEY", 25),

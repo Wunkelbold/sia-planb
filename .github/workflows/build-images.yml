@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Prepare test environment
         run: cp sia-backend/.env.example sia-backend/.env
@@ -55,10 +55,10 @@ jobs:
       packages: write
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -66,7 +66,7 @@ jobs:
 
       - name: Generate image metadata
         id: meta-flask
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.IMAGE_NAMESPACE }}/sia-flask
           tags: |
@@ -75,7 +75,7 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build Flask image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./sia-backend/flask-server
           file: ./sia-backend/flask-server/Dockerfile
@@ -85,7 +85,7 @@ jobs:
 
       - name: Generate database image metadata
         id: meta-database
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.IMAGE_NAMESPACE }}/sia-database
           tags: |
@@ -94,7 +94,7 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build database image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./sia-backend/database-server
           file: ./sia-backend/database-server/Dockerfile

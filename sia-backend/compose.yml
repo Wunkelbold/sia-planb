@@ -6,7 +6,7 @@ services:
     build: ./database-server
     restart: always
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
@@ -22,7 +22,6 @@ services:
     build: ./flask-server 
     ports:
       - "127.0.0.1:5005:80"
-      - "127.0.0.1:9191:9191"
     environment:
       DATABASE_HOST: ${DATABASE_HOST}
       DATABASE_PORT: ${DATABASE_PORT}
@@ -39,10 +38,8 @@ services:
       MAIL_PASSWORD: ${MAIL_PASSWORD}
       HOSTNAME: ${HOSTNAME}
       hostname: ${hostname}
-      UPDATE_MAIL_USER: ${UPDATE_MAIL_USER:-false}
     volumes:
       - eventposter:/opt/flask-backend/static/images/eventposter
-      - ${MAIL_ACCOUNTS_FILE_HOST:-./mail-server/docker-data/dms/config/postfix-accounts.cf}:/app/postfix-accounts.cf
     depends_on:
       database:
         condition: service_healthy
@@ -71,7 +68,6 @@ services:
       DEBUG: "false"
       HOSTNAME: ${HOSTNAME}
       hostname: ${hostname}
-      UPDATE_MAIL_USER: "false"
       SKIP_STARTUP_DATA: "true"
       SECRET_KEY: ${SECRET_KEY}
       CAPTCHA_SECRET_KEY: ${CAPTCHA_SECRET_KEY}
@@ -98,7 +94,7 @@ services:
       - test
 
   mailserver:
-    image: ghcr.io/docker-mailserver/docker-mailserver:latest
+    image: ghcr.io/docker-mailserver/docker-mailserver:16.0.1
     container_name: mailserver
     # Provide the FQDN of your mail server here (Your DNS MX record should point to this value)
     hostname: ${hostname} 

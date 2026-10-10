@@ -1,7 +1,6 @@
 from globals import *
 from permissions import *
 from flask import request, flash, url_for, redirect, current_app
-import subprocess
 from database import Tables
 from datetime import datetime, timedelta
 from flask_login import login_required, current_user
@@ -10,34 +9,6 @@ import threading
 
 from smtplib import SMTPAuthenticationError, SMTPServerDisconnected, SMTPException
 
-
-def update_mail_user(email, password):
-    """Removes existing user and adds a new one with a generated password."""
-    try:
-        # Generate the hashed password using doveadm
-        password_hash_cmd = ["doveadm", "pw", "-s", "SHA512-CRYPT", "-p", password]
-        hashed_password = subprocess.run(password_hash_cmd, capture_output=True, text=True, check=True).stdout.strip()
-
-        # Read existing users and remove the old entry if it exists
-        try:
-            with open(app.config["MAIL_ACCOUNTS_FILE"], "r") as file:
-                lines = file.readlines()
-            updated_lines = [line for line in lines if not line.startswith(f"{email}|")]
-        except FileNotFoundError:
-            updated_lines = []  # File doesn't exist, create new
-
-        # Add the new user entry
-        updated_lines.append(f"{email}|{hashed_password}\n")
-
-        # Write back to the file
-
-        with open(app.config["MAIL_ACCOUNTS_FILE"], "w") as file:
-            file.writelines(updated_lines)
-
-
-        print(f"--- Temporary mail user {email} added. ---")
-    except subprocess.CalledProcessError as e:
-        print(f"Error generating password hash: {e.stderr}")
 
 def send_mail(app, email: Message, ):
     retcode = 0
@@ -143,7 +114,3 @@ def send_verifikation_mail():
     except Exception as e:
         flash(f"Es gab einen Fehler im Mailserver, versuche es später erneut! {datetime.now().strftime('%H:%M:%S %d.%m.%Y')}")
     return redirect(url_for('profile'))
-
-
-if os.getenv('UPDATE_MAIL_USER')=="true":
-    update_mail_user(app.config["MAIL_USERNAME"], app.config["MAIL_PASSWORD"])

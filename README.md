@@ -5,7 +5,8 @@ SIA PlanB is a Flask application for managing SIA events, shifts, event registra
 ## Project Layout
 
 - `sia-backend/flask-server`: Flask application, templates, static assets, and migrations.
-- `sia-backend/compose.yml`: local and current server Compose definition.
+- `sia-backend/compose.yml`: local development and CI Compose definition.
+- `sia-backend/compose.production.yml`: source-free production Compose template.
 - `sia-backend/mail-server`: Docker Mailserver configuration and deployment data.
 - `sia-backend/test`: smoke-test container used by CI.
 
@@ -69,7 +70,7 @@ MAIL_LOG_PATH=/var/lib/sia-planb/mail/mail-logs
 MAIL_CONFIG_PATH=/var/lib/sia-planb/mail/config
 ```
 
-The production DMS environment file and mail data still use their established paths under the retained server checkout. Application and image upgrades leave those paths unchanged; moving mail data is a separate migration that needs its own backup and verification.
+Production now stores the DMS environment at `/etc/sia-planb/mailserver.env` and mail data/configuration at `/var/lib/sia-planb/mail/`. A pre-move copy remains under the retained server checkout for rollback; do not remove it until the new mounts have been used and verified for the agreed retention period.
 
 ## Database Migrations
 
@@ -95,9 +96,9 @@ Never set `DROP_AND_CREATE_DATABASE=true` against a production database.
 
 ## Current Deployment
 
-Production uses an external Compose file at `/etc/sia-planb/compose.yml` and environment file at `/etc/sia-planb/production.env`. CI builds and publishes the Flask image to GHCR with an immutable commit tag; the server pulls that image and does not need to build or pull application source. Keep production secrets in the external environment file, never in Git.
+Production uses a copy of `sia-backend/compose.production.yml` at `/etc/sia-planb/compose.yml` and an external environment file at `/etc/sia-planb/production.env`. The production Compose file has no build contexts or test service; CI builds and publishes immutable Flask and database images to GHCR. The server pulls those images and does not need an application checkout. Keep production secrets in the external environment file, never in Git.
 
-Production now runs Flask image `sha-6c7d2b8` on Python 3.14.8/Gunicorn 26.2.0, PostgreSQL 18.6, and Docker Mailserver 16.0.1. The PG17 volume is retained separately as a rollback copy; PostgreSQL 18 uses the new `sia-backend_pgdata18` volume with its version-specific data path. The DMS environment file and mail data still reside under the retained server checkout.
+Production now runs Flask image `sha-6c7d2b8` on Python 3.14.8/Gunicorn 26.2.0, PostgreSQL 18.6, and Docker Mailserver 16.0.1. The PG17 volume is retained separately as a rollback copy; PostgreSQL 18 uses the new `sia-backend_pgdata18` volume with its version-specific data path. The DMS environment file is at `/etc/sia-planb/mailserver.env` and persistent mail data/configuration is under `/var/lib/sia-planb/mail`. Pre-move copies remain under the server checkout until the rollback retention period expires.
 
 Before a production migration, ensure a recent database backup is available. Keep `DATABASE_IMAGE` pinned to the currently deployed PostgreSQL image; change it only during a separately planned database-image update. For routine application releases, use this sequence:
 
@@ -113,7 +114,7 @@ Mailbox account changes are handled through Docker Mailserver, separately from F
 FLASK_IMAGE=ghcr.io/wunkelbold/sia-planb/sia-flask:sha-<commit>
 ```
 
-For a source-free application deployment, install a copy of `sia-backend/compose.yml` at `/etc/sia-planb/compose.yml` and maintain its production environment file and persistent-data paths there. Keep the Compose project name `sia-backend` so existing volumes and containers retain their names. Ensure the current PostgreSQL service is already running and healthy, then deploy only Flask and its migration job:
+For a source-free application deployment, install a copy of `sia-backend/compose.production.yml` at `/etc/sia-planb/compose.yml` and maintain its production environment file and persistent-data paths there. Keep the Compose project name `sia-backend` so existing volumes and containers retain their names. Ensure the current PostgreSQL service is already running and healthy, then deploy only Flask and its migration job:
 
 ```sh
 docker compose --project-name sia-backend --file /etc/sia-planb/compose.yml --env-file /etc/sia-planb/production.env pull flask migrate
@@ -129,7 +130,7 @@ The current PostgreSQL 18.6 image uses `/var/lib/postgresql` and a version-speci
 
 Docker Mailserver 16.0.1 moves from Debian 12 to Debian 13 and Dovecot 2.3 to 2.4. The production update was validated against a preserved copy of the mail data before replacing the live image. For future updates, review the release changelog and test with a copy of the mail data; keep the mail paths and account data intact during the image upgrade.
 
-The full-stack cutover is a planned maintenance operation: confirm that database and mail backups can be restored, validate the refreshed stack with copied data, then upgrade PostgreSQL and mailserver in separate steps and verify database migrations, site health, SMTP delivery, IMAP login, and mailbox contents before retiring the old images or volumes.
+The 2026 refresh used a protected logical database dump, a cold copy of the PG17 volume, and a preserved DMS data/config archive. It validated PostgreSQL 18 restore and DMS 16 startup on copies before separate cutovers, then checked the Alembic head, site health, SMTP/IMAP authentication, account entries, and Maildir message count. Retain the old volume and archives for the agreed rollback period before pruning them.
 
 ## Pull Requests
 

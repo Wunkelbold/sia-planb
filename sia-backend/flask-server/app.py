@@ -1,7 +1,7 @@
 from globals import *
 from flask import make_response, Response, flash, render_template, request, send_from_directory, url_for, redirect, jsonify, get_flashed_messages, send_file
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect, generate_csrf
 from flask_sqlalchemy import SQLAlchemy
 from http import HTTPStatus
 import os
@@ -9,6 +9,9 @@ from datetime import datetime, timezone
 from functools import wraps
 import json
 from io import BytesIO
+from uuid import UUID
+from sqlalchemy import func
+from itsdangerous import BadSignature, SignatureExpired
 
 #-----FILES-----
 from database import Tables, init_database, init_roles, init_default_role
@@ -19,6 +22,11 @@ from permissions import *
 
 import Sections.EventHandler as _
 from Sections.EventHandler import getAllEvents
+import Sections.ManagementApi as _
+import Sections.FinanceApi as _
+import Sections.FinanceMailApi as _
+import Sections.FinanceDemoData as _
+import Sections.DrinkMenuApi as _
 import Sections.UserManager as _
 import Sections.ContactManager as _
 import Sections.RegistrationHandler as _
@@ -152,6 +160,577 @@ def logout():
 
 
 #----------ROUTES---------
+@app.route("/api/v1/health", methods=["GET"])
+def api_health():
+    """Minimal health endpoint for the independent static frontend."""
+    return jsonify({"status": "ok"})
+
+@app.route("/api/v1/session", methods=["GET"])
+def api_session():
+    """Expose only the signed-in state needed by the independent frontend."""
+    if not current_user.is_authenticated:
+        response = jsonify({"authenticated": False, "csrf_token": generate_csrf()})
+    else:
+        response = jsonify(frontend_session_data())
+    response.headers["Cache-Control"] = "private, no-store"
+    return response
+
+def frontend_session_data():
+    return {
+        "authenticated": current_user.is_authenticated,
+        "username": current_user.username if current_user.is_authenticated else None,
+        "needs_email_confirmation": (
+            current_user.is_authenticated
+            and bool((current_user.email and not current_user.email_confirmed) or (current_user.hs_email and not current_user.hs_email_confirmed))
+        ),
+        "can_help": hasPermissions("events.help") if current_user.is_authenticated else False,
+        "can_admin_panel": hasPermissions("adminpanel.show") if current_user.is_authenticated else False,
+        "can_manage_events": (
+            current_user.is_authenticated
+            and (hasPermissions("eventmanager.show") or hasPermissions("events.create"))
+        ),
+        "can_create_events": hasPermissions("events.create") if current_user.is_authenticated else False,
+        "can_edit_events": hasPermissions("/api/events/event/update/*") if current_user.is_authenticated else False,
+        "can_delete_events": hasPermissions("adminpanel.event.delete") if current_user.is_authenticated else False,
+        "can_manage_shifts": hasPermissions("/api/events/event/addshift/*") if current_user.is_authenticated else False,
+        "can_manage_registration_options": hasPermissions("events.newRM") if current_user.is_authenticated else False,
+        "can_manage_tasks": (
+            current_user.is_authenticated
+            and (hasPermissions("task.new") or hasPermissions("task.edit") or hasPermissions("task.delete"))
+        ),
+        "can_scan_tickets": hasPermissions("scanner.show") if current_user.is_authenticated else False,
+        "can_manage_users": hasPermissions("adminpanel.user.get") if current_user.is_authenticated else False,
+        "can_update_users": hasPermissions("adminpanel.user.update") if current_user.is_authenticated else False,
+        "can_delete_users": hasPermissions("adminpanel.user.delete") if current_user.is_authenticated else False,
+        "can_manage_contacts": hasPermissions("adminpanel.show") if current_user.is_authenticated else False,
+        "can_delete_contacts": hasPermissions("adminpanel.delete.contact") if current_user.is_authenticated else False,
+        "can_manage_finances": hasPermissions("finance.manage") if current_user.is_authenticated else False,
+        "can_manage_drink_menu": hasPermissions("menu.manage") if current_user.is_authenticated else False,
+        "can_use_tally": hasPermissions("finance.tally.use") if current_user.is_authenticated else False,
+        "can_validate_tickets": hasPermissions("events.rm.validate") if current_user.is_authenticated else False,
+        "can_punch_tickets": hasPermissions("events.rm.punch") if current_user.is_authenticated else False,
+        "can_manage_ticket_payment": (
+            hasPermissions("events.rm.paid") or hasPermissions("events.rm.unpaid")
+        ) if current_user.is_authenticated else False,
+        "csrf_token": generate_csrf(),
+    }
+
+@app.route("/api/v1/auth/login", methods=["POST"])
+def api_auth_login():
+    form = Forms.LoginForm()
+    if not form.validate_on_submit():
+        return jsonify({"success": False, "errors": form.errors}), 400
+
+    username = form.username.data.lower()
+    user = Tables.User.query.filter_by(username=username).first()
+    if not user or not user.password or not bcrypt.check_password_hash(user.password, form.password.data):
+        return jsonify({"success": False, "error": "Benutzername oder Passwort ist falsch."}), 401
+
+    login_user(user)
+    user.last_login = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    db.session.commit()
+    response = jsonify({"success": True, "session": frontend_session_data()})
+    response.headers["Cache-Control"] = "private, no-store"
+    return response
+
+@app.route("/api/v1/auth/password-reset", methods=["POST"])
+def api_request_password_reset():
+    """Send a reset link only to a matching, confirmed email without revealing account existence."""
+    email = request.form.get("email", "").strip().lower()
+    if email and len(email) <= 254:
+        user = Tables.User.query.filter(
+            func.lower(Tables.User.email) == email,
+            Tables.User.email_confirmed.is_(True),
+        ).first()
+        if not user:
+            user = Tables.User.query.filter(
+                func.lower(Tables.User.hs_email) == email,
+                Tables.User.hs_email_confirmed.is_(True),
+            ).first()
+        if user:
+            try:
+                from Sections.EmailHandler import send_password_reset_email
+                send_password_reset_email(user, email)
+            except Exception:
+                app.logger.exception("Failed to start password reset email")
+
+    response = jsonify({
+        "success": True,
+        "message": "Wenn ein Konto mit dieser bestätigten E-Mail-Adresse existiert, erhältst du einen Link zum Zurücksetzen.",
+    })
+    response.headers["Cache-Control"] = "no-store"
+    return response, 202
+
+
+@app.route("/api/v1/auth/password-reset/confirm", methods=["POST"])
+def api_confirm_password_reset():
+    """Validate a one-hour, password-bound token and replace the account password."""
+    uid = request.form.get("uid", "")
+    token = request.form.get("token", "")
+    password = request.form.get("password", "")
+    password_confirm = request.form.get("password_confirm", "")
+    errors = {}
+    if len(password) < 8 or len(password) > 30:
+        errors["password"] = ["Das Passwort muss zwischen 8 und 30 Zeichen lang sein."]
+    if password != password_confirm:
+        errors["password_confirm"] = ["Die Passwörter stimmen nicht überein."]
+    if errors:
+        return jsonify({"success": False, "errors": errors}), 400
+
+    try:
+        user_uid = UUID(uid)
+    except (ValueError, TypeError, AttributeError):
+        return jsonify({"success": False, "error": "Der Link ist ungültig oder abgelaufen."}), 400
+    user = Tables.User.query.filter_by(uid=user_uid).first()
+    if not user:
+        return jsonify({"success": False, "error": "Der Link ist ungültig oder abgelaufen."}), 400
+
+    from Sections.EmailHandler import password_reset_serializer
+    try:
+        payload = password_reset_serializer(user).loads(token, max_age=3600)
+    except (BadSignature, SignatureExpired, TypeError, ValueError):
+        return jsonify({"success": False, "error": "Der Link ist ungültig oder abgelaufen."}), 400
+    if payload.get("uid") != str(user.uid):
+        return jsonify({"success": False, "error": "Der Link ist ungültig oder abgelaufen."}), 400
+
+    was_current_user = current_user.is_authenticated and current_user.id == user.id
+    user.password = bcrypt.generate_password_hash(password).decode("utf-8")
+    user.last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    db.session.commit()
+    if was_current_user:
+        logout_user()
+    response = jsonify({"success": True})
+    response.headers["Cache-Control"] = "no-store"
+    return response
+
+def registration_captcha_payload():
+    challenge = SIMPLE_CAPTCHA.create()
+    return {
+        "image": "data:image/jpeg;base64," + challenge["img"],
+        "hash": challenge["hash"],
+    }
+
+def registration_setup_payload():
+    return {
+        "csrf_token": generate_csrf(),
+        "roles": [
+            role.name
+            for role in Tables.Role.query.filter_by(selectable_on_register="yes").all()
+        ],
+        "captcha": registration_captcha_payload(),
+    }
+
+@app.route("/api/v1/auth/register", methods=["GET", "POST"])
+def api_auth_register():
+    if request.method == "GET":
+        response = jsonify(registration_setup_payload())
+        response.headers["Cache-Control"] = "no-store"
+        return response
+
+    form = Forms.RegisterForm()
+    public_roles = Tables.Role.query.filter_by(selectable_on_register="yes").all()
+    form.role.choices = [(role.name, role.name) for role in public_roles]
+
+    captcha_text = request.form.get("captcha-text", "")
+    captcha_hash = request.form.get("captcha-hash", "")
+    if not SIMPLE_CAPTCHA.verify(captcha_text, captcha_hash):
+        response = jsonify({
+            "success": False,
+            "errors": {"captcha": ["Die Sicherheitsabfrage war nicht korrekt. Bitte versuche es erneut."]},
+            **registration_setup_payload(),
+        })
+        response.headers["Cache-Control"] = "no-store"
+        return response, 400
+
+    if not form.validate_on_submit():
+        response = jsonify({
+            "success": False,
+            "errors": form.errors,
+            **registration_setup_payload(),
+        })
+        response.headers["Cache-Control"] = "no-store"
+        return response, 400
+
+    username = form.username.data.lower()
+    if not username.isalnum():
+        errors = {"username": ["Der Benutzername darf nur Buchstaben und Zahlen enthalten."]}
+    elif Tables.User.query.filter_by(username=username).first():
+        errors = {"username": ["Dieser Benutzername ist bereits vergeben."]}
+    elif form.role.data not in [role.name for role in public_roles]:
+        errors = {"role": ["Bitte wähle eine gültige Rolle."]}
+    elif form.role.data == "Student" and not form.hs_email.data:
+        errors = {"hs_email": ["Als Student musst du deine Hochschul-E-Mail angeben."]}
+    else:
+        errors = {}
+
+    if errors:
+        response = jsonify({
+            "success": False,
+            "errors": errors,
+            **registration_setup_payload(),
+        })
+        response.headers["Cache-Control"] = "no-store"
+        return response, 400
+
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    user = Tables.User(
+        username=username,
+        password=bcrypt.generate_password_hash(form.password.data).decode("utf-8"),
+        register_date=now,
+        last_login=now,
+        surname=form.surname.data,
+        lastname=form.lastname.data,
+        email=form.email.data,
+        hs_email=form.hs_email.data,
+        street=form.street.data,
+        street_no=form.street_no.data,
+        city=form.city.data,
+        postalcode=form.postalcode.data,
+        role=form.role.data,
+        permissions=[],
+        last_updated=now,
+    )
+    db.session.add(user)
+    db.session.commit()
+
+    from Sections.EventHandler import ensure_user_calendar_url
+    ensure_user_calendar_url(user)
+    login_user(user)
+    verification_notice = bool(user.email or user.hs_email)
+    try:
+        verify_email(user)
+    except Exception:
+        app.logger.info("%s failed to start email verification", user.username)
+
+    response = jsonify({
+        "success": True,
+        "session": frontend_session_data(),
+        "verification_notice": verification_notice,
+    })
+    response.headers["Cache-Control"] = "private, no-store"
+    return response, 201
+
+def contact_setup_payload():
+    return {
+        "csrf_token": generate_csrf(),
+        "categories": [
+            {"value": "kontakt", "label": "Kontakt"},
+            {"value": "mieten", "label": "Location mieten"},
+            {"value": "feedback", "label": "Kritik oder Lob"},
+            {"value": "events", "label": "Wünsche für ein Event"},
+        ],
+        "captcha": registration_captcha_payload(),
+        "prefill": {
+            "surname": current_user.surname or "" if current_user.is_authenticated else "",
+            "lastname": current_user.lastname or "" if current_user.is_authenticated else "",
+            "email": (
+                (current_user.hs_email or current_user.email or "")
+                if current_user.is_authenticated
+                else ""
+            ),
+        },
+    }
+
+@app.route("/api/v1/contact", methods=["GET", "POST"])
+def api_contact():
+    if request.method == "GET":
+        response = jsonify(contact_setup_payload())
+        response.headers["Cache-Control"] = "no-store"
+        return response
+
+    form = Forms.ContactForm()
+    captcha_text = request.form.get("captcha-text", "")
+    captcha_hash = request.form.get("captcha-hash", "")
+    if not SIMPLE_CAPTCHA.verify(captcha_text, captcha_hash):
+        response = jsonify({
+            "success": False,
+            "errors": {"captcha": ["Die Sicherheitsabfrage war nicht korrekt. Bitte versuche es erneut."]},
+            **contact_setup_payload(),
+        })
+        response.headers["Cache-Control"] = "no-store"
+        return response, 400
+
+    if not form.validate_on_submit():
+        response = jsonify({
+            "success": False,
+            "errors": form.errors,
+            **contact_setup_payload(),
+        })
+        response.headers["Cache-Control"] = "no-store"
+        return response, 400
+
+    now = datetime.now()
+    contact = Tables.Contact(
+        category=form.category.data,
+        surname=form.surname.data,
+        lastname=form.lastname.data,
+        email=form.email.data,
+        message=form.message.data,
+        created=now.strftime("%Y-%m-%d %H:%M:%S"),
+        creation=now,
+    )
+    db.session.add(contact)
+    db.session.commit()
+    response = jsonify({"success": True, "message": "Danke für deine Nachricht!"})
+    response.headers["Cache-Control"] = "no-store"
+    return response, 201
+
+@app.route("/api/v1/me/tickets", methods=["GET"])
+def api_my_tickets():
+    """Return only the signed-in user's registrations and check-in QR code."""
+    if not current_user.is_authenticated:
+        return jsonify({"error": "authentication_required"}), 401
+
+    from Sections.FinanceAllocations import charge_payment_state
+
+    user_data = {
+        "id": current_user.id,
+        "username": current_user.username,
+        "surname": current_user.surname,
+        "lastname": current_user.lastname,
+        "role": current_user.role,
+        "hs_email_confirmed": current_user.hs_email_confirmed,
+        "uid": str(current_user.uid),
+    }
+    qr_generator = app.extensions["qrcode"]
+    checkin_qr = qr_generator(json.dumps(user_data))
+
+    tickets = []
+    registrations = (
+        Tables.Registration.query
+        .filter_by(userFK=current_user.id)
+        .filter(Tables.Registration.cancelled_at.is_(None))
+        .order_by(Tables.Registration.timestamp.desc())
+        .all()
+    )
+    for registration in registrations:
+        manager = registration.RegisterManager
+        event = Tables.Event.query.filter_by(id=manager.eventFK).first()
+        if not event:
+            continue
+        ticket_charge = Tables.FinanceCharge.query.filter_by(registration_id=registration.id).first()
+        payment_state = charge_payment_state(ticket_charge) if ticket_charge else {
+            "status": "paid" if registration.paid else "open",
+            "remaining_cents": None,
+        }
+        event_date = event.date.replace(tzinfo=local_tz).isoformat(timespec="minutes") if event.date else None
+        tickets.append({
+            "id": registration.id,
+            "registration_name": manager.name,
+            "price": registration.price if registration.price is not None else manager.price,
+            "paid": payment_state["status"] == "paid",
+            "payment_status": payment_state["status"],
+            "remaining_cents": payment_state["remaining_cents"],
+            "valid": registration.valid,
+            "timestamp": registration.timestamp.isoformat(timespec="minutes") if registration.timestamp else None,
+            "can_cancel": manager.deny == "erlaubt",
+            "event": {
+                "id": event.id,
+                "name": event.name,
+                "date": event_date,
+                "place": event.place,
+            },
+        })
+
+    response = jsonify({"checkin_qr": checkin_qr, "tickets": tickets})
+    response.headers["Cache-Control"] = "private, no-store"
+    return response
+
+@app.route("/api/v1/me/commitments", methods=["GET"])
+def api_my_commitments():
+    """Return only this user's volunteer shifts and event tasks."""
+    if not current_user.is_authenticated:
+        return jsonify({"error": "authentication_required"}), 401
+
+    from Sections.ManagementApi import task_help_permission
+
+    def event_summary(event_id):
+        event = Tables.Event.query.filter_by(id=event_id).first()
+        if not event:
+            return None
+        return {
+            "id": event.id,
+            "name": event.name,
+            "date": event.date.replace(tzinfo=local_tz).isoformat(timespec="minutes") if event.date else None,
+            "place": event.place,
+        }
+
+    shifts = []
+    for duty in Tables.Duty.query.filter_by(user=current_user.id).all():
+        shift = duty.Shift
+        event = event_summary(shift.event) if shift else None
+        if not shift or not event:
+            continue
+        shifts.append({
+            "id": duty.id,
+            "shift_id": shift.id,
+            "type": shift.type,
+            "start": shift.start.replace(tzinfo=local_tz).isoformat(timespec="minutes") if shift.start else None,
+            "end": shift.end.replace(tzinfo=local_tz).isoformat(timespec="minutes") if shift.end else None,
+            "can_leave": hasPermissions("events.help"),
+            "event": event,
+        })
+
+    tasks = []
+    for assistant in Tables.Assistant.query.filter_by(userFK=current_user.id).all():
+        task = assistant.task
+        event = event_summary(task.eventFK) if task else None
+        if not task or not event:
+            continue
+        required_permission = task_help_permission(task.visibility)
+        tasks.append({
+            "id": assistant.id,
+            "task_id": task.id,
+            "name": task.name,
+            "status": task.status,
+            "priority": task.priority,
+            "deadline": task.deadline.replace(tzinfo=local_tz).isoformat(timespec="minutes") if task.deadline else None,
+            "timeframe_start": task.timeframe_start.replace(tzinfo=local_tz).isoformat(timespec="minutes") if task.timeframe_start else None,
+            "timeframe_end": task.timeframe_end.replace(tzinfo=local_tz).isoformat(timespec="minutes") if task.timeframe_end else None,
+            "can_leave": bool(required_permission and hasPermissions(required_permission)),
+            "event": event,
+        })
+
+    response = jsonify({"shifts": shifts, "tasks": tasks})
+    response.headers["Cache-Control"] = "private, no-store"
+    return response
+
+def profile_api_data(user):
+    from Sections.EventHandler import ensure_user_calendar_url
+
+    ensure_user_calendar_url(user)
+    selectable_roles = Tables.Role.query.filter_by(selectable_on_register="yes").all()
+    role_names = [role.name for role in selectable_roles]
+    if user.role and user.role not in role_names:
+        role_names.append(user.role)
+    return {
+        "username": user.username or "",
+        "role": user.role or "",
+        "roles": role_names,
+        "surname": user.surname or "",
+        "lastname": user.lastname or "",
+        "email": user.email or "",
+        "email_confirmed": user.email_confirmed,
+        "hs_email": user.hs_email or "",
+        "hs_email_confirmed": user.hs_email_confirmed,
+        "street": user.street or "",
+        "street_no": user.street_no or "",
+        "city": user.city or "",
+        "postalcode": user.postalcode or "",
+        "personal_calendar_url": url_for(
+            "user_calendar_ical",
+            calendar_id=user.calendar_url,
+        ),
+    }
+
+@app.route("/api/v1/me/profile", methods=["GET", "PUT"])
+def api_my_profile():
+    """Read or update the current user's own profile."""
+    if not current_user.is_authenticated:
+        return jsonify({"error": "authentication_required"}), 401
+
+    if request.method == "GET":
+        response = jsonify(profile_api_data(current_user))
+        response.headers["Cache-Control"] = "private, no-store"
+        return response
+
+    form = Forms.ChangeData()
+    selectable_roles = Tables.Role.query.filter_by(selectable_on_register="yes").all()
+    user_role = Tables.Role.query.filter_by(name=current_user.role).first()
+    available_roles = list(selectable_roles)
+    if user_role and user_role.name not in {role.name for role in available_roles}:
+        available_roles.append(user_role)
+    form.role.choices = [(role.name, role.name) for role in available_roles]
+
+    if not form.validate_on_submit():
+        return jsonify({
+            "success": False,
+            "errors": {field: errors for field, errors in form.errors.items()},
+        }), 400
+
+    new_username = form.username.data.lower()
+    if not new_username.isalnum():
+        return jsonify({
+            "success": False,
+            "errors": {"username": ["Der Benutzername darf nur Buchstaben und Zahlen enthalten."]},
+        }), 400
+    if new_username != current_user.username and Tables.User.query.filter_by(username=new_username).first():
+        return jsonify({
+            "success": False,
+            "errors": {"username": ["Dieser Benutzername ist bereits vergeben."]},
+        }), 409
+
+    user = current_user._get_current_object()
+    email_changed = user.email != form.email.data
+    hs_email_changed = user.hs_email != form.hs_email.data
+    role_changed = form.role.data in [role.name for role in available_roles] and form.role.data != user.role
+    user.username = new_username
+    user.surname = form.surname.data
+    user.lastname = form.lastname.data
+    user.email = form.email.data
+    user.hs_email = form.hs_email.data
+    user.street = form.street.data
+    user.street_no = form.street_no.data
+    user.city = form.city.data
+    user.postalcode = form.postalcode.data
+    if form.role.data in [role.name for role in available_roles]:
+        user.role = form.role.data
+    if role_changed:
+        pending_role_request = Tables.UserRoleRequest.query.filter_by(user_id=user.id, status="pending").first()
+        if pending_role_request:
+            pending_role_request.status = "withdrawn"
+            pending_role_request.reviewed_at = datetime.now()
+            pending_role_request.review_note = "Durch eigene Rollenänderung zurückgezogen."
+
+    if email_changed:
+        user.email_confirmed = False
+        user.email_cooldown = datetime.min
+    if hs_email_changed:
+        user.hs_email_confirmed = False
+        user.hs_email_cooldown = datetime.min
+    if form.password.data:
+        user.password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
+
+    user.last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    db.session.commit()
+
+    verification_warning = False
+    if email_changed or hs_email_changed:
+        try:
+            verify_email(user)
+        except Exception:
+            verification_warning = True
+            app.logger.info("%s failed to verify updated profile email", user.username)
+
+    response = jsonify({
+        "success": True,
+        "profile": profile_api_data(user),
+        "verification_warning": verification_warning,
+    })
+    response.headers["Cache-Control"] = "private, no-store"
+    return response
+
+@app.route("/api/v1/me/verification", methods=["POST"])
+def api_request_email_verification():
+    """Request new verification links for the current user's unconfirmed email addresses."""
+    if not current_user.is_authenticated:
+        return jsonify({"error": "authentication_required"}), 401
+    has_unconfirmed_email = bool(current_user.email and not current_user.email_confirmed)
+    has_unconfirmed_hs_email = bool(current_user.hs_email and not current_user.hs_email_confirmed)
+    if not has_unconfirmed_email and not has_unconfirmed_hs_email:
+        return jsonify({"error": "no_unconfirmed_email"}), 409
+
+    try:
+        from Sections.EmailHandler import verify_email
+        verify_email(current_user._get_current_object())
+    except Exception:
+        app.logger.exception("%s failed to request email verification", current_user.username)
+        return jsonify({"error": "verification_unavailable"}), 503
+
+    response = jsonify({"success": True})
+    response.headers["Cache-Control"] = "private, no-store"
+    return response, 202
+
 @app.route("/scanner", methods=['GET','POST'])
 @require_permissions("scanner.show")
 def scanner():
@@ -432,8 +1011,15 @@ def profile():
         user.street_no = form.street_no.data
         user.city = form.city.data
         user.postalcode = form.postalcode.data
+        role_changed = form.role.data in [role.name for role in public_roles] and form.role.data != user.role
         if form.role.data in [role.name for role in public_roles]:
             user.role = form.role.data
+        if role_changed:
+            pending_role_request = Tables.UserRoleRequest.query.filter_by(user_id=user.id, status="pending").first()
+            if pending_role_request:
+                pending_role_request.status = "withdrawn"
+                pending_role_request.reviewed_at = datetime.now()
+                pending_role_request.review_note = "Durch eigene Rollenänderung zurückgezogen."
         user.last_updated = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         db.session.commit()
         flash(f"Deine Daten wurden erfolgreich abgespeichert! {datetime.now().astimezone(local_tz).strftime('%H:%M')}", 'info')

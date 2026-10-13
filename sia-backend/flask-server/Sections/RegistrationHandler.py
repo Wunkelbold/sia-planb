@@ -6,8 +6,11 @@ from database import *
 from forms import *
 from flask import current_app
 from datetime import timedelta, timezone, datetime
+from decimal import Decimal
 from sqlalchemy import func
 from zoneinfo import ZoneInfo
+from Sections.RegistrationService import cancel_registration, create_event_ticket_charge, set_registration_paid
+from Sections.ManagementApi import user_can_view_event
 
 '''
 _____            _     _             _   _                                                           
@@ -67,6 +70,7 @@ def apiGetRmSingle(eventid: int,rmID: int):
             count = (
                 db.session.query(func.count(func.distinct(Tables.Registration.userFK)))
                 .filter(Tables.Registration.rmFK == rmID)
+                .filter(Tables.Registration.cancelled_at.is_(None))
                 .scalar()
             )
             register_data = registerManager.getDict()
@@ -91,6 +95,7 @@ def apiGetRmall(eventid: int):
             count = (
                 db.session.query(func.count(func.distinct(Tables.Registration.userFK)))
                 .filter(Tables.Registration.rmFK == rm.id)
+                .filter(Tables.Registration.cancelled_at.is_(None))
                 .scalar()
             )
             rmDict = rm.getDict()
@@ -138,6 +143,8 @@ def apiUpdateRM(eventid: int,rmID: int):
 @require_permissions("events.rm.delete")
 def apiDeleteRM(eventid: int,rmID: int):
     if hasPermissions(f"/api/events/event/{eventid}/deleteRM/{rmID}"):
+        if Tables.Registration.query.filter_by(rmFK=rmID).count():
+            return jsonify({'success': False, 'error': {"Fehler": ["Anmeldemöglichkeiten mit Registrierungshistorie können nicht gelöscht werden. Schließe sie stattdessen."]}}), 409
         Tables.RegisterManager.query.filter_by(eventFK=eventid,id=rmID).delete()
         db.session.commit()
         return jsonify({'success': True, 'message' : { "Erfolg":['Registrierungsmöglichkeit wurde gelöscht']}})
@@ -149,11 +156,18 @@ def apiDeleteRM(eventid: int,rmID: int):
 def apiRegisterEvent(eventid: int, rmID: int):   
     registerManager = Tables.RegisterManager.query.filter_by(eventFK=eventid, id=rmID).first()
     if registerManager:
+        event = Tables.Event.query.filter_by(id=eventid).first()
+        if not event or not user_can_view_event(current_user, event):
+            return jsonify({'success': False, 'error': {"Fehler": ["Dieses Event ist für deine Rolle nicht verfügbar."]}}), 403
         vis = registerManager.visibility
         rmID = registerManager.id
         if not registerManager:
                 return jsonify({'success': False, 'error': { "Fehler":["Keine Registrierung vorgesehen!"]}}), 404
-        existing_registration = Tables.Registration.query.filter_by(rmFK=registerManager.id, userFK=current_user.id).first()
+        existing_registration = Tables.Registration.query.filter_by(
+            rmFK=registerManager.id,
+            userFK=current_user.id,
+            cancelled_at=None,
+        ).first()
         if existing_registration:
             return jsonify({'success': False, 'error': { "Fehler":[f"Bereits angemeldet!"]}})
         if registerManager.accept == "Zeitraum":
@@ -168,8 +182,20 @@ def apiRegisterEvent(eventid: int, rmID: int):
     return jsonify({'success': False, 'error': { "Fehler":[f"Die Registrierung konnte nicht gefunden werden :/"]}})
         
 def process_registration(eventid,rmID):
-    new_registration = Tables.Registration(rmFK=rmID, userFK=current_user.id,timestamp=datetime.now(timezone.utc))
+    register_manager = Tables.RegisterManager.query.filter_by(eventFK=eventid, id=rmID).first()
+    price = Decimal(str(register_manager.price)) if register_manager and register_manager.price is not None else Decimal("0")
+    is_free = price <= 0
+    new_registration = Tables.Registration(
+        rmFK=rmID,
+        userFK=current_user.id,
+        timestamp=datetime.now(timezone.utc),
+        price=price,
+        paid=is_free,
+        created_by=current_user.id,
+    )
     db.session.add(new_registration)
+    db.session.flush()
+    create_event_ticket_charge(new_registration, current_user.id)
     db.session.commit()
     return jsonify({'success': True, 'message': { "Erfolg":["Du wurdest erfolgreich für das Event angemeldet"]}})
 
@@ -211,12 +237,16 @@ def apiUnregisterEvent(eventid: int, rmID: int):
     if registerManager.deny == "verbieten":
         return jsonify({'success': False, 'error': { "Fehler":["Die Abmeldung war nicht möglich, da sie abgeschlaten ist!"]}}), 404
 
-    existing_registration = Tables.Registration.query.filter_by(rmFK=registerManager.id, userFK=current_user.id).first()
+    existing_registration = Tables.Registration.query.filter_by(
+        rmFK=registerManager.id,
+        userFK=current_user.id,
+        cancelled_at=None,
+    ).first()
     if not existing_registration:
         return jsonify({'success': False, 'error': { "Fehler":[f"Du warst nie angemeldet!"]}})
     
     if existing_registration and registerManager.deny == "erlaubt":
-        db.session.delete(existing_registration)
+        cancel_registration(existing_registration, current_user.id, "Selbst abgemeldet")
         db.session.commit()
 
     return jsonify({'success': True, 'message': { "Erfolg":["Du wurdest erfolgreich für das Event angemeldet"]}})
@@ -226,7 +256,7 @@ def apiUnregisterEvent(eventid: int, rmID: int):
 @login_required
 def apiPunchRM(regID: int):
     if hasPermissions("events.rm.punch"):
-        registration = Tables.Registration.query.filter_by(id=regID).first()
+        registration = Tables.Registration.query.filter_by(id=regID).filter(Tables.Registration.cancelled_at.is_(None)).first()
         if registration:
             if not registration.valid:
                 return jsonify({"success": False, "message": { "Fehler":[f"'{registration.RegisterManager.name}' - Ist schon entwertet!"]}})
@@ -242,7 +272,7 @@ def apiPunchRM(regID: int):
 @login_required
 def apiValidateRM(regID: int):
     if hasPermissions("events.rm.validate"):
-        registration = Tables.Registration.query.filter_by(id=regID).first()
+        registration = Tables.Registration.query.filter_by(id=regID).filter(Tables.Registration.cancelled_at.is_(None)).first()
         if registration:
             if registration.valid:
                 return jsonify({"success":False, "message": { "Fehler":[f"'{registration.RegisterManager.name}' - Ist schon validiert!"]}})
@@ -258,11 +288,11 @@ def apiValidateRM(regID: int):
 @login_required
 def apiUnpaidRM(regID: int):
     if hasPermissions("events.rm.unpaid"):
-        registration = Tables.Registration.query.filter_by(id=regID).first()
+        registration = Tables.Registration.query.filter_by(id=regID).filter(Tables.Registration.cancelled_at.is_(None)).first()
         if registration:
             if not registration.paid:
                 return jsonify({"success":False, "message": { "Fehler":[f"'{registration.RegisterManager.name}' - Status ist bereits auf unbezahlt!"]}})
-            registration.paid = False
+            set_registration_paid(registration, False, current_user.id, "scanner", "Am Scanner als unbezahlt markiert")
             db.session.commit()
             return jsonify({'success': True, "message": { "Erfolg":[f"'{registration.RegisterManager.name}' - Status wurde auf 'unbezahlt' gesetzt!"]}})
         else:
@@ -274,11 +304,11 @@ def apiUnpaidRM(regID: int):
 @login_required
 def apiPaidRM(regID: int):
     if hasPermissions("events.rm.paid"):
-        registration = Tables.Registration.query.filter_by(id=regID).first()
+        registration = Tables.Registration.query.filter_by(id=regID).filter(Tables.Registration.cancelled_at.is_(None)).first()
         if registration:
             if registration.paid:
                 return jsonify({"success":False, "message": { "Fehler":[f"'{registration.RegisterManager.name}' - Status ist bereits auf bezahlt!"]}})
-            registration.paid = True
+            set_registration_paid(registration, True, current_user.id, "scanner", "Am Scanner als bezahlt markiert")
             db.session.commit()
             return jsonify({'success': True, "message": { "Erfolg":[f"'{registration.RegisterManager.name}' - Status wurde auf 'bezahlt' gesetzt!"]}})
         else:

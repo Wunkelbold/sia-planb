@@ -11,6 +11,7 @@ from zoneinfo import ZoneInfo
 from globals import *
 from flask import flash, url_for, redirect, jsonify
 from icalendar import Calendar, Event
+from Sections.EventScheduleRules import shift_event_schedule
 import secrets
 import base64
 
@@ -25,7 +26,19 @@ def format_datetime_hr(dt):
 def format_endtime(dt):
     return dt.strftime('%H:%M') if dt else None
 
+def format_api_datetime(dt):
+    return dt.replace(tzinfo=ZoneInfo("Europe/Berlin")).isoformat(timespec="minutes") if dt else None
+
 def event_append(task_count,shift_filled_count,events,event,duty_count,shift_count,individuals_count,personal_count, registrationManager, show_register_button,personal_registration,registration_count):
+    personal_task_count = 0
+    if current_user.is_authenticated:
+        personal_task_count = (
+            db.session.query(func.count(Tables.Assistant.id))
+            .join(Tables.Task, Tables.Assistant.taskFK == Tables.Task.id)
+            .filter(Tables.Task.eventFK == event.id)
+            .filter(Tables.Assistant.userFK == current_user.id)
+            .scalar()
+        ) or 0
     events.append({
         "id": event.id,
         "name": event.name,
@@ -33,13 +46,16 @@ def event_append(task_count,shift_filled_count,events,event,duty_count,shift_cou
         "place": event.place,
         "visibility": event.visibility,
         "date": format_datetime_hr(event.date),
+        "date_iso": format_api_datetime(event.date),
         "end": format_endtime(event.end),
+        "end_iso": format_api_datetime(event.end),
         "description": event.description,
         "duty_count": duty_count,
         "shift_count": shift_count,
         "tasks": "0",
         "individuals_count": individuals_count,
         "personal_count": personal_count,
+        "personal_task_count": personal_task_count,
         "registrationManager": registrationManager,
         "show_register_button": show_register_button,
         "personal_registration":personal_registration,
@@ -104,6 +120,7 @@ def getAllEvents() -> list[Tables.Event]:
                 .join(Tables.RegisterManager)
                 .filter(Tables.RegisterManager.eventFK == event.id)
                 .filter(Tables.Registration.userFK == current_user.id)
+                .filter(Tables.Registration.cancelled_at.is_(None))
                 .scalar()
             )
             
@@ -123,6 +140,7 @@ def getAllEvents() -> list[Tables.Event]:
             db.session.query(func.count(func.distinct(Tables.Registration.userFK)))
             .join(Tables.RegisterManager)
             .filter(Tables.RegisterManager.eventFK == event.id)
+            .filter(Tables.Registration.cancelled_at.is_(None))
             .scalar()
         )
         task_count = Tables.Task.query.filter_by(eventFK=event.id).count()
@@ -207,7 +225,8 @@ def user_calendar_ical(calendar_id: str):
     if not user_role:
         return Response(status=404)
 
-    user_permissions = set(user_role.permissions) if user_role.permissions else set()
+    user_permissions = set(user_role.permissions or [])
+    user_permissions.update(user.permissions or [])
 
     # Get events based on permissions
     td12 = timedelta(hours=12)
@@ -240,6 +259,8 @@ def user_calendar_ical(calendar_id: str):
     cal.add('version', '2.0')
     cal.add('name', f'Sia-PlanB Calendar - {user.username}')
     cal.add('x-wr-calname', f'Sia-PlanB Calendar - {user.username}')
+    local_zone = ZoneInfo("Europe/Berlin")
+    local_now = datetime.now(local_zone).replace(tzinfo=None)
 
     for event in events:
         # Get user's shifts for this event
@@ -248,6 +269,12 @@ def user_calendar_ical(calendar_id: str):
                       .filter(Tables.Shift.event == event.id)
                       .filter(Tables.Duty.user == user.id)
                       .order_by(Tables.Shift.start.asc())
+                      .all())
+        user_tasks = (Tables.Task.query
+                      .join(Tables.Assistant, Tables.Assistant.taskFK == Tables.Task.id)
+                      .filter(Tables.Task.eventFK == event.id)
+                      .filter(Tables.Assistant.userFK == user.id)
+                      .order_by(Tables.Task.timeframe_start.asc().nullslast(), Tables.Task.deadline.asc().nullslast())
                       .all())
 
         ical_event = Event()
@@ -279,6 +306,18 @@ def user_calendar_ical(calendar_id: str):
             if shift_lines:
                 description += "\n\nDeine Schichten:\n" + "\n".join(shift_lines)
 
+        if user_tasks:
+            preparation_lines = []
+            for task in user_tasks:
+                if task.timeframe_start:
+                    time_text = task.timeframe_start.strftime('%d.%m.%Y %H:%M')
+                    if task.timeframe_end:
+                        time_text += f"–{task.timeframe_end.strftime('%H:%M')}"
+                else:
+                    time_text = "Zeit folgt"
+                preparation_lines.append(f"{task.name or 'Vorbereitung'} · {time_text}")
+            description += "\n\nDeine Vorbereitungen:\n" + "\n".join(preparation_lines)
+
         # Add shift availability info
         if total_shifts > 0:
             description += f"\n\nBelegte Schichten: {filled_shifts}/{total_shifts}"
@@ -288,6 +327,36 @@ def user_calendar_ical(calendar_id: str):
             ical_event.add('description', description)
         ical_event.add('uid', str(event.uid))
         cal.add_component(ical_event)
+
+        for task in user_tasks:
+            if not task.timeframe_start or task.timeframe_start < local_now or task.status == "Finished":
+                continue
+            task_start = task.timeframe_start
+            task_end = task.timeframe_end
+            if not task_end or task_end <= task_start:
+                task_end = task_start + timedelta(hours=1)
+            if task_start.tzinfo is None:
+                task_start = task_start.replace(tzinfo=local_zone)
+            else:
+                task_start = task_start.astimezone(local_zone)
+            if task_end.tzinfo is None:
+                task_end = task_end.replace(tzinfo=local_zone)
+            else:
+                task_end = task_end.astimezone(local_zone)
+
+            preparation_event = Event()
+            preparation_event.add('summary', f"Vorbereitung: {task.name or 'Vorbereitung'}")
+            preparation_event.add('dtstart', task_start.astimezone(timezone.utc))
+            preparation_event.add('dtend', task_end.astimezone(timezone.utc))
+            preparation_event.add('uid', f"{user.uid}-preparation-{task.id}@sia-planb.de")
+            if event.place:
+                preparation_event.add('location', event.place)
+            preparation_description = [f"Vorbereitung für: {event.name}"]
+            if task.description:
+                preparation_description.append(task.description)
+            preparation_description.append(f"https://sia-planb.de/events/{event.id}")
+            preparation_event.add('description', "\n\n".join(preparation_description))
+            cal.add_component(preparation_event)
 
     # Return as .ics file
     response = Response(cal.to_ical(), mimetype='text/calendar')
@@ -354,12 +423,18 @@ def apiDeleteEventShift(shiftid: int):
 @app.route("/api/events/event/joinshift/<shiftid>",methods=['POST'])
 def apiJoinShift(shiftid: int):
     if hasPermissions(f"events.help"):
+        shift = Tables.Shift.query.filter_by(id=shiftid).first()
+        if not shift or not any(event["id"] == shift.event for event in getAllEvents()):
+            return jsonify({"success": False, "error": "Diese Helferschicht ist für dein Konto nicht verfügbar."}), 404
         existing_duty = Tables.Duty.query.filter_by(shift=shiftid,user=current_user.id).first()
         if not existing_duty:
-            duty = Tables.Duty()
-            duty.shift=shiftid
-            duty.user=current_user.id
-            duty. user_obj=current_user
+            duty = Tables.Duty(
+                shift=shiftid,
+                user=current_user.id,
+                user_obj=current_user,
+                joined_timestamp=datetime.now(timezone.utc),
+                assigned_by=current_user.id,
+            )
             db.session.add(duty)
             db.session.commit()
         return jsonify({'success': True})
@@ -389,6 +464,155 @@ def apiLeaveShift(shiftid: int):
 def apiGetAllEvents():
     return Response([event.toJSON() for event in getAllEvents()])
 
+@app.route("/api/v1/events", methods=["GET"])
+def api_list_events():
+    """Return upcoming events visible to the current visitor."""
+    events = getAllEvents()
+    return jsonify({
+        "events": [
+            {
+                "id": event["id"],
+                "uid": str(event["uid"]),
+                "name": event["name"],
+                "place": event["place"],
+                "date": event["date_iso"],
+                "end": event["end_iso"],
+                "description": event["description"],
+                "poster_url": url_for("get_image", filename=str(event["uid"])),
+                "has_registration": bool(event["personal_registration"]),
+                "personal_shift_count": event["personal_count"],
+                "personal_task_count": event["personal_task_count"],
+            }
+            for event in events
+        ]
+    })
+
+@app.route("/api/v1/events/<int:event_id>", methods=["GET"])
+def api_event_details(event_id: int):
+    """Return event details and only the participation options visible to this visitor."""
+    event = next((item for item in getAllEvents() if item["id"] == event_id), None)
+    if not event:
+        return jsonify({"error": "Event not found"}), 404
+
+    can_help = current_user.is_authenticated and hasPermissions("events.help")
+    registration_permissions = {
+        "member": "events.register.member",
+        "private": "events.register.private",
+        "student": "events.register.student",
+    }
+    registrations = []
+    for manager in Tables.RegisterManager.query.filter_by(eventFK=event_id).all():
+        required_permission = registration_permissions.get(manager.visibility)
+        if manager.visibility != "public" and not (
+            required_permission and hasPermissions(required_permission)
+        ):
+            continue
+
+        registration = None
+        if current_user.is_authenticated:
+            registration = Tables.Registration.query.filter_by(
+                rmFK=manager.id,
+                userFK=current_user.id,
+                cancelled_at=None,
+            ).first()
+
+        if manager.accept == "Zeitraum":
+            now = datetime.now(timezone.utc)
+            is_open = True
+            if manager.start:
+                start = manager.start.replace(tzinfo=ZoneInfo("Europe/Berlin")).astimezone(timezone.utc)
+                is_open = now >= start
+            if manager.end:
+                end = manager.end.replace(tzinfo=ZoneInfo("Europe/Berlin")).astimezone(timezone.utc)
+                is_open = is_open and now <= end
+        else:
+            is_open = manager.accept == "geöffnet"
+
+        registrations.append({
+            "id": manager.id,
+            "name": manager.name,
+            "accept": manager.accept,
+            "visibility": manager.visibility,
+            "start": format_api_datetime(manager.start),
+            "end": format_api_datetime(manager.end),
+            "price": manager.price,
+            "is_open": is_open,
+            "is_registered": registration is not None,
+            "can_register": current_user.is_authenticated and is_open and registration is None,
+            "can_unregister": registration is not None and manager.deny == "erlaubt",
+        })
+
+    shifts = []
+    if can_help:
+        event_shifts = Tables.Shift.query.filter_by(event=event_id).order_by(Tables.Shift.start.asc()).all()
+        for shift in event_shifts:
+            shifts.append({
+                "id": shift.id,
+                "type": shift.type,
+                "start": format_api_datetime(shift.start),
+                "end": format_api_datetime(shift.end),
+                "participants": len(shift.duty_rel),
+                "helper_usernames": [duty.user_obj.username for duty in shift.duty_rel if duty.user_obj],
+                "is_joined": any(duty.user == current_user.id for duty in shift.duty_rel),
+            })
+
+    from Sections.ManagementApi import task_help_permission
+
+    preparations = []
+    event_tasks = Tables.Task.query.filter_by(eventFK=event_id).order_by(
+        Tables.Task.timeframe_start.asc().nullslast(), Tables.Task.deadline.asc().nullslast()
+    ).all()
+    for task in event_tasks:
+        required_permission = task_help_permission(task.visibility)
+        if task.visibility != "public" and not (
+            current_user.is_authenticated
+            and required_permission
+            and hasPermissions(required_permission)
+        ):
+            continue
+        helpers = [assistant.user_obj.username for assistant in task.assistant_obj if assistant.user_obj]
+        assigned_to_me = current_user.is_authenticated and any(
+            assistant.userFK == current_user.id for assistant in task.assistant_obj
+        )
+        can_help_with_task = bool(
+            current_user.is_authenticated
+            and required_permission
+            and hasPermissions(required_permission)
+        )
+        task_is_open = task.status in {"TakeOverTask", "InProgress"}
+        preparations.append({
+            "id": task.id,
+            "name": task.name or "Vorbereitung",
+            "description": task.description or "",
+            "status": task.status or "",
+            "priority": task.priority or "",
+            "visibility": task.visibility or "",
+            "timeframe_start": format_api_datetime(task.timeframe_start),
+            "timeframe_end": format_api_datetime(task.timeframe_end),
+            "helper_count": len(helpers),
+            "helper_usernames": helpers,
+            "assigned_to_me": assigned_to_me,
+            "can_join": can_help_with_task and task_is_open and not assigned_to_me,
+            "can_leave": can_help_with_task and assigned_to_me,
+            "is_open": task_is_open,
+        })
+
+    return jsonify({
+        "event": {
+            "id": event["id"],
+            "uid": str(event["uid"]),
+            "name": event["name"],
+            "place": event["place"],
+            "date": event["date_iso"],
+            "end": event["end_iso"],
+            "description": event["description"],
+            "poster_url": url_for("get_image", filename=str(event["uid"])),
+        },
+        "registrations": registrations,
+        "shifts": shifts,
+        "preparations": preparations,
+    })
+
 # Get event information
 @app.route("/api/events/event/update/<int:eventid>", methods=['POST'])
 def apiUpdateEvent(eventid: int):
@@ -411,14 +635,13 @@ def apiUpdateEvent(eventid: int):
             if form.date.data:
                 if event.date != form.date.data and form.move_shifts.data and event.date:
                     difference = form.date.data - event.date
-                    if event.end:
-                        event.end += difference
-                    shifts = Tables.Shift.query.filter_by(event=event.id).all()
-                    for shift in shifts:
-                        if shift.start:
-                            shift.start += difference
-                        if shift.end:
-                            shift.end += difference
+                    shift_event_schedule(
+                        event,
+                        difference,
+                        shifts=Tables.Shift.query.filter_by(event=event.id).all(),
+                        registration_windows=Tables.RegisterManager.query.filter_by(eventFK=event.id).all(),
+                        tasks=Tables.Task.query.filter_by(eventFK=event.id).all(),
+                    )
                 else:
                     if form.event_end.data:
                         event.end = form.event_end.data
@@ -486,6 +709,15 @@ def delete_event():
         uid = form.uid.data
         event = db.session.query(Tables.Event).filter_by(uid=uid).first()
         if event:
+            registration_count = (
+                db.session.query(Tables.Registration.id)
+                .join(Tables.RegisterManager, Tables.Registration.rmFK == Tables.RegisterManager.id)
+                .filter(Tables.RegisterManager.eventFK == event.id)
+                .count()
+            )
+            if registration_count:
+                flash("Events mit Ticketregistrierungen können nicht gelöscht werden. Schließe das Event stattdessen.", "error")
+                return redirect(url_for("admin"))
             image_path = os.path.join(app.root_path, 'static', 'images', 'eventposter', 'default.jpg',str(event.uid))
             if os.path.exists(image_path):
                 os.remove( os.path.join(app.root_path, 'static', 'images', 'eventposter', 'default.jpg',str(event.uid)))

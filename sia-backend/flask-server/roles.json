@@ -20,8 +20,21 @@
                         "events.register.student",
                         "events.register.public",
                         "howto.show",
-                        "task.help.member"],
-        "Moderator":[""],
+                        "task.help.member",
+                        "finance.tally.use"],
+        "Moderator":[  "/api/events/event/getshifts/*",
+                        "events.help",
+                        "events.member",
+                        "events.public",
+                        "events.student",
+                        "events.register.member",
+                        "events.register.student",
+                        "events.register.public",
+                        "howto.show",
+                        "task.help.member",
+                        "task.help.student",
+                        "finance.tally.use"],
         "Admin":["*","events.*","/api/events/*","howto.show","task.help.private"]
-    }
+    },
+    "requestable_on_change": ["Mitglied"]
 }

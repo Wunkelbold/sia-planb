@@ -946,7 +946,7 @@
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="TaskLabel">Aufgaben Verwalten</h1>
+                <h1 class="modal-title fs-5" id="TaskLabel">Vorbereitungen verwalten</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -1054,7 +1054,7 @@
                 console.log(data)
                 tableBody.innerHTML = `
                     <tr>
-                        <th class="hide-on-mobile">Aufgabe</th>
+                        <th class="hide-on-mobile">Vorbereitung</th>
                         <th class="hide-on-mobile">Status</th>
                         <th class="hide-on-mobile">Priorität</th>
                         <th class="hide-on-mobile">
@@ -1079,7 +1079,7 @@
                 }
 
                 if (data.length === 0) {
-                    tableBody.innerHTML += `<tr><td colspan="7" class="text-center">Keine Aufgaben</td></tr>`;
+                    tableBody.innerHTML += `<tr><td colspan="7" class="text-center">Keine Vorbereitungen</td></tr>`;
                     return;
                 }
 
@@ -1149,7 +1149,7 @@
         function resetForm(eventId) {
             form.reset();
             form.action = `/api/task/new/${eventId}`;
-            submitButton.value = "Neue Aufgabe";
+            submitButton.value = "Neue Vorbereitung";
             displayFlashMessages([]);
         }
 

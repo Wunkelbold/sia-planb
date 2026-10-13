@@ -427,6 +427,7 @@ class Forms:
             render_kw={"placeholder": "Email"}, 
             validators=[
                 EmailRequiredIf(category=["kontakt","mieten","events"]),
+                Optional(),
                 Length(
                     min=0, 
                     max=30, 
@@ -599,7 +600,7 @@ class Forms:
 
     class newTask(FlaskForm):
         TaskName = StringField(
-            render_kw={"placeholder": "Aufgabe"}, 
+            render_kw={"placeholder": "Vorbereitung"},
             validators=[
                 InputRequired(), 
                 Length(
@@ -666,7 +667,7 @@ class Forms:
             validators=[
                 Optional()
             ])
-        TaskSubmit = SubmitField("Neue Aufgabe")
+        TaskSubmit = SubmitField("Neue Vorbereitung")
 
         
 

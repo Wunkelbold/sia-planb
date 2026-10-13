@@ -18,7 +18,7 @@ def apiTaskGetSingle(taskID: int):
     if Task:
         return jsonify(Task.getDict())
     else:
-        return jsonify({'success': False, 'error': { "Fehler":["Aufgabe konnte nicht geladen werden."]}})
+        return jsonify({'success': False, 'error': { "Fehler":["Vorbereitung konnte nicht geladen werden."]}})
 
 
 @app.route("/api/task/get/<int:eventID>", methods=['GET'])
@@ -42,7 +42,7 @@ def apiTaskGetEvent(eventID: int):
 
         return jsonify(taskList)
     else:
-        return jsonify({'success': False, 'error': { "Erfolg":["Es gibt keine Aufgaben für dieses Event."]}})
+            return jsonify({'success': False, 'error': { "Erfolg":["Es gibt keine Vorbereitungen für dieses Event."]}})
 
 @app.route("/api/task/new/<int:eventID>", methods=['POST'])
 @require_permissions("task.new")
@@ -66,7 +66,7 @@ def apiTaskNewEvent(eventID: int):
     )
     db.session.add(newTask)
     db.session.commit()
-    return jsonify({'success': True, 'message' : { "Erfolg":["Neue Aufgabe wurde angelegt."]}})
+    return jsonify({'success': True, 'message' : { "Erfolg":["Neue Vorbereitung wurde angelegt."]}})
 
 @app.route("/api/task/new", methods=['POST'])
 @require_permissions("task.new")
@@ -94,7 +94,7 @@ def apiTaskDelete(taskID: int):
     if hasPermissions("task.delete"):
         Tables.Task.query.filter_by(id=taskID).delete()
         db.session.commit()
-        return jsonify({'success': True, 'message' : { "Erfolg":'Aufgabe wurde gelöscht'}})
+        return jsonify({'success': True, 'message' : { "Erfolg":'Vorbereitung wurde gelöscht'}})
     else:
         return jsonify({'success': False, 'error': { "Fehler":"Dir fehlt die Berechtigung 'task.delete'!"}})
 
@@ -113,7 +113,7 @@ def apiTaskEdit(taskID: int):
         current_task.timeframe_start = form.TaskStart.data,
         current_task.timeframe_end = form.TaskEnd.data,
         db.session.commit()
-        return jsonify({'success': True, 'message' : { "Erfolg":['Aufgabe wurde geändert']}})
+        return jsonify({'success': True, 'message' : { "Erfolg":['Vorbereitung wurde geändert']}})
 
     else:
         error=form.errors

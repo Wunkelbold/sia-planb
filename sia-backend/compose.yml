@@ -38,8 +38,10 @@ services:
       MAIL_PASSWORD: ${MAIL_PASSWORD}
       HOSTNAME: ${HOSTNAME}
       hostname: ${hostname}
+      FRONTEND_URL: ${FRONTEND_URL:-}
     volumes:
       - eventposter:/opt/flask-backend/static/images/eventposter
+      - drinkimages:/opt/flask-backend/static/images/drinks
     depends_on:
       database:
         condition: service_healthy
@@ -132,3 +134,4 @@ services:
 volumes:
   pgdata:
   eventposter:
+  drinkimages:

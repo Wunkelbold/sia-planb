@@ -1,3 +1,29 @@
+@font-face {
+  font-family: "Eurocentric";
+  src: url("../fonts/eurcntrc.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+.navbar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.navbar-brand__slogan {
+  color: #f0f4f2;
+  font-family: inherit;
+  font-size: 0.7rem;
+}
+
+.navbar-brand__wordmark {
+  color: #fff;
+  font-family: "Eurocentric", sans-serif;
+  font-size: 1.5rem;
+  line-height: 1;
+}
 
 .class_footer{
     width: 100%;

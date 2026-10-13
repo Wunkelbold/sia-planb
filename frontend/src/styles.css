@@ -3343,6 +3343,10 @@ input:focus-visible {
     opacity: 0.75;
   }
 
+  .hero-art__caption {
+    display: none;
+  }
+
   .event-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -3719,13 +3723,13 @@ input:focus-visible {
   }
 
   .hero {
-    min-height: 510px;
+    min-height: auto;
     align-items: flex-start;
   }
 
   .hero__copy {
     width: 100%;
-    padding: 62px 0 120px;
+    padding: 62px 0 62px;
   }
 
   .hero h1 {
@@ -3743,16 +3747,7 @@ input:focus-visible {
   }
 
   .hero-art {
-    top: auto;
-    right: -25px;
-    bottom: -127px;
-    width: 255px;
-    transform: none;
-    opacity: 0.4;
-  }
-
-  .hero-art__letter {
-    font-size: 118px;
+    display: none;
   }
 
   .hero__index {

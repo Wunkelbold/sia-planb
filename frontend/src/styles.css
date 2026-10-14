@@ -732,6 +732,21 @@ input:focus-visible {
   -webkit-line-clamp: 2;
 }
 
+.event-card__description a,
+.event-detail-description a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  transition: color 120ms ease;
+}
+
+.event-card__description a:hover,
+.event-detail-description a:hover {
+  color: var(--color-text);
+  text-decoration-thickness: 2px;
+}
+
 .event-card__footer {
   display: flex;
   min-height: 30px;

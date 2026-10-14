@@ -110,7 +110,28 @@ docker compose --project-name sia-backend --file /etc/sia-planb/compose.yml --en
 docker compose --project-name sia-backend --file /etc/sia-planb/compose.yml --env-file /etc/sia-planb/production.env run --rm --no-deps flask flask --app app seed-drink-menu
 ```
 
-Build the frontend outside the production host with `npm run build --prefix frontend`. Transfer `frontend/dist/` to a new `/var/www/sia-planb/releases/<sha>/`, then atomically point `current` at that release. The tracked nginx config serves the SPA, proxies API/static/calendar/verification requests to Flask, and preserves the host's status/mail redirects. When it changes, sync it to `/etc/nginx/sites-available/sia-planb`, then run:
+For frontend-only releases (no image pull, no migration), build outside the production host and upload the build from the repository root:
+
+```sh
+sha=$(git rev-parse --short HEAD)
+npm run build --prefix frontend
+scp -r -i <ssh-key> -P 22 frontend/dist root@1.1.1.1:/tmp/sia-planb-dist-$sha
+```
+
+Then activate the release on the host:
+
+```sh
+sha=<short-sha>   # same value as above
+test -f "/tmp/sia-planb-dist-$sha/index.html"
+test ! -e "/var/www/sia-planb/releases/$sha"
+install -d -m 0755 /var/www/sia-planb/releases   # create releases dir if missing (mode rwxr-xr-x)
+mv "/tmp/sia-planb-dist-$sha" "/var/www/sia-planb/releases/$sha"
+chmod -R a+rX "/var/www/sia-planb/releases/$sha"
+ln -sfn "/var/www/sia-planb/releases/$sha" /var/www/sia-planb/current.next
+mv -Tf /var/www/sia-planb/current.next /var/www/sia-planb/current
+```
+
+The symlink swap is atomic: nginx serves the previous release until `current` moves. Roll back by repeating the last two commands with the previous release's SHA. The tracked nginx config serves the SPA, proxies API/static/calendar/verification requests to Flask, and preserves the host's status/mail redirects. When it changes, sync it to `/etc/nginx/sites-available/sia-planb`, then run:
 
 ```sh
 nginx -t && systemctl reload nginx

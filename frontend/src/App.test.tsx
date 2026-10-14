@@ -211,6 +211,56 @@ describe("events page", () => {
     expect(screen.getByText(/Keine Events für „Jazz“ gefunden/)).toBeInTheDocument();
   });
 
+  it("renders rich event descriptions as safe links in cards and details", async () => {
+    const describedEvent: UpcomingEvent = {
+      ...summerParty,
+      description: '<br><a href="https://www.instagram.com/junokilla/" target="_blank" rel="noopener noreferrer">JUNOKILL</a> & <a href="https://www.instagram.com/ntrinsic_band">NTRINSIC</a>',
+    };
+    vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === "/api/v1/session") return Promise.resolve(jsonResponse({ authenticated: false }));
+      if (url === "/api/v1/events/12") {
+        return Promise.resolve(jsonResponse({ ...eventDetails(), event: describedEvent }));
+      }
+      return Promise.resolve(jsonResponse({ events: [describedEvent] }));
+    }));
+
+    const card = renderApp("/events");
+    const junokill = await screen.findByRole("link", { name: "JUNOKILL" });
+    expect(junokill).toHaveAttribute("href", "https://www.instagram.com/junokilla/");
+    expect(junokill).toHaveAttribute("target", "_blank");
+    expect(junokill).toHaveAttribute("rel", "noopener noreferrer");
+    expect(screen.getByRole("link", { name: "NTRINSIC" })).toHaveAttribute(
+      "href",
+      "https://www.instagram.com/ntrinsic_band",
+    );
+    card.unmount();
+
+    renderApp("/events/12");
+    expect(await screen.findByRole("link", { name: "JUNOKILL" })).toHaveAttribute(
+      "rel",
+      "noopener noreferrer",
+    );
+  });
+
+  it("drops unsafe markup from event descriptions", async () => {
+    mockEvents([
+      {
+        ...summerParty,
+        description: '<a href="javascript:alert(1)">Unsafe link</a><script>alert(2)</script><img src="x" onerror="alert(3)">',
+      },
+    ]);
+
+    renderApp("/events");
+
+    await screen.findByRole("heading", { name: "SIA Sommerfest" });
+    expect(screen.queryByRole("link", { name: "Unsafe link" })).not.toBeInTheDocument();
+    expect(screen.getByText("Unsafe link")).toBeInTheDocument();
+    expect(screen.queryByText(/alert\(2\)/)).not.toBeInTheDocument();
+    expect(document.querySelector('img[src="x"]')).not.toBeInTheDocument();
+    expect(screen.queryByText("Weitere Informationen folgen in Kürze.")).not.toBeInTheDocument();
+  });
+
   it("shows a helpful empty state when there are no upcoming events", async () => {
     const writeText = stubClipboard();
     mockEvents([]);
@@ -958,6 +1008,7 @@ describe("events page", () => {
 
     expect(await screen.findByRole("heading", { name: "Eventmanager." })).toBeInTheDocument();
     fireEvent.click(await screen.findByText("Neues Event erstellen"));
+    expect(screen.getByText(/Formatierung: <br> für Zeilenumbrüche und/)).toBeInTheDocument();
     fireEvent.change(await screen.findByLabelText("Eventname"), { target: { value: "Neues Demoevent" } });
     fireEvent.change(screen.getByLabelText("Ort"), { target: { value: "Plan B" } });
     fireEvent.change(screen.getByLabelText("Beginn"), { target: { value: "2027-07-01T18:00" } });

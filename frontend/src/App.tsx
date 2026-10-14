@@ -32,6 +32,7 @@ import { joinEventTask, leaveEventTask } from "./api/tasks";
 import { CalendarSubscribeButton } from "./components/CalendarSubscribeButton";
 import { SiteFooter, SiteHeader } from "./components/SiteLayout";
 import { ParticipationIndicators } from "./components/ParticipationIndicators";
+import { RichText } from "./components/RichText";
 import EventManagerPage from "./pages/EventManagerPage";
 import EventTasksPage from "./pages/EventTasksPage";
 import OrganizerTaskManagerPage from "./pages/OrganizerTaskManagerPage";
@@ -122,7 +123,7 @@ function EventCard({ event }: { event: UpcomingEvent }) {
         <p className="event-card__date">{formatEventDate(event.date)}</p>
         <h3>{event.name}</h3>
         <p className="event-card__description">
-          {event.description || "Weitere Informationen folgen in Kürze."}
+          <RichText fallback="Weitere Informationen folgen in Kürze." text={event.description} />
         </p>
         <ParticipationIndicators event={event} />
         <div className="event-card__footer">
@@ -413,7 +414,7 @@ function EventDetailPage() {
 
             <div className="event-detail-description">
               <p className="eyebrow eyebrow--muted">WAS DICH ERWARTET</p>
-              <p>{details.event.description || "Weitere Informationen zu diesem Event folgen in Kürze."}</p>
+              <p><RichText fallback="Weitere Informationen zu diesem Event folgen in Kürze." text={details.event.description} /></p>
             </div>
 
             {session?.authenticated && session.username && (

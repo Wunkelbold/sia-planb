@@ -168,6 +168,9 @@ function EventFields({
       <label className="profile-field manager-form-grid__wide">
         <span>Beschreibung</span>
         <textarea maxLength={300} onChange={(e) => onChange("description", e.target.value)} rows={4} value={values.description} />
+        <small>
+          {'Formatierung: <br> für Zeilenumbrüche und <a href="https://…">Linktext</a> für Links (öffnen in neuem Tab). Erlaubt sind außerdem <strong>, <em>, <u> und <span>.'}
+        </small>
       </label>
       {editing && (
         <label className="manager-checkbox manager-form-grid__wide">

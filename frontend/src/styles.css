@@ -1901,6 +1901,32 @@ input:focus-visible {
   letter-spacing: -0.055em;
 }
 
+.managed-events-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+}
+
+.managed-events-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px 18px;
+}
+
+.managed-events-toolbar .profile-field {
+  gap: 5px;
+  font-size: 10px;
+}
+
+.managed-events-toolbar .profile-field select {
+  width: auto;
+  min-height: 36px;
+  font-size: 11px;
+}
+
 .managed-event-list {
   display: grid;
   gap: 8px;

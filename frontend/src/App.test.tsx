@@ -974,6 +974,60 @@ describe("events page", () => {
     }));
   });
 
+  it("sorts managed events by start date and can hide past events after the grace period", async () => {
+    const now = Date.now();
+    const dateAt = (offsetMs: number) => new Date(now + offsetMs).toISOString();
+    const baseEvent: ManagedEvent = {
+      id: 1,
+      uid: "past-event",
+      name: "Vergangenes Event",
+      visibility: "public",
+      place: "Plan B",
+      date: dateAt(-13 * 60 * 60 * 1000),
+      end: null,
+      description: "",
+      poster_url: "/static/images/eventposter/past-event",
+      task_count: 0,
+      shifts: [],
+      registration_options: [],
+    };
+    const events: ManagedEvent[] = [
+      baseEvent,
+      { ...baseEvent, id: 2, uid: "grace-event", name: "Event in der Gnadenfrist", date: dateAt(-2 * 60 * 60 * 1000) },
+      { ...baseEvent, id: 3, uid: "future-event", name: "Zukünftiges Event", date: dateAt(48 * 60 * 60 * 1000) },
+    ];
+    const fetchMock = vi.fn((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === "/api/v1/session") {
+        return Promise.resolve(jsonResponse({
+          authenticated: true,
+          username: "organizer",
+          can_manage_events: true,
+          csrf_token: "csrf-filter",
+        }));
+      }
+      if (url === "/api/v1/manage/events") return Promise.resolve(jsonResponse({ events }));
+      return Promise.resolve(new Response("Not found", { status: 404 }));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const managedRowNames = () => screen
+      .getAllByRole("button")
+      .filter((button) => button.className.includes("managed-event-row__select"))
+      .map((button) => button.querySelector(".managed-event-row__name")?.textContent);
+
+    renderApp("/manage/events");
+
+    await screen.findByText("Zukünftiges Event");
+    expect(managedRowNames()).toEqual(["Zukünftiges Event", "Event in der Gnadenfrist", "Vergangenes Event"]);
+
+    fireEvent.click(screen.getByLabelText("Vergangene ausblenden"));
+    expect(managedRowNames()).toEqual(["Zukünftiges Event", "Event in der Gnadenfrist"]);
+
+    fireEvent.change(screen.getByLabelText("Sortierung"), { target: { value: "asc" } });
+    expect(managedRowNames()).toEqual(["Event in der Gnadenfrist", "Zukünftiges Event"]);
+  });
+
   it("opens shift and registration forms on demand and closes them after saving", async () => {
     let managedEvent: ManagedEvent = {
       id: 91,

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router";
 
 import {
@@ -43,6 +43,14 @@ const emptyRegistration: ManagedRegistrationFields = {
   end: "",
   price: "",
 };
+
+const EVENT_GRACE_PERIOD_MS = 12 * 60 * 60 * 1000;
+
+function eventStartTime(value: string | null): number | null {
+  if (!value) return null;
+  const start = new Date(value).getTime();
+  return Number.isNaN(start) ? null : start;
+}
 
 function toDateTimeInput(value: string | null): string {
   return value ? value.slice(0, 16) : "";
@@ -201,8 +209,27 @@ export default function EventManagerPage({ embedded = false }: { embedded?: bool
   const registrationFormRef = useRef<HTMLFormElement>(null);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [hidePastEvents, setHidePastEvents] = useState(false);
   const events = eventsQuery.data?.events ?? [];
   const selectedEvent = events.find((event) => event.id === selectedEventId);
+  const visibleEvents = useMemo(() => {
+    const now = Date.now();
+    const filteredEvents = hidePastEvents
+      ? events.filter((event) => {
+          const start = eventStartTime(event.date);
+          return start === null || start + EVENT_GRACE_PERIOD_MS >= now;
+        })
+      : events;
+    return [...filteredEvents].sort((left, right) => {
+      const leftStart = eventStartTime(left.date);
+      const rightStart = eventStartTime(right.date);
+      if (leftStart === null && rightStart === null) return 0;
+      if (leftStart === null) return 1;
+      if (rightStart === null) return -1;
+      return sortDirection === "asc" ? leftStart - rightStart : rightStart - leftStart;
+    });
+  }, [events, hidePastEvents, sortDirection]);
 
   const actionMutation = useMutation<unknown, Error, ManagerAction>({
     mutationFn: ({ run }) => run(),
@@ -383,15 +410,32 @@ export default function EventManagerPage({ embedded = false }: { embedded?: bool
             )}
 
             <section aria-labelledby="managed-events-title" className="managed-events-section">
-              <div className="participation-section__heading">
-                <p className="eyebrow eyebrow--muted">ALLE VERANSTALTUNGEN</p>
-                <h2 id="managed-events-title">Events verwalten<span>.</span></h2>
+              <div className="participation-section__heading managed-events-heading">
+                <div>
+                  <p className="eyebrow eyebrow--muted">ALLE VERANSTALTUNGEN</p>
+                  <h2 id="managed-events-title">Events verwalten<span>.</span></h2>
+                </div>
+                <div className="managed-events-toolbar">
+                  <label className="profile-field">
+                    <span>Sortierung</span>
+                    <select onChange={(event) => setSortDirection(event.target.value === "asc" ? "asc" : "desc")} value={sortDirection}>
+                      <option value="desc">Neueste zuerst</option>
+                      <option value="asc">Älteste zuerst</option>
+                    </select>
+                  </label>
+                  <label className="manager-checkbox">
+                    <input checked={hidePastEvents} onChange={(event) => setHidePastEvents(event.target.checked)} type="checkbox" />
+                    <span>Vergangene ausblenden</span>
+                  </label>
+                </div>
               </div>
               {events.length === 0 ? (
                 <p className="participation-empty">Es gibt noch keine Events. Lege oben das erste an.</p>
+              ) : visibleEvents.length === 0 ? (
+                <p className="participation-empty">Keine Events für die aktuellen Filter. Passe die Filter an, um wieder Events zu sehen.</p>
               ) : (
                 <div className="managed-event-list">
-                  {events.map((event) => (
+                  {visibleEvents.map((event) => (
                     <article className={`managed-event-row${selectedEventId === event.id ? " managed-event-row--selected" : ""}`} key={event.id}>
                       <button className="managed-event-row__select" onClick={() => setSelectedEventId(event.id)} type="button">
                         <span className="managed-event-row__name">{event.name}</span>

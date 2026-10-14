@@ -36,9 +36,6 @@ export function SiteHeader() {
         <Link className="header-nav__link" onClick={() => setMenuOpen(false)} to="/location">Location</Link>
         <Link className="header-nav__link" onClick={() => setMenuOpen(false)} to="/getraenkekarte">Getränke</Link>
         <Link className="header-nav__link" onClick={() => setMenuOpen(false)} to="/contact">Kontakt</Link>
-        {sessionQuery.data?.authenticated && sessionQuery.data.can_manage_events && (
-          <Link className="header-nav__link header-nav__manager" onClick={() => setMenuOpen(false)} to="/manage/events">Eventmanager</Link>
-        )}
         {sessionQuery.data?.authenticated && sessionQuery.data.can_scan_tickets && (
           <Link className="header-nav__link" onClick={() => setMenuOpen(false)} to="/scanner">Scanner</Link>
         )}

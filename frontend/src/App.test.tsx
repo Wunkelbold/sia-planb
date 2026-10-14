@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router";
 
@@ -14,7 +14,14 @@ import type { MyCommitments } from "./api/commitments";
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
+  if (originalClipboardDescriptor) {
+    Object.defineProperty(navigator, "clipboard", originalClipboardDescriptor);
+  } else {
+    Reflect.deleteProperty(navigator, "clipboard");
+  }
 });
+
+const originalClipboardDescriptor = Object.getOwnPropertyDescriptor(navigator, "clipboard");
 
 function renderApp(initialEntry = "/") {
   const queryClient = new QueryClient({
@@ -31,7 +38,21 @@ function renderApp(initialEntry = "/") {
 }
 
 function mockEvents(events: UpcomingEvent[]) {
-  vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(jsonResponse({ events }))));
+  vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => {
+    if (String(input) === "/api/v1/session") {
+      return Promise.resolve(jsonResponse({ authenticated: false, csrf_token: "csrf-calendar" }));
+    }
+    return Promise.resolve(jsonResponse({ events }));
+  }));
+}
+
+function stubClipboard() {
+  const writeText = vi.fn(async (_text: string) => {});
+  Object.defineProperty(navigator, "clipboard", {
+    configurable: true,
+    value: { writeText },
+  });
+  return writeText;
 }
 
 function jsonResponse(value: unknown, status = 200) {
@@ -151,7 +172,8 @@ function demoTaskBoard(assigned = false): EventTaskBoard {
 }
 
 describe("events page", () => {
-  it("shows events, date, venue, and the public calendar link", async () => {
+  it("copies the public calendar URL from the header without navigating", async () => {
+    const writeText = stubClipboard();
     mockEvents([summerParty]);
 
     renderApp("/events");
@@ -159,10 +181,11 @@ describe("events page", () => {
     expect(await screen.findByRole("heading", { name: "SIA Sommerfest" })).toBeInTheDocument();
     expect(screen.getByText("Plan B, Albstadt")).toBeInTheDocument();
     expect(screen.getByText(/Samstag, 12\. Juni 2027/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Kalender abonnieren/ })).toHaveAttribute(
-      "href",
-      "/events.ics",
-    );
+    const calendarButton = await screen.findByRole("button", { name: /Kalender abonnieren/ });
+    await waitFor(() => expect(calendarButton).toBeEnabled());
+    fireEvent.click(calendarButton);
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith(new URL("/events.ics", window.location.origin).toString()));
+    expect(screen.queryByRole("link", { name: /Kalender abonnieren/ })).not.toBeInTheDocument();
     const detailsLink = screen.getByRole("link", { name: /Eventdetails/ });
     expect(detailsLink).toHaveAttribute(
       "href",
@@ -189,11 +212,55 @@ describe("events page", () => {
   });
 
   it("shows a helpful empty state when there are no upcoming events", async () => {
+    const writeText = stubClipboard();
     mockEvents([]);
 
     renderApp("/events");
 
-    expect(await screen.findByText("Gerade sind keine Events geplant.")).toBeInTheDocument();
+    const emptyStateHeading = await screen.findByText("Gerade sind keine Events geplant.");
+    const calendarButton = within(emptyStateHeading.parentElement as HTMLElement).getByRole("button", { name: /^Kalender abonnieren/ });
+    await waitFor(() => expect(calendarButton).toBeEnabled());
+    fireEvent.click(calendarButton);
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith(new URL("/events.ics", window.location.origin).toString()));
+  });
+
+  it("offers public and personal calendar URLs to signed-in users", async () => {
+    const writeText = stubClipboard();
+    vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === "/api/v1/session") {
+        return Promise.resolve(jsonResponse({ authenticated: true, username: "frontendtest", csrf_token: "csrf-calendar" }));
+      }
+      if (url === "/api/v1/events") return Promise.resolve(jsonResponse({ events: [summerParty] }));
+      if (url === "/api/v1/me/profile") return Promise.resolve(jsonResponse(demoProfile()));
+      return Promise.resolve(new Response("Not found", { status: 404 }));
+    }));
+
+    renderApp("/events");
+
+    const calendarButton = await screen.findByRole("button", { name: /Kalender abonnieren/ });
+    await waitFor(() => expect(calendarButton).toBeEnabled());
+    fireEvent.click(calendarButton);
+    const dialog = await screen.findByRole("dialog", { name: "Welchen Kalender möchtest du hinzufügen?" });
+    expect(within(dialog).getByText("Enthält die öffentlich sichtbaren Events.")).toBeInTheDocument();
+    expect(within(dialog).getByText(/nicht öffentliche Events sowie deine Schichten und Aufgaben/)).toBeInTheDocument();
+
+    fireEvent.click(within(dialog).getByRole("button", { name: /Öffentlicher Kalender/ }));
+    await waitFor(() => expect(writeText).toHaveBeenNthCalledWith(
+      1,
+      new URL("/events.ics", window.location.origin).toString(),
+    ));
+
+    fireEvent.click(calendarButton);
+    const personalDialog = await screen.findByRole("dialog", { name: "Welchen Kalender möchtest du hinzufügen?" });
+    const personalCalendarButton = within(personalDialog).getByRole("button", { name: /Persönlicher Kalender/ });
+    await waitFor(() => expect(personalCalendarButton).toBeEnabled());
+    fireEvent.click(personalCalendarButton);
+    await waitFor(() => expect(writeText).toHaveBeenNthCalledWith(
+      2,
+      new URL("/calendar/demo-calendar.ics", window.location.origin).toString(),
+    ));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   it("shows an error and retry action when the events API is unavailable", async () => {
@@ -476,7 +543,7 @@ describe("events page", () => {
     expect(screen.getByText(/Vereinsregister: 400419/)).toBeInTheDocument();
   });
 
-  it("loads account details and the personal calendar link", async () => {
+  it("loads account details and the calendar chooser", async () => {
     const fetchMock = vi.fn((input: RequestInfo | URL) => {
       const url = String(input);
       if (url === "/api/v1/session") {
@@ -492,9 +559,8 @@ describe("events page", () => {
 
     expect(await screen.findByDisplayValue("frontendtest")).toBeInTheDocument();
     expect(screen.getByLabelText("Vorname")).toHaveValue("Demo");
-    expect(
-      screen.getAllByRole("link", { name: /Kalender abonnieren/ }).map((link) => link.getAttribute("href")),
-    ).toContain("/calendar/demo-calendar.ics");
+    expect(screen.getByRole("heading", { name: "Dein persönlicher Kalender" })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /Kalender abonnieren/ })).toHaveLength(2);
     expect(screen.getByRole("link", { name: "Profil" })).toHaveAttribute("href", "/me/profile");
   });
 

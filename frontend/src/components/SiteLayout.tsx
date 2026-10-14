@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 
 import { getCurrentSession } from "../api/events";
+import { CalendarSubscribeButton } from "./CalendarSubscribeButton";
 
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -63,13 +64,13 @@ export function SiteHeader() {
             ) : <span className="account-dropdown__loading">Konto wird geladen …</span>}
           </div>
         </details>
-        <a className="calendar-link" href="/events.ics">
+        <CalendarSubscribeButton className="calendar-link">
           <svg aria-hidden="true" viewBox="0 0 24 24">
             <rect height="17" rx="2" width="18" x="3" y="5" />
             <path d="M16 3v4M8 3v4M3 10h18" />
           </svg>
           <span>Kalender abonnieren</span>
-        </a>
+        </CalendarSubscribeButton>
       </nav>
     </header>
   );

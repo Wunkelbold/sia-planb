@@ -29,6 +29,7 @@ import {
   type ProfileInfo,
 } from "./api/profile";
 import { joinEventTask, leaveEventTask } from "./api/tasks";
+import { CalendarSubscribeButton } from "./components/CalendarSubscribeButton";
 import { SiteFooter, SiteHeader } from "./components/SiteLayout";
 import { ParticipationIndicators } from "./components/ParticipationIndicators";
 import EventManagerPage from "./pages/EventManagerPage";
@@ -265,7 +266,7 @@ function EventsPage() {
               <p className="eyebrow eyebrow--muted">KALENDER-CHECK</p>
               <h3>Gerade sind keine Events geplant.</h3>
               <p>Schau bald wieder vorbei – das nächste gemeinsame Erlebnis kommt bestimmt.</p>
-              <a href="/events.ics">Öffentlichen Kalender abonnieren <span aria-hidden="true">↗</span></a>
+              <CalendarSubscribeButton className="calendar-subscribe-inline">Kalender abonnieren</CalendarSubscribeButton>
             </div>
           )}
 
@@ -667,7 +668,6 @@ function MyProfilePage() {
   });
   const [feedback, setFeedback] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [calendarCopied, setCalendarCopied] = useState(false);
   const [roleRequestTarget, setRoleRequestTarget] = useState("");
   const [roleRequestNote, setRoleRequestNote] = useState("");
   const verificationMutation = useMutation({
@@ -718,19 +718,6 @@ function MyProfilePage() {
 
   function updateField(field: keyof ProfileFormValues, value: string) {
     setValues((current) => ({ ...current, [field]: value }));
-  }
-
-  async function copyCalendarUrl() {
-    const calendarUrl = profileQuery.data?.personal_calendar_url;
-    if (!calendarUrl) return;
-
-    try {
-      await navigator.clipboard.writeText(new URL(calendarUrl, window.location.origin).toString());
-      setCalendarCopied(true);
-      window.setTimeout(() => setCalendarCopied(false), 1800);
-    } catch {
-      setErrorMessage("Der Kalenderlink konnte nicht kopiert werden. Du kannst ihn markieren und kopieren.");
-    }
   }
 
   const session = sessionQuery.data;
@@ -972,15 +959,10 @@ function MyProfilePage() {
               <div>
                 <p className="eyebrow eyebrow--muted">IMMER AKTUELL</p>
                 <h2 id="personal-calendar-title">Dein persönlicher Kalender</h2>
-                <p>Dieser Kalender enthält die Events, die du mit deiner Rolle sehen kannst.</p>
+                <p>Dieser Kalender enthält auch für deine Rolle sichtbare, nicht öffentliche Events sowie deine persönlichen Schichten und Aufgaben.</p>
               </div>
               <div className="personal-calendar-card__actions">
-                <a className="participation-button" href={profile.personal_calendar_url}>
-                  Kalender abonnieren <span aria-hidden="true">↗</span>
-                </a>
-                <button className="participation-button participation-button--quiet" onClick={() => void copyCalendarUrl()} type="button">
-                  {calendarCopied ? "Link kopiert" : "Link kopieren"}
-                </button>
+                <CalendarSubscribeButton className="participation-button">Kalender abonnieren</CalendarSubscribeButton>
               </div>
             </section>
           </>

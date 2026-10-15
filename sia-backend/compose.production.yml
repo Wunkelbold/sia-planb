@@ -80,6 +80,13 @@ services:
     container_name: mailserver
     hostname: ${hostname:?hostname is required}
     env_file: ${MAILSERVER_ENV_FILE:?MAILSERVER_ENV_FILE is required}
+    depends_on:
+      - dns-recursor
+    dns:
+      - 172.31.53.53
+    networks:
+      - default
+      - dns
     ports:
       - "25:25"
       - "143:143"
@@ -106,7 +113,21 @@ services:
       interval: 10s
       retries: 1
 
+  dns-recursor:
+    image: powerdns/pdns-recursor-53:5.3.11
+    container_name: dns-recursor
+    restart: always
+    networks:
+      dns:
+        ipv4_address: 172.31.53.53
+
 volumes:
   pgdata18:
   eventposter:
   drinkimages:
+
+networks:
+  dns:
+    ipam:
+      config:
+        - subnet: 172.31.53.0/24

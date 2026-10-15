@@ -17,6 +17,7 @@ Repository
 │   ├── compose.yml                      Local development and CI
 │   ├── compose.production.yml            Source-free production Compose
 │   └── .env.example                     Local environment template
+├── deployment/backup/                     Offsite backup script and systemd units
 ├── deployment/nginx/sia-planb.conf       Production nginx site config
 └── .github/workflows/build-images.yml    Checks and GHCR image publishing
 
@@ -138,3 +139,53 @@ nginx -t && systemctl reload nginx
 ```
 
 Verify Flask health, the Alembic head, the public site, and `/getraenkekarte`. Retain rollback copies under `/var/lib/sia-planb/rollback/` for the agreed retention period. PostgreSQL major-version and Docker Mailserver upgrades require separate plans and tested backups.
+
+## Mail anti-spam
+
+The mailserver runs Rspamd (the legacy OpenDKIM/OpenDMARC/policyd-spf stack is disabled) with an internal Redis instance for greylisting and statistics. Outbound DKIM keeps the existing selector `mail`; the key and Rspamd overrides live in the mail config volume (`/var/lib/sia-planb/mail/config/rspamd/`) and are required for signing. Do not delete them.
+
+A small recursive DNS resolver (`dns-recursor`, PowerDNS Recursor, pinned in `compose.production.yml`) runs alongside the mailserver on a dedicated Docker network and is used only by it. Blocklist providers refuse queries from public/shared resolvers, so RBL/DNSBL checks only work through a local recursor. The service is never published outside the Compose network and is reached by the mailserver at a fixed address.
+
+Live behavior: `docker exec mailserver tail -f /var/log/mail/rspamd.log`; manual scans with `docker exec mailserver rspamc < message.eml`. The Rspamd web controller (port 11334) is not published; use an SSH/Docker tunnel if needed. Bayes learning and MTA-STS are deliberately not enabled yet.
+
+## Backups
+
+Production state is backed up once a day by a host-side script plus systemd timer, stored encrypted and deduplicated offsite with [restic](https://restic.net/), and monitored with an Uptime Kuma push monitor. The files live in `deployment/backup/`; no backup data is ever committed to this repository, including database dumps.
+
+Each run backs up:
+
+- `pg_dump --format=custom` of the application database plus `pg_dumpall --globals-only` for roles
+- Mail data, mail config, and Rspamd/Redis state (`MAIL_DATA_PATH`, `MAIL_CONFIG_PATH`, `MAIL_STATE_PATH/lib-redis`)
+- Uploaded images (Docker volumes `eventposter`, `drinkimages`)
+- `/etc/sia-planb` (compose file and env files; `backup.env` and the restic password are excluded)
+
+Retention is 7 daily, 5 weekly, and 12 monthly snapshots. Recommended offsite target: a Backblaze B2 bucket (10 GB free, then $6/TB/month, no minimum) or a second server over SFTP. Restic only stores unique data, so the repository stays roughly the size of the mail store plus uploads.
+
+One-time setup on the production host:
+
+```sh
+apt-get install -y restic
+install -m 0600 deployment/backup/backup.env.example /etc/sia-planb/backup.env   # edit repository/credentials
+install -m 0600 /dev/null /etc/sia-planb/restic-password                        # put a strong password inside
+install -m 0755 deployment/backup/backup.sh /usr/local/bin/sia-planb-backup.sh
+install -m 0644 deployment/backup/sia-planb-backup.service deployment/backup/sia-planb-backup.timer /etc/systemd/system/
+set -a; . /etc/sia-planb/backup.env; set +a; restic init
+systemctl daemon-reload && systemctl enable --now sia-planb-backup.timer
+```
+
+Then create an Uptime Kuma push monitor (heartbeat slightly above 24h) and paste its URL into `KUMA_PUSH_URL`. The script reports success, failure, and run duration, so a missing or failing backup alerts without extra supervision. Keep a copy of `/etc/sia-planb/backup.env` and the restic password in the club password manager - without the password, no backup can be restored. Run a first backup manually with `systemctl start sia-planb-backup.service` and watch it with `journalctl -u sia-planb-backup.service -f`.
+
+Restore (verify first, then replace live data while Flask is stopped):
+
+```sh
+restic snapshots
+restic restore latest --target /tmp/sia-planb-restore
+# Verify the database dump against a scratch database before touching live data:
+docker compose --project-name sia-backend --file /etc/sia-planb/compose.yml --env-file /etc/sia-planb/production.env exec -T database createdb -U postgres restorecheck
+docker compose --project-name sia-backend --file /etc/sia-planb/compose.yml --env-file /etc/sia-planb/production.env exec -T database pg_restore -U postgres -d restorecheck < /tmp/sia-planb-restore/var/lib/sia-planb/backups/staging/database.dump
+docker compose --project-name sia-backend --file /etc/sia-planb/compose.yml --env-file /etc/sia-planb/production.env exec -T database dropdb -U postgres restorecheck
+# Mail: stop the mailserver, copy the restored files into MAIL_DATA_PATH and
+# MAIL_CONFIG_PATH, then start it again.
+```
+
+A backup that has never been restored is not a verified recovery path; run a restore drill at least once per release cycle.

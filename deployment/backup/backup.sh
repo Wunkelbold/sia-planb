@@ -23,12 +23,26 @@ fail() { log "ERROR: $*"; exit 1; }
 [[ -f "$COMPOSE_FILE" ]] || fail "missing compose file: $COMPOSE_FILE"
 [[ -f "$COMPOSE_ENV_FILE" ]] || fail "missing compose env file: $COMPOSE_ENV_FILE"
 
-set -a
-# shellcheck disable=SC1090
-source "$CONFIG_FILE"
-# shellcheck disable=SC1090
-source "$COMPOSE_ENV_FILE"
-set +a
+# Parse KEY=VALUE env files without shell evaluation. Values may contain
+# characters like `&`, `$` or spaces which must not be interpreted by bash.
+load_env_file() {
+  local file="$1" line key value
+  [[ -f "$file" ]] || fail "missing env file: $file"
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    line="${line%$'\r'}"
+    [[ "$line" =~ ^[[:space:]]*(#|$) ]] && continue
+    [[ "$line" == *=* ]] || continue
+    key="${line%%=*}"
+    value="${line#*=}"
+    if [[ "$value" =~ ^\".*\"$ ]] || [[ "$value" =~ ^\'.*\'$ ]]; then
+      value="${value:1:${#value}-2}"
+    fi
+    export "$key=$value"
+  done < "$file"
+}
+
+load_env_file "$CONFIG_FILE"
+load_env_file "$COMPOSE_ENV_FILE"
 
 BACKUP_ROOT="${BACKUP_ROOT:-/var/lib/sia-planb/backups}"
 staging=""
@@ -44,7 +58,7 @@ start=$SECONDS
 send_kuma() {
   local status="$1" message="$2" ping="${3:-}"
   [[ -n "${KUMA_PUSH_URL:-}" ]] || return 0
-  local args=(-fsS -m 15 -G "$KUMA_PUSH_URL" --data-urlencode "status=$status" --data-urlencode "msg=$message")
+  local args=(-g -fsS -m 15 -G "$KUMA_PUSH_URL" --data-urlencode "status=$status" --data-urlencode "msg=$message")
   if [[ -n "$ping" ]]; then
     args+=(--data-urlencode "ping=$ping")
   fi

@@ -164,7 +164,11 @@ Retention is 7 daily, 5 weekly, and 12 monthly snapshots. Recommended offsite ta
 One-time setup on the production host:
 
 ```sh
-apt-get install -y restic
+# restic: install the official static binary (the production host runs an EOL
+# Debian release where apt no longer provides packages)
+ver=0.19.1
+curl -fsSL -o /tmp/restic.bz2 "https://github.com/restic/restic/releases/download/v${ver}/restic_${ver}_linux_amd64.bz2"
+bzip2 -dc /tmp/restic.bz2 > /usr/local/bin/restic && chmod 0755 /usr/local/bin/restic && rm /tmp/restic.bz2
 install -m 0600 deployment/backup/backup.env.example /etc/sia-planb/backup.env   # edit repository/credentials
 install -m 0600 /dev/null /etc/sia-planb/restic-password                        # put a strong password inside
 install -m 0755 deployment/backup/backup.sh /usr/local/bin/sia-planb-backup.sh

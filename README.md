@@ -161,6 +161,8 @@ Each run backs up:
 
 Retention is 7 daily, 5 weekly, and 12 monthly snapshots. Recommended offsite target: a Backblaze B2 bucket (10 GB free, then $6/TB/month, no minimum) or a second server over SFTP. Restic only stores unique data, so the repository stays roughly the size of the mail store plus uploads.
 
+Separately, the Yourical application on the same host keeps its own daily encrypted git backup (`/root/backup`, root cron at 23:59; its SQLite dump is GPG-encrypted and pushed to a private GitHub repository). Keep that repository's GPG secret key escrowed in the club password manager - without it the GitHub dumps cannot be decrypted. The SIA database is not part of the git backup anymore; restic covers it.
+
 One-time setup on the production host:
 
 ```sh

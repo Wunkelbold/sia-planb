@@ -146,7 +146,7 @@ The mailserver runs Rspamd (the legacy OpenDKIM/OpenDMARC/policyd-spf stack is d
 
 A small recursive DNS resolver (`dns-recursor`, PowerDNS Recursor, pinned in `compose.production.yml`) runs alongside the mailserver on a dedicated Docker network and is used only by it. Blocklist providers refuse queries from public/shared resolvers, so RBL/DNSBL checks only work through a local recursor. The service is never published outside the Compose network and is reached by the mailserver at a fixed address.
 
-Live behavior: `docker exec mailserver tail -f /var/log/mail/rspamd.log`; manual scans with `docker exec mailserver rspamc < message.eml`. The Rspamd web controller (port 11334) is not published; use an SSH/Docker tunnel if needed. Bayes learning and MTA-STS are deliberately not enabled yet.
+Live behavior: `docker exec mailserver tail -f /var/log/mail/rspamd.log`; manual scans with `docker exec mailserver rspamc < message.eml`. The Rspamd web controller is published on the host loopback only (`127.0.0.1:11334`) and asks for the password stored in `/etc/sia-planb/rspamd-controller-password`; reach it through an SSH tunnel (`ssh -L 11334:127.0.0.1:11334 ...`). Keep that password in the club password manager. Bayes learning and MTA-STS are deliberately not enabled yet.
 
 ## Backups
 

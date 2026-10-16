@@ -93,6 +93,7 @@ services:
       - "465:465"
       - "587:587"
       - "993:993"
+      - "127.0.0.1:11334:11334" # Rspamd web controller, host loopback only
     volumes:
       - ${MAIL_DATA_PATH:?MAIL_DATA_PATH is required}:/var/mail/
       - ${MAIL_STATE_PATH:?MAIL_STATE_PATH is required}:/var/mail-state/

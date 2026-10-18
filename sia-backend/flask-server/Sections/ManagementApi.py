@@ -142,8 +142,8 @@ def event_fields(payload):
         errors["visibility"] = "Bitte wähle eine gültige Sichtbarkeit."
     if len(place) > 50:
         errors["place"] = "Der Ort darf höchstens 50 Zeichen lang sein."
-    if len(description) > 300:
-        errors["description"] = "Die Beschreibung darf höchstens 300 Zeichen lang sein."
+    if len(description) > 2000:
+        errors["description"] = "Die Beschreibung darf höchstens 2000 Zeichen lang sein."
     if date and end and end <= date:
         errors["end"] = "Das Eventende muss nach dem Start liegen."
 

@@ -71,7 +71,7 @@ class Tables:
         created = db.Column(db.DateTime)
         date = db.Column(db.DateTime)
         end = db.Column(db.DateTime)
-        description = db.Column(db.String(300))
+        description = db.Column(db.String(2000))
         postername = db.Column(db.String(50))
         shift_rel = db.relationship("Shift", cascade="all,delete", backref="Event", lazy="joined")
         task_rel = db.relationship("Task", cascade="all,delete", backref="Event", lazy="joined")

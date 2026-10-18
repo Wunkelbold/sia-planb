@@ -480,8 +480,8 @@ class Forms:
             validators=[
                 Length(
                     min=0, 
-                    max=300,
-                    message="Beschreibung darf maximal 200 Zeichen lang sein.")])
+                    max=2000,
+                    message="Beschreibung darf maximal 2000 Zeichen lang sein.")])
         file = FileField(
             render_kw={"placeholder": "Datei"}, 
             validators=[
@@ -528,8 +528,8 @@ class Forms:
             validators=[
                 Length(
                     min=0, 
-                    max=300,
-                    message="Beschreibung darf maximal 200 Zeichen lang sein.")])
+                    max=2000,
+                    message="Beschreibung darf maximal 2000 Zeichen lang sein.")])
         file = FileField(
             render_kw={"placeholder": "Datei"}, 
             validators = [

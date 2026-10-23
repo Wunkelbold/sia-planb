@@ -74,17 +74,7 @@ export interface ManagedEventsResponse {
   events: ManagedEvent[];
 }
 
-async function sendJson<T>(path: string, method: string, csrfToken?: string, body?: unknown): Promise<T> {
-  const headers: Record<string, string> = { Accept: "application/json" };
-  if (body !== undefined) headers["Content-Type"] = "application/json";
-  if (csrfToken) headers["X-CSRFToken"] = csrfToken;
-
-  const response = await fetch(path, {
-    method,
-    credentials: "same-origin",
-    headers,
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
+async function readPayload<T>(response: Response): Promise<T> {
   const payload = (await response.json()) as T & {
     error?: string;
     errors?: Record<string, string>;
@@ -96,6 +86,33 @@ async function sendJson<T>(path: string, method: string, csrfToken?: string, bod
     throw new Error(message || `Eventmanager-Anfrage fehlgeschlagen (HTTP ${response.status}).`);
   }
   return payload;
+}
+
+async function sendJson<T>(path: string, method: string, csrfToken?: string, body?: unknown): Promise<T> {
+  const headers: Record<string, string> = { Accept: "application/json" };
+  if (body !== undefined) headers["Content-Type"] = "application/json";
+  if (csrfToken) headers["X-CSRFToken"] = csrfToken;
+
+  const response = await fetch(path, {
+    method,
+    credentials: "same-origin",
+    headers,
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  return readPayload<T>(response);
+}
+
+async function sendFormData<T>(path: string, csrfToken: string, body: FormData): Promise<T> {
+  const response = await fetch(path, {
+    method: "POST",
+    credentials: "same-origin",
+    headers: {
+      Accept: "application/json",
+      "X-CSRFToken": csrfToken,
+    },
+    body,
+  });
+  return readPayload<T>(response);
 }
 
 export function getManagedEvents(): Promise<ManagedEventsResponse> {
@@ -113,6 +130,21 @@ export async function updateManagedEvent(
   csrfToken: string,
 ): Promise<ManagedEvent> {
   const response = await sendJson<{ event: ManagedEvent }>(`/api/v1/manage/events/${eventId}`, "PUT", csrfToken, fields);
+  return response.event;
+}
+
+export async function uploadManagedEventPoster(
+  eventId: number,
+  file: File,
+  csrfToken: string,
+): Promise<ManagedEvent> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await sendFormData<{ event: ManagedEvent }>(
+    `/api/v1/manage/events/${eventId}/poster`,
+    csrfToken,
+    formData,
+  );
   return response.event;
 }
 

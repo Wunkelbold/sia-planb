@@ -12,6 +12,7 @@ from globals import *
 from flask import flash, url_for, redirect, jsonify
 from icalendar import Calendar, Event
 from Sections.EventScheduleRules import shift_event_schedule
+from Sections.EventPoster import event_poster_url
 import secrets
 import base64
 
@@ -478,7 +479,7 @@ def api_list_events():
                 "date": event["date_iso"],
                 "end": event["end_iso"],
                 "description": event["description"],
-                "poster_url": url_for("get_image", filename=str(event["uid"])),
+                "poster_url": event_poster_url(event["uid"]),
                 "has_registration": bool(event["personal_registration"]),
                 "personal_shift_count": event["personal_count"],
                 "personal_task_count": event["personal_task_count"],
@@ -606,7 +607,7 @@ def api_event_details(event_id: int):
             "date": event["date_iso"],
             "end": event["end_iso"],
             "description": event["description"],
-            "poster_url": url_for("get_image", filename=str(event["uid"])),
+            "poster_url": event_poster_url(event["uid"]),
         },
         "registrations": registrations,
         "shifts": shifts,

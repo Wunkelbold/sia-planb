@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 from uuid import UUID
 
-from flask import jsonify, request, url_for
+from flask import jsonify, request
 from flask_login import current_user
 from sqlalchemy import or_
 
@@ -15,6 +15,12 @@ from permissions import hasPermissions
 from Sections.RegistrationService import cancel_registration, create_event_ticket_charge
 from Sections.AssignmentPermissions import can_assign_to, can_view_event
 from Sections.EventScheduleRules import shift_event_schedule
+from Sections.EventPoster import (
+    MAX_EVENT_POSTER_BYTES,
+    event_poster_url,
+    remove_event_poster,
+    store_event_poster,
+)
 
 
 def json_response(payload, status=200):
@@ -87,7 +93,7 @@ def serialize_event(event):
         "date": local_datetime(event.date),
         "end": local_datetime(event.end),
         "description": event.description or "",
-        "poster_url": url_for("get_image", filename=str(event.uid)),
+        "poster_url": event_poster_url(event.uid),
         "task_count": Tables.Task.query.filter_by(eventFK=event.id).count(),
         "shifts": [
             {
@@ -806,8 +812,10 @@ def api_manage_event(event_id: int):
             return json_response({"error": "Events mit Ticketregistrierungen können nicht gelöscht werden. Schließe das Event stattdessen."}, 409)
         task_ids = db.session.query(Tables.Task.id).filter_by(eventFK=event.id)
         Tables.Assistant.query.filter(Tables.Assistant.taskFK.in_(task_ids)).delete(synchronize_session=False)
+        event_uid = event.uid
         db.session.delete(event)
         db.session.commit()
+        remove_event_poster(event_uid)
         return json_response({"success": True})
 
     payload = request.get_json(silent=True) or {}
@@ -828,6 +836,29 @@ def api_manage_event(event_id: int):
     for field, value in fields.items():
         setattr(event, field, value)
     db.session.commit()
+    return json_response({"success": True, "event": serialize_event(event)})
+
+
+@app.route("/api/v1/manage/events/<int:event_id>/poster", methods=["POST"])
+def api_manage_event_poster(event_id: int):
+    denied = access_denied(f"/api/events/event/update/{event_id}")
+    if denied:
+        return denied
+
+    event = Tables.Event.query.filter_by(id=event_id).first()
+    if not event:
+        return json_response({"error": "Event not found"}, 404)
+
+    upload = request.files.get("file")
+    if not upload:
+        return json_response(
+            {"success": False, "errors": {"file": "Bitte wähle eine Bilddatei aus."}},
+            400,
+        )
+    try:
+        store_event_poster(event.uid, upload.read(MAX_EVENT_POSTER_BYTES + 1))
+    except ValueError as error:
+        return json_response({"success": False, "errors": {"file": str(error)}}, 400)
     return json_response({"success": True, "event": serialize_event(event)})
 
 

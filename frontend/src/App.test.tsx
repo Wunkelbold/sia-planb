@@ -1025,6 +1025,125 @@ describe("events page", () => {
     }));
   });
 
+  it("uploads a poster image after creating an event", async () => {
+    let events: ManagedEvent[] = [];
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url === "/api/v1/session") {
+        return Promise.resolve(jsonResponse({
+          authenticated: true,
+          username: "organizer",
+          can_manage_events: true,
+          can_create_events: true,
+          can_edit_events: true,
+          csrf_token: "csrf-poster",
+        }));
+      }
+      if (url === "/api/v1/manage/events" && init?.method === "POST") {
+        const values = JSON.parse(String(init.body)) as Partial<ManagedEvent>;
+        const event: ManagedEvent = {
+          ...values,
+          id: 91,
+          uid: "new-event",
+          poster_url: "/static/images/eventposter/new-event",
+          task_count: 0,
+          shifts: [],
+          registration_options: [],
+        } as ManagedEvent;
+        events = [event];
+        return Promise.resolve(jsonResponse({ success: true, event }, 201));
+      }
+      if (url === "/api/v1/manage/events/91/poster" && init?.method === "POST") {
+        const upload = init.body as FormData;
+        expect(upload.get("file")).toBeInstanceOf(File);
+        events = [{
+          ...events[0],
+          poster_url: "/static/images/eventposter/new-event?v=123",
+        }];
+        return Promise.resolve(jsonResponse({ success: true, event: events[0] }));
+      }
+      if (url === "/api/v1/manage/events") return Promise.resolve(jsonResponse({ events }));
+      return Promise.resolve(new Response("Not found", { status: 404 }));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    renderApp("/manage/events");
+
+    fireEvent.click(await screen.findByText("Neues Event erstellen"));
+    fireEvent.change(await screen.findByLabelText("Eventname"), { target: { value: "Poster-Event" } });
+    fireEvent.change(screen.getByLabelText("Beginn"), { target: { value: "2027-08-01T18:00" } });
+    fireEvent.change(screen.getByLabelText(/Eventbild/), {
+      target: { files: [new File(["image"], "poster.png", { type: "image/png" })] },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Event erstellen" }));
+
+    expect(await screen.findByText("Event wurde erstellt.")).toBeInTheDocument();
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(
+      "/api/v1/manage/events/91/poster",
+      expect.objectContaining({ method: "POST" }),
+    ));
+  });
+
+  it("replaces an existing event poster when editing", async () => {
+    let event: ManagedEvent = {
+      id: 91,
+      uid: "edit-event",
+      name: "Poster bearbeiten",
+      visibility: "public",
+      place: "Plan B",
+      date: "2027-08-01T18:00",
+      end: null,
+      description: "",
+      poster_url: "/static/images/eventposter/edit-event?v=111",
+      task_count: 0,
+      shifts: [],
+      registration_options: [],
+    };
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url === "/api/v1/session") {
+        return Promise.resolve(jsonResponse({
+          authenticated: true,
+          username: "organizer",
+          can_manage_events: true,
+          can_edit_events: true,
+          csrf_token: "csrf-edit-poster",
+        }));
+      }
+      if (url === "/api/v1/manage/events/91" && init?.method === "PUT") {
+        event = { ...event, ...(JSON.parse(String(init.body)) as Partial<ManagedEvent>) };
+        return Promise.resolve(jsonResponse({ success: true, event }));
+      }
+      if (url === "/api/v1/manage/events/91/poster" && init?.method === "POST") {
+        const upload = init.body as FormData;
+        expect(upload.get("file")).toBeInstanceOf(File);
+        event = { ...event, poster_url: "/static/images/eventposter/edit-event?v=222" };
+        return Promise.resolve(jsonResponse({ success: true, event }));
+      }
+      if (url === "/api/v1/manage/events") return Promise.resolve(jsonResponse({ events: [event] }));
+      return Promise.resolve(new Response("Not found", { status: 404 }));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    renderApp("/manage/events");
+
+    fireEvent.click(await screen.findByRole("button", { name: /Poster bearbeiten/ }));
+    expect(screen.getByAltText("Vorschau des Eventbilds")).toHaveAttribute(
+      "src",
+      "/static/images/eventposter/edit-event?v=111",
+    );
+    fireEvent.change(screen.getByLabelText(/Eventbild/), {
+      target: { files: [new File(["image"], "new-poster.jpg", { type: "image/jpeg" })] },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Event speichern" }));
+
+    expect(await screen.findByText("Eventänderungen wurden gespeichert.")).toBeInTheDocument();
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(
+      "/api/v1/manage/events/91/poster",
+      expect.objectContaining({ method: "POST" }),
+    ));
+  });
+
   it("sorts managed events by start date and can hide past events after the grace period", async () => {
     const now = Date.now();
     const dateAt = (offsetMs: number) => new Date(now + offsetMs).toISOString();
@@ -1070,6 +1189,8 @@ describe("events page", () => {
     renderApp("/manage/events");
 
     await screen.findByText("Zukünftiges Event");
+    expect(screen.getByRole("option", { name: "Späteste zuerst" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Früheste zuerst" })).toBeInTheDocument();
     expect(managedRowNames()).toEqual(["Zukünftiges Event", "Event in der Gnadenfrist", "Vergangenes Event"]);
 
     fireEvent.click(screen.getByLabelText("Vergangene ausblenden"));
@@ -1210,6 +1331,9 @@ describe("events page", () => {
     renderApp("/manage/events");
     fireEvent.click(await screen.findByRole("button", { name: /Move workflow event/ }));
 
+    expect(document.querySelector(".managed-event-list")).toContainElement(
+      screen.getByRole("button", { name: "Event speichern" }),
+    );
     fireEvent.change(screen.getByLabelText("Beginn"), { target: { value: "2027-06-14T18:00" } });
     expect(screen.getByLabelText("Ende")).toHaveValue("2027-06-14T23:00");
     fireEvent.click(screen.getByRole("button", { name: "Event speichern" }));

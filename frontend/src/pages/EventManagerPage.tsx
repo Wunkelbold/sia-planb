@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router";
 
 import {
@@ -13,6 +13,7 @@ import {
   updateManagedEvent,
   updateManagedRegistration,
   updateManagedShift,
+  uploadManagedEventPoster,
   type ManagedEvent,
   type ManagedEventFields,
   type ManagedRegistrationFields,
@@ -22,6 +23,20 @@ import { getCurrentSession } from "../api/events";
 import AdminAssignmentManager from "../components/AdminAssignmentManager";
 import { SiteFooter, SiteHeader } from "../components/SiteLayout";
 import OrganizerTaskManagerPage from "./OrganizerTaskManagerPage";
+
+const DEFAULT_EVENT_POSTER_URL = "/static/images/eventposter/default.jpg";
+const MAX_EVENT_POSTER_BYTES = 5 * 1024 * 1024;
+
+function posterValidationError(file: File | null): string | null {
+  if (!file) return null;
+  if (file.type && !["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
+    return "Bitte wähle eine PNG- oder JPG-Datei als Eventbild.";
+  }
+  if (file.size > MAX_EVENT_POSTER_BYTES) {
+    return "Das Eventbild darf höchstens 5 MB groß sein.";
+  }
+  return null;
+}
 
 const emptyEvent: ManagedEventFields = {
   name: "",
@@ -134,14 +149,78 @@ function VisibilitySelect({
   );
 }
 
+function EventPosterField({
+  currentUrl,
+  file,
+  onChange,
+}: {
+  currentUrl: string;
+  file: File | null;
+  onChange: (file: File | null) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!file) {
+      setPreviewUrl(null);
+      if (inputRef.current) inputRef.current.value = "";
+      return;
+    }
+    const objectUrl = URL.createObjectURL?.(file) ?? null;
+    setPreviewUrl(objectUrl);
+    return () => {
+      if (objectUrl) URL.revokeObjectURL?.(objectUrl);
+    };
+  }, [file]);
+
+  return (
+    <div className="event-poster-field manager-form-grid__wide">
+      <div className="event-poster-field__preview">
+        <img alt="Vorschau des Eventbilds" src={previewUrl ?? currentUrl} />
+      </div>
+      <div className="event-poster-field__controls">
+        <label className="profile-field">
+          <span>Eventbild</span>
+          <input
+            accept="image/png,image/jpeg"
+            onChange={(event) => onChange(event.target.files?.[0] ?? null)}
+            ref={inputRef}
+            type="file"
+          />
+          <small>PNG oder JPG, maximal 5 MB. Ohne eigenes Bild wird das SIA-Standardbild verwendet.</small>
+        </label>
+        {file && (
+          <button
+            className="text-button"
+            onClick={() => {
+              onChange(null);
+              if (inputRef.current) inputRef.current.value = "";
+            }}
+            type="button"
+          >
+            Auswahl entfernen
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function EventFields({
   values,
   onChange,
   editing = false,
+  posterFile,
+  posterUrl,
+  onPosterChange,
 }: {
   values: ManagedEventFields;
   onChange: (field: keyof ManagedEventFields, value: string | boolean) => void;
   editing?: boolean;
+  posterFile: File | null;
+  posterUrl: string;
+  onPosterChange: (file: File | null) => void;
 }) {
   return (
     <div className="manager-form-grid">
@@ -149,6 +228,7 @@ function EventFields({
         <span>Eventname</span>
         <input maxLength={50} onChange={(e) => onChange("name", e.target.value)} required value={values.name} />
       </label>
+      <EventPosterField currentUrl={posterUrl} file={posterFile} onChange={onPosterChange} />
       <label className="profile-field">
         <span>Sichtbarkeit</span>
         <VisibilitySelect onChange={(value) => onChange("visibility", value)} value={values.visibility} />
@@ -202,7 +282,9 @@ export default function EventManagerPage({ embedded = false }: { embedded?: bool
   });
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
   const [newEvent, setNewEvent] = useState<ManagedEventFields>(emptyEvent);
+  const [newPoster, setNewPoster] = useState<File | null>(null);
   const [editEvent, setEditEvent] = useState<ManagedEventFields>(emptyEvent);
+  const [editPoster, setEditPoster] = useState<File | null>(null);
   const [shiftForm, setShiftForm] = useState<ManagedShiftFields>(emptyShift);
   const [registrationForm, setRegistrationForm] = useState<ManagedRegistrationFields>(emptyRegistration);
   const [editingShiftId, setEditingShiftId] = useState<number | null>(null);
@@ -257,6 +339,7 @@ export default function EventManagerPage({ embedded = false }: { embedded?: bool
   useEffect(() => {
     if (!selectedEvent) {
       setEditEvent(emptyEvent);
+      setEditPoster(null);
       setShiftForm(emptyShift);
       setRegistrationForm(emptyRegistration);
       setEditingShiftId(null);
@@ -265,6 +348,7 @@ export default function EventManagerPage({ embedded = false }: { embedded?: bool
       return;
     }
     setEditEvent(eventToForm(selectedEvent));
+    setEditPoster(null);
     setShiftForm(emptyShift);
     setRegistrationForm(emptyRegistration);
     setEditingShiftId(null);
@@ -392,20 +476,39 @@ export default function EventManagerPage({ embedded = false }: { embedded?: bool
                   <form
                     onSubmit={(event) => {
                       event.preventDefault();
+                      const posterError = posterValidationError(newPoster);
+                      if (posterError) {
+                        setError(posterError);
+                        return;
+                      }
                       const token = csrfToken();
                       if (!token) return;
                       runAction(
-                        () => createManagedEvent(newEvent, token),
-                        "Event wurde erstellt.",
-                        (result) => {
-                          const created = result as ManagedEvent;
+                        async () => {
+                          const created = await createManagedEvent(newEvent, token);
                           setNewEvent(emptyEvent);
-                          setSelectedEventId(created.id);
+                          setNewPoster(null);
+                          if (!newPoster) return created;
+                          try {
+                            return await uploadManagedEventPoster(created.id, newPoster, token);
+                          } catch (uploadError) {
+                            const detail = uploadError instanceof Error ? uploadError.message : "Unbekannter Fehler.";
+                            setError(`Das Event wurde erstellt, aber das Bild konnte nicht hochgeladen werden: ${detail}`);
+                            return created;
+                          }
                         },
+                        "Event wurde erstellt.",
+                        (result) => setSelectedEventId((result as ManagedEvent).id),
                       );
                     }}
                   >
-                    <EventFields onChange={(field, value) => setNewEvent((current) => ({ ...current, [field]: value }))} values={newEvent} />
+                    <EventFields
+                      onChange={(field, value) => setNewEvent((current) => ({ ...current, [field]: value }))}
+                      onPosterChange={setNewPoster}
+                      posterFile={newPoster}
+                      posterUrl={DEFAULT_EVENT_POSTER_URL}
+                      values={newEvent}
+                    />
                     <button className="participation-button" disabled={actionMutation.isPending} type="submit">Event erstellen</button>
                   </form>
                 </div>
@@ -422,8 +525,8 @@ export default function EventManagerPage({ embedded = false }: { embedded?: bool
                   <label className="profile-field">
                     <span>Sortierung</span>
                     <select onChange={(event) => setSortDirection(event.target.value === "asc" ? "asc" : "desc")} value={sortDirection}>
-                      <option value="desc">Neueste zuerst</option>
-                      <option value="asc">Älteste zuerst</option>
+                      <option value="desc">Späteste zuerst</option>
+                      <option value="asc">Früheste zuerst</option>
                     </select>
                   </label>
                   <label className="manager-checkbox">
@@ -439,59 +542,90 @@ export default function EventManagerPage({ embedded = false }: { embedded?: bool
               ) : (
                 <div className="managed-event-list">
                   {visibleEvents.map((event) => (
-                    <article className={`managed-event-row${selectedEventId === event.id ? " managed-event-row--selected" : ""}`} key={event.id}>
-                      <button className="managed-event-row__select" onClick={() => setSelectedEventId(event.id)} type="button">
-                        <span className="managed-event-row__name">{event.name}</span>
-                        <span className="managed-event-row__meta">
-                          {formatOrganizerDate(event.date)} <span>·</span> {event.place || "Ort folgt"}
-                        </span>
-                      </button>
-                      {session.can_edit_events && (
-                        <button className="text-button" onClick={() => setSelectedEventId(event.id)} type="button">Bearbeiten</button>
+                    <Fragment key={event.id}>
+                      <article className={`managed-event-row${selectedEventId === event.id ? " managed-event-row--selected" : ""}`}>
+                        <button className="managed-event-row__select" onClick={() => setSelectedEventId(event.id)} type="button">
+                          <span className="managed-event-row__name">{event.name}</span>
+                          <span className="managed-event-row__meta">
+                            {formatOrganizerDate(event.date)} <span>·</span> {event.place || "Ort folgt"}
+                          </span>
+                        </button>
+                        {session.can_edit_events && (
+                          <button className="text-button" onClick={() => setSelectedEventId(event.id)} type="button">Bearbeiten</button>
+                        )}
+                        {session.can_delete_events && (
+                          <button
+                            className="text-button text-button--danger"
+                            onClick={() => {
+                              if (window.confirm(`„${event.name}“ wirklich löschen?`)) {
+                                const token = csrfToken();
+                                if (token) runAction(
+                                  () => deleteManagedEvent(event.id, token),
+                                  "Event wurde gelöscht.",
+                                  () => setSelectedEventId((selected) => selected === event.id ? null : selected),
+                                );
+                              }
+                            }}
+                            type="button"
+                          >Löschen</button>
+                        )}
+                      </article>
+
+                      {selectedEventId === event.id && session.can_edit_events && (
+                        <form className="organizer-panel organizer-panel__body organizer-edit-form organizer-edit-form--inline" onSubmit={(submitEvent) => {
+                          submitEvent.preventDefault();
+                          const posterError = posterValidationError(editPoster);
+                          if (posterError) {
+                            setError(posterError);
+                            return;
+                          }
+                          const token = csrfToken();
+                          if (!token) return;
+                          runAction(
+                            async () => {
+                              const updated = await updateManagedEvent(event.id, editEvent, token);
+                              if (!editPoster) return updated;
+                              try {
+                                const uploaded = await uploadManagedEventPoster(event.id, editPoster, token);
+                                setEditPoster(null);
+                                return uploaded;
+                              } catch (uploadError) {
+                                const detail = uploadError instanceof Error ? uploadError.message : "Unbekannter Fehler.";
+                                setError(`Die Eventdaten wurden gespeichert, aber das Bild konnte nicht hochgeladen werden: ${detail}`);
+                                return updated;
+                              }
+                            },
+                            "Eventänderungen wurden gespeichert.",
+                          );
+                        }}>
+                          <h3>Eventdaten</h3>
+                          <EventFields
+                            editing
+                            onChange={updateEventField}
+                            onPosterChange={setEditPoster}
+                            posterFile={editPoster}
+                            posterUrl={event.poster_url || DEFAULT_EVENT_POSTER_URL}
+                            values={editEvent}
+                          />
+                          <button className="participation-button" disabled={actionMutation.isPending} type="submit">Event speichern</button>
+                          <button className="text-button" onClick={() => setSelectedEventId(null)} type="button">Schließen</button>
+                        </form>
                       )}
-                      {session.can_delete_events && (
-                        <button
-                          className="text-button text-button--danger"
-                          onClick={() => {
-                            if (window.confirm(`„${event.name}“ wirklich löschen?`)) {
-                              const token = csrfToken();
-                              if (token) runAction(
-                                () => deleteManagedEvent(event.id, token),
-                                "Event wurde gelöscht.",
-                                () => setSelectedEventId((selected) => selected === event.id ? null : selected),
-                              );
-                            }
-                          }}
-                          type="button"
-                        >Löschen</button>
-                      )}
-                    </article>
+                    </Fragment>
                   ))}
                 </div>
               )}
             </section>
 
-            {selectedEvent && (
+            {selectedEvent && (session.can_manage_tasks || session.can_manage_shifts || session.can_manage_registration_options) && (
               <section aria-labelledby="selected-event-title" className="selected-event-panel">
-                <div className="participation-section__heading">
-                  <p className="eyebrow eyebrow--muted">EVENT-KONFIGURATION</p>
-                  <h2 id="selected-event-title">{selectedEvent.name}<span>.</span></h2>
+                <div className="participation-section__heading selected-event-panel__heading">
+                  <div>
+                    <p className="eyebrow eyebrow--muted">EVENT-KONFIGURATION</p>
+                    <h2 id="selected-event-title">{selectedEvent.name}<span>.</span></h2>
+                  </div>
+                  <button className="text-button" onClick={() => setSelectedEventId(null)} type="button">Details schließen</button>
                 </div>
-
-                {session.can_edit_events && (
-                  <form className="organizer-panel organizer-panel__body organizer-edit-form" onSubmit={(event) => {
-                    event.preventDefault();
-                    const token = csrfToken();
-                    if (token) runAction(
-                      () => updateManagedEvent(selectedEvent.id, editEvent, token),
-                      "Eventänderungen wurden gespeichert.",
-                    );
-                  }}>
-                    <h3>Eventdaten</h3>
-                    <EventFields editing onChange={updateEventField} values={editEvent} />
-                    <button className="participation-button" disabled={actionMutation.isPending} type="submit">Event speichern</button>
-                  </form>
-                )}
 
                 {session.can_manage_tasks && <OrganizerTaskManagerPage embedded eventId={selectedEvent.id} />}
 

@@ -17,6 +17,7 @@ from itsdangerous import BadSignature, SignatureExpired
 from database import Tables, init_database, init_roles, init_default_role
 from forms import Forms
 from permissions import *
+from Sections.EventPoster import event_poster_mimetype, find_event_poster
 
 #-----Load Sections-----
 
@@ -1056,13 +1057,17 @@ def location():
 
 @app.route('/static/images/eventposter/<filename>')
 def get_image(filename):
-    image_path = os.path.join(current_app.root_path, 'static', 'images', 'eventposter', filename)
+    image_path = find_event_poster(filename)
 
-    if os.path.exists(image_path):
-        return send_file(image_path)
-    else:
-        default_path = os.path.join(current_app.root_path, 'static', 'images', 'eventposter', 'default.jpg')
-        return send_file(default_path) 
+    if image_path:
+        response = send_file(image_path, mimetype=event_poster_mimetype(image_path), conditional=True)
+        response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        return response
+
+    default_path = os.path.join(current_app.root_path, 'static', 'images', 'eventposter', 'default.jpg')
+    response = send_file(default_path)
+    response.headers["Cache-Control"] = "public, max-age=3600"
+    return response
     
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
